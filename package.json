@@ -2,6 +2,7 @@
   "name": "demo-vc",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://vinnl.github.io/demo-vc/",
   "dependencies": {
     "@reach/router": "^1.2.1",
     "@solid/react": "^1.8.0",
