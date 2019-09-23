@@ -6,6 +6,7 @@ interface Props {
 };
 
 export const SignCredential: React.FC<Props> = (props) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [webId, setWebId] = React.useState('');
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {

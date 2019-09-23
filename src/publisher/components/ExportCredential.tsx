@@ -1,5 +1,4 @@
 import React from 'react';
-import { mockCredential } from './mockCredential';
 
 interface Props {
   credential: string;
