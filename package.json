@@ -21,6 +21,7 @@
     "react-scripts": "3.0.1",
     "solid-auth-client": "^2.3.1",
     "tripledoc": "^1.3.0",
+    "tripledoc-solid-helpers": "0.0.1-master-302462494-aa222de1",
     "typescript": "3.5.3"
   },
   "scripts": {
