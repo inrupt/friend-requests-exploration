@@ -10,7 +10,7 @@ export const Consumer: React.FC<Props> = (props) => {
       return <> hello {webIdProps.webID} </>;
     } else {
       return <ProviderLogin
-        callbackUri={window.location}
+        callbackUri={window.location.href}
       />;
     }
   });
