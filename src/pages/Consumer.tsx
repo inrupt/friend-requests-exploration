@@ -6,8 +6,9 @@ type Props = RouteComponentProps;
 
 export const Consumer: React.FC<Props> = (props) => {
   const MyComponent = withWebId((webIdProps:any) => {
-    if (webIdProps.webID) {
-      return <> hello {webIdProps.webID} </>;
+    console.log(webIdProps)
+    if (webIdProps.webId) {
+      return <> hello {webIdProps.webId} </>;
     } else {
       return <ProviderLogin
         callbackUri={window.location.href}
