@@ -2,6 +2,7 @@ import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { withWebId, ProviderLogin, LogoutButton } from '@inrupt/solid-react-components';
 import { fetchDocument } from 'tripledoc';
+import { ldp } from 'rdf-namespaces';
 
 type Props = RouteComponentProps;
 
