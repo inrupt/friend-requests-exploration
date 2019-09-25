@@ -16,7 +16,8 @@ export class CorroboratingEventForm extends React.Component {
   }
 
   handleSubmit(event: any) {
-    alert('A CE was submitted: ' + (this.state as any).value);
+    console.log('CE submitted:', (this.state as any).value);
+    alert('Corroborating Event accepted, thanks!');
     event.preventDefault();
   }
 
