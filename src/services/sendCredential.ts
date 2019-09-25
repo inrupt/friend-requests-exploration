@@ -12,11 +12,13 @@ export async function sendCredential(credential: string, webId: string): Promise
     return null;
   }
 
+  const proposedFilename = 'ce_' + Date.now();
   const response = await fetch(inbox, {
     body: credential,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      slug: proposedFilename,
     },
   });
 
