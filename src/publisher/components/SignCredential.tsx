@@ -2,18 +2,18 @@ import React from 'react';
 import { mockCredential } from './mockCredential';
 
 interface Props {
-  onSign: (signedCredential: string, subjectWebId: string) => Promise<void>;
+  onSign: (signedCredential: string, subjectWebId: string) => void;
 };
 
 export const SignCredential: React.FC<Props> = (props) => {
   const [webId, setWebId] = React.useState('');
   const [isProcessing, setIsProcessing] = React.useState(false);
 
-  const onSubmit = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = React.useCallback((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setIsProcessing(true);
-    props.onSign(mockCredential, webId).then(() => setIsProcessing(false));
+    props.onSign(mockCredential, webId);
   }, [props, webId]);
 
   const buttonClass = isProcessing ? 'button is-primary is-loading' : 'button is-primary';
