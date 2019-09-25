@@ -17,7 +17,7 @@ export async function sendCredential(credential: string, webId: string): Promise
     body: credential,
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'text/plain',
       slug: proposedFilename,
     },
   });
