@@ -21,7 +21,7 @@ export const SignCredential: React.FC<Props> = (props) => {
   return <>
     <form onSubmit={onSubmit}>
       <div className="field">
-        <label htmlFor="subject" className="label">Subject's WebID</label>
+        <label htmlFor="subject" className="label">WebID of Individual</label>
         <div className="control">
           <input
             type="url"
@@ -33,7 +33,7 @@ export const SignCredential: React.FC<Props> = (props) => {
       </div>
       <div className="field">
         <div className="control">
-          <button type="submit" className={buttonClass}>Sign</button>
+          <button type="submit" className={buttonClass}>Publish Corroborating Event</button>
         </div>
       </div>
     </form>

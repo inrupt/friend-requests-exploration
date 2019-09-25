@@ -23,23 +23,28 @@ export class CorroboratingEventForm extends React.Component {
 
   render() {
     return (
+
+
       <form onSubmit={this.handleSubmit}>
         <h1>
-          Verify Corroborating Event
+            Consuming a Corroborating Event
         </h1>
         <br/>
         <label>
           Select Corroborating Event Type:
         </label>
         <br/>
+
+
         <select id="ce-type" name="ce-type">
-        <option value="">--Please choose an option--</option>
-        <option value="utility-bill">Physical check of utility bill in branch</option>
-        <option value="delivery-receipt">Receipt of goods delivery</option>
+        <option value="">We accept Corroborating Events for Residential Address. What type of CE are you submitting?:</option>
+        <option value="utility-bill">Physical check of utility bill in a bank branch</option>
+            <option value="delivery-receipt">Drivers license</option>
+        <option value="delivery-receipt">Receipt for a delivery to the address</option>
         </select>
         <br/>
         <label>
-          Paste JSON here...
+          Paste Corroborating Event file content here...
           <br/>
           <textarea value={(this.state as any).value} onChange={this.handleChange} />
         </label>
