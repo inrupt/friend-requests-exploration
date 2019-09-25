@@ -17,7 +17,7 @@ async function getInboxItems(webId: string): Promise<Array<string>> {
   }
   const inboxDoc = await fetchDocument(inboxUri);
   const inboxThing = inboxDoc.getSubject('')
-  const items = inboxThing.getAllNodeRefs('http://www.w3.org/ns/ldp#contains')
+  const items = inboxThing.getAllNodeRefs(ldp.contains)
   return items
 }
 
