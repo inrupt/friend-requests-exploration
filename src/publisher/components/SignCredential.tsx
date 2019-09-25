@@ -2,18 +2,21 @@ import React from 'react';
 import { mockCredential } from './mockCredential';
 
 interface Props {
-  onSign: (signedCredential: string) => void;
+  onSign: (signedCredential: string, subjectWebId: string) => void;
 };
 
 export const SignCredential: React.FC<Props> = (props) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [webId, setWebId] = React.useState('');
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = React.useCallback((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    props.onSign(mockCredential);
-  };
+    setIsProcessing(true);
+    props.onSign(mockCredential, webId);
+  }, [props, webId]);
+
+  const buttonClass = isProcessing ? 'button is-primary is-loading' : 'button is-primary';
 
   return <>
     <form onSubmit={onSubmit}>
@@ -23,13 +26,14 @@ export const SignCredential: React.FC<Props> = (props) => {
           <input
             type="url"
             id="subject"
+            disabled={isProcessing}
             onChange={(event) => setWebId(event.target.value)}
           />
         </div>
       </div>
       <div className="field">
         <div className="control">
-          <button type="submit" className="button is-primary">Sign</button>
+          <button type="submit" className={buttonClass}>Sign</button>
         </div>
       </div>
     </form>
