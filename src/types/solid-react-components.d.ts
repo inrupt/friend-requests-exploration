@@ -1,0 +1,1 @@
+declare module '@inrupt/solid-react-components';
