@@ -22,35 +22,38 @@ export class CorroboratingEventForm extends React.Component {
   }
 
   render() {
-    return (
-
-
-      <form onSubmit={this.handleSubmit}>
-        <h1>
+    return <>
+      <section className="section">
+        <form onSubmit={this.handleSubmit}>
+          <div className="title">
             Consuming a Corroborating Event
-        </h1>
-        <br/>
-        <label>
-          Select Corroborating Event Type:
-        </label>
-        <br/>
-
-
-        <select id="ce-type" name="ce-type">
-        <option value="">We accept Corroborating Events for Residential Address. What type of CE are you submitting?:</option>
-        <option value="utility-bill">Physical check of utility bill in a bank branch</option>
-            <option value="delivery-receipt">Drivers license</option>
-        <option value="delivery-receipt">Receipt for a delivery to the address</option>
-        </select>
-        <br/>
-        <label>
-          Paste Corroborating Event file content here...
-          <br/>
-          <textarea value={(this.state as any).value} onChange={this.handleChange} />
-        </label>
-        <br/>
-        <input type="submit" value="Submit" />
-      </form>
-    );
+          </div>
+          <div className="field">
+            <label htmlFor="ce-type" className="label">
+              Select Corroborating Event Type:
+            </label>
+            <div className="control">
+              <select id="ce-type" name="ce-type">
+                <option value="">We accept Corroborating Events for Residential Address. What type of CE are you submitting?:</option>
+                <option value="utility-bill">Physical check of utility bill in a bank branch</option>
+                <option value="drivers-license">Drivers license</option>
+                <option value="delivery-receipt">Receipt for a delivery to the address</option>
+              </select>
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="te-paste" className="label">
+              Paste Corroborating Event file content here...
+            </label>
+            <textarea id="te-paste" value={(this.state as any).value} onChange={this.handleChange} />
+          </div>
+          <div className="field">
+            <div className="control">
+              <button className="button is-primary" type="submit">Submit Corroborating Event</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </>;
   }
 }
