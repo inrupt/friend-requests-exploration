@@ -5,5 +5,7 @@ import { CorroboratingEventForm } from '../consumer/components/CorroboratingEven
 type Props = RouteComponentProps;
 
 export const Consumer: React.FC<Props> = (props: any) => {
-  return <CorroboratingEventForm/>;
+  return <>
+    <CorroboratingEventForm/>
+  </>;
 };

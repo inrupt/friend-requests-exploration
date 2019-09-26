@@ -29,15 +29,28 @@ export class CorroboratingEventForm extends React.Component {
     const store = rdflib.graph();
     rdflib.parse((this.state as any).value, store, '', 'application/ld+json', () => {
       console.log('parsed!')
+      const titles = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#title'), null, null);
       const descriptions = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#description'), null, null);
+      const domains = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#domain'), null, null);
+      const issuers = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#issuerId'), null, null);
+      const subjects = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#subjectId'), null, null);
       if (descriptions.length) {
         console.log(descriptions[0].object.value);
         alert(`Corroborating Event accepted: "${descriptions[0].object.value}"`);
       } else {
         alert('Corroborating Event seems to be incorrect!');
       }
+      const newState = {
+        title: (titles.length ? titles[0].object.value : ''),
+        description: (descriptions.length ? descriptions[0].object.value : ''),
+        domain: (domains.length ? domains[0].object.value : ''),
+        issuer: (issuers.length ? issuers[0].object.value : ''),
+        subject: (subjects.length ? subjects[0].object.value : ''),
+      };
+      console.log('newState', newState)
+      this.setState(newState)
     });
-    
+  
     event.preventDefault();
   };
 
@@ -73,6 +86,13 @@ export class CorroboratingEventForm extends React.Component {
             </div>
           </div>
         </form>
+      </section>
+      <section>
+        <div className="panel"><b>Title:</b> {(this.state as any).title}</div>
+        <div className="panel"><b>Description:</b> {(this.state as any).description}</div>
+        <div className="panel"><b>Issuer:</b> {(this.state as any).issuer}</div>
+        <div className="panel"><b>Subject:</b> {(this.state as any).subject}</div>
+        <div className="panel"><b>Domain:</b> {(this.state as any).domain}</div>
       </section>
     </>;
   }

@@ -15,8 +15,8 @@ export const Home: React.FC<Props> = (props) => {
             written directly to an <b>Individual's</b> personal data store (<b>Solid Pod</b>).
         </div>
         <div className="panel">
-            Subsequently the Individual can provide the CE to an a <b>Consumer</b> who can verify that it
-            represents an <b>Identify Verifying Event</b>b>. A check of a drivers license in a Bank branch.
+            Subsequently the Individual can provide the CE to a <b>Consumer</b> who can verify that it
+            represents an <b>Identify Verifying Event</b>. A check of a drivers license in a Bank branch.
             They do so by providing the <b>URL</b> of the CE resource inside their Pod.
         </div>
         <div className="panel">
