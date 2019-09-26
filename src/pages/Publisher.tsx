@@ -38,7 +38,7 @@ export const Publisher: React.FC<Props> = (props) => {
 
         <div className="panel">
             The OIX Trusted Environment use case was based on sharing an evidence check for a Residential Address. An acceptable form of evidence, perhaps based
-            on <a target="_blank" href="https://www.gov.uk/government/publications/identity-proofing-and-verification-of-an-individual">UK GOV GPG 45</a>,would have been submitted and then a CE provided in return.
+            on <a target="_blank" rel="noopener noreferrer" href="https://www.gov.uk/government/publications/identity-proofing-and-verification-of-an-individual">UK GOV GPG 45</a>,would have been submitted and then a CE provided in return.
         </div>
 
         <div className="panel">
