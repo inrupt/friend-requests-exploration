@@ -1,4 +1,6 @@
 import React from "react";
+import * as rdflib from "rdflib";
+
 
 export class CorroboratingEventForm extends React.Component {
   constructor(props: any) {
@@ -17,9 +19,27 @@ export class CorroboratingEventForm extends React.Component {
 
   handleSubmit(event: any) {
     console.log('CE submitted:', (this.state as any).value);
-    alert('Corroborating Event accepted, thanks!');
+    let ceObj: any
+    try {
+      ceObj = JSON.parse((this.state as any).value)
+    } catch (e) {
+      alert('Corroborating Event body is not valid JSON?');
+      return;
+    }
+    const store = rdflib.graph();
+    rdflib.parse((this.state as any).value, store, '', 'application/ld+json', () => {
+      console.log('parsed!')
+      const descriptions = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#description'), null, null);
+      if (descriptions.length) {
+        console.log(descriptions[0].object.value);
+        alert(`Corroborating Event accepted: "${descriptions[0].object.value}"`);
+      } else {
+        alert('Corroborating Event seems to be incorrect!');
+      }
+    });
+    
     event.preventDefault();
-  }
+  };
 
   render() {
     return <>
