@@ -6,28 +6,55 @@ export class CorroboratingEventForm extends React.Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      value: ''
+      body: '',
+      url: ''
     };
 
-    this.handleChange = this.handleChange.bind(this);
+    this.handleTEChange = this.handleTEChange.bind(this);
+    this.handleUrlChange = this.handleUrlChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event: any) {
-    this.setState({value: event.target.value});
+  handleTEChange(event: any) {
+    this.setState({body: event.target.value});
+  }
+
+  handleUrlChange(event: any) {
+    console.log('url change', event)
+    this.setState({url: event.target.value});
   }
 
   handleSubmit(event: any) {
-    console.log('CE submitted:', (this.state as any).value);
-    let ceObj: any
-    try {
-      ceObj = JSON.parse((this.state as any).value)
-    } catch (e) {
-      alert('Corroborating Event body is not valid JSON?');
-      return;
+    event.preventDefault();
+    console.log('CE submitted - textarea content:', (this.state as any).value);
+    console.log('submit event', event)
+    if ((this.state as any).url) {
+      console.log('have url!', (this.state as any).url)
+      fetch((this.state as any).url).then((response) => {
+        return response.json();
+      }).then(objFetched => {
+        console.log('fetched!', objFetched)
+        this.displayCE(objFetched)
+      }).catch((e) => {
+        alert('Corroborating Event retrieved is not valid JSON?');
+      })
     }
+    if ((this.state as any).body) {
+      console.log('have body!', (this.state as any).body)
+      let ceObj: any
+      try {
+        ceObj = JSON.parse((this.state as any).value)
+      } catch (e) {
+        alert('Corroborating Event body is not valid JSON?');
+        return;
+      }
+      this.displayCE(ceObj)
+    }
+  }
+  displayCE(ceObj: any) {
+    console.log('displayCE', ceObj)
     const store = rdflib.graph();
-    rdflib.parse((this.state as any).value, store, '', 'application/ld+json', () => {
+    rdflib.parse(JSON.stringify(ceObj), store, '', 'application/ld+json', () => {
       console.log('parsed!')
       const titles = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#title'), null, null);
       const descriptions = store.statementsMatching(null, rdflib.sym('http://dig.csail.mit.edu/2018/svc#description'), null, null);
@@ -49,12 +76,12 @@ export class CorroboratingEventForm extends React.Component {
       };
       console.log('newState', newState)
       this.setState(newState)
+
     });
-  
-    event.preventDefault();
   };
 
   render() {
+    console.log(this.state)
     return <>
       <section className="section">
         <form onSubmit={this.handleSubmit}>
@@ -75,10 +102,16 @@ export class CorroboratingEventForm extends React.Component {
             </div>
           </div>
           <div className="field">
-            <label htmlFor="te-paste" className="label">
-              Paste Corroborating Event file content here...
+            <label htmlFor="ce-url" className="label">
+              URL of Corroborating Event:
             </label>
-            <textarea id="te-paste" value={(this.state as any).value} onChange={this.handleChange} />
+            <input id="ce-url" name="ce-url" value={(this.state as any).url} onChange={this.handleUrlChange} />
+          </div>
+          <div className="field">
+            <label htmlFor="te-paste" className="label">
+              Or paste it the file content here...
+            </label>
+            <textarea id="te-paste" value={(this.state as any).body} onChange={this.handleTEChange} />
           </div>
           <div className="field">
             <div className="control">
