@@ -2,6 +2,7 @@ import React from 'react';
 
 interface Props {
   credential: string;
+  webId: string;
 };
 
 export const Credential: React.FC<Props> = (props) => {
@@ -27,7 +28,7 @@ export const Credential: React.FC<Props> = (props) => {
       </div>
 
       <div className="panel">
-          This has also been written to the Inbox of the Individuals Pod at [WebId provided].
+          This has also been written to the Inbox of the Individual's Pod at <i>{props.webId}</i>.
       </div>
 
 

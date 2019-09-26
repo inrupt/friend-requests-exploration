@@ -18,7 +18,7 @@ export const Publisher: React.FC<Props> = (props) => {
   }, [credential]);
 
   const component = (sent && typeof credential !== 'undefined')
-    ? <Credential credential={credential.cred}/>
+    ? <Credential credential={credential.cred} webId={credential.webId}/>
     : <SignCredential onSign={(cred, webId) => setCredential({ cred, webId })}/>;
 
   return <>
