@@ -109,7 +109,7 @@ export class CorroboratingEventForm extends React.Component {
           </div>
           <div className="field">
             <label htmlFor="te-paste" className="label">
-              Or paste it the file content here...
+              Or paste the file content here...
             </label>
             <textarea id="te-paste" value={(this.state as any).body} onChange={this.handleTEChange} />
           </div>
