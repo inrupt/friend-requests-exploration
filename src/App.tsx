@@ -1,5 +1,5 @@
 import React from 'react';
-import { FriendList } from './components/FriendList';
+import { FriendLists } from './components/FriendLists';
 import { LoggedOut, LoginButton, LoggedIn } from '@solid/react';
 
 const App: React.FC = () => {
@@ -11,7 +11,7 @@ const App: React.FC = () => {
       </section>
     </LoggedOut>
     <LoggedIn>
-      <FriendList/>
+      <FriendLists/>
     </LoggedIn>
   </>;
 }
