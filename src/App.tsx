@@ -1,4 +1,5 @@
 import React from 'react';
+import { IncomingList } from './components/IncomingList';
 import { FriendList } from './components/FriendList';
 import { LoggedOut, LoginButton, LoggedIn } from '@solid/react';
 
@@ -11,6 +12,7 @@ const App: React.FC = () => {
       </section>
     </LoggedOut>
     <LoggedIn>
+      <IncomingList/>
       <FriendList/>
     </LoggedIn>
   </>;
