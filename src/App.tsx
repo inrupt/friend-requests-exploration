@@ -12,8 +12,12 @@ const App: React.FC = () => {
       </section>
     </LoggedOut>
     <LoggedIn>
-      <IncomingList/>
-      <FriendList/>
+      <div className="panel">
+        <IncomingList inboxUrl='[inbox url]' />
+      </div>
+      <div className="panel">
+         <FriendList/>
+      </div>
     </LoggedIn>
   </>;
 }
