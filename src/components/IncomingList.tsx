@@ -11,19 +11,39 @@ async function getInboxUrl(webId: string) {
   return inboxUrl;
 }
 
+async function getContainerItems(containerUrl: string) {
+  const containerDoc = await fetchDocument(containerUrl);
+  const containerNode = containerDoc.getSubject('');
+  const containerItemRefs = containerNode.getAllNodeRefs(ldp.contains);
+  const containedDocs = await Promise.all(containerItemRefs.map(nodeRef => {
+    return fetchDocument(nodeRef);
+  }))
+  return containedDocs;
+}
+
+async function getFriendRequestsFromInbox(webId: string) {
+  const inboxUrl = await getInboxUrl(webId);
+  if (!inboxUrl) {
+    return [];
+  }
+  const inboxItems = await getContainerItems(inboxUrl)
+  return []; // inboxItems;
+}
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
-  const [inboxUrl, setInboxUrl] = React.useState<string>();
+  const [friendRequests, setFriendRequests] = React.useState<Array<{ name: string, picture: string }>>();
   console.log('retrieving profile doc of', webId)
-  if (webId && !inboxUrl) {
-    getInboxUrl(webId).then(inboxUrl => {
-      console.log(inboxUrl)
-      if (inboxUrl) {
-        setInboxUrl(inboxUrl)
-      }
+  if (webId && !friendRequests) {
+    getFriendRequestsFromInbox(webId).then(friendRequests => {
+      console.log(friendRequests)
+      setFriendRequests(friendRequests)
     })
   }
   return <>
-    Incoming list will go here, will read from {inboxUrl}.
+    {friendRequests ?
+      friendRequests.map((item, index) => (
+        <li>friend request</li>
+      )
+    ) : 'Inbox zero :)'}
   </>;
 };
