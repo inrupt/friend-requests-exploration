@@ -11,20 +11,19 @@ async function getInboxUrl(webId: string) {
   return inboxUrl;
 }
 
-interface Props {
-  inboxUrl: string;
-};
-
-export const IncomingList: React.FC<Props> = (props) => {
+export const IncomingList: React.FC = () => {
   const webId = useWebId();
+  const [inboxUrl, setInboxUrl] = React.useState<string>();
   console.log('retrieving profile doc of', webId)
-  let inboxUrl = '[inbox url]'
-  if (webId && ! props.inboxUrl) {
+  if (webId && !inboxUrl) {
     getInboxUrl(webId).then(inboxUrl => {
-      console.log(inboxUrl, 'now what?')
+      console.log(inboxUrl)
+      if (inboxUrl) {
+        setInboxUrl(inboxUrl)
+      }
     })
   }
   return <>
-    Incoming list will go here, will read from {props.inboxUrl}.
+    Incoming list will go here, will read from {inboxUrl}.
   </>;
 };

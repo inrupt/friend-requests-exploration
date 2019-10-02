@@ -13,7 +13,7 @@ const App: React.FC = () => {
     </LoggedOut>
     <LoggedIn>
       <div className="panel">
-        <IncomingList inboxUrl='[inbox url]' />
+        <IncomingList/>
       </div>
       <div className="panel">
          <FriendList/>
