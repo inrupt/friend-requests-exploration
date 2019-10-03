@@ -31,13 +31,15 @@ async function getFriendRequestsFromInbox(webId: string) {
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
   const [friendRequests, setFriendRequests] = React.useState<Array<{ name: string, picture: string }>>();
-  console.log('retrieving profile doc of', webId)
-  if (webId && !friendRequests) {
-    getFriendRequestsFromInbox(webId).then(friendRequests => {
-      console.log(friendRequests)
-      setFriendRequests(friendRequests)
-    })
-  }
+
+  React.useEffect(() => {
+    if (webId) {
+      getFriendRequestsFromInbox(webId).then((friendRequests) => {
+        console.log('Fetched the following inbox items:', friendRequests);
+      })
+    }
+  }, [webId]);
+
   return <>
     {friendRequests ?
       friendRequests.map((item, index) => (
