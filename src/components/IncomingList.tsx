@@ -26,7 +26,7 @@ async function getFriendRequestsFromInbox(webId: string) {
     return [];
   }
   const inboxItems = await getContainerItems(inboxUrl)
-  return []; // inboxItems;
+  return inboxItems;
 }
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
