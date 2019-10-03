@@ -14,10 +14,14 @@ async function getContainerItems(containerUrl: string) {
   const containerDoc = await fetchDocument(containerUrl);
   const containerNode = containerDoc.getSubject('');
   const containerItemRefs = containerNode.getAllNodeRefs(ldp.contains);
-  const containedDocs = await Promise.all(containerItemRefs.map(nodeRef => {
-    return fetchDocument(nodeRef);
+  const containedDocs = await Promise.all(containerItemRefs.map(async (nodeRef) => {
+    try {
+      return await fetchDocument(nodeRef);
+    } catch(e) {
+      return null;
+    }
   }))
-  return containedDocs;
+  return containedDocs.filter((doc) => doc !== null);
 }
 
 async function getFriendRequestsFromInbox(webId: string) {
