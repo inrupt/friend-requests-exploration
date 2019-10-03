@@ -2,7 +2,6 @@ import React from 'react';
 import { useWebId } from '@solid/react';
 import { fetchDocument } from 'tripledoc';
 import { ldp } from 'rdf-namespaces';
-import { ProfessionalService } from 'rdf-namespaces/dist/schema';
 
 async function getInboxUrl(webId: string) {
   const profileDoc = await fetchDocument(webId)
