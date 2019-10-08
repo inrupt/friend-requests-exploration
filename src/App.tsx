@@ -1,6 +1,6 @@
 import React from 'react';
 import { IncomingList } from './components/IncomingList';
-import { FriendList } from './components/FriendList';
+import { FriendLists } from './components/FriendLists';
 import { LoggedOut, LoginButton, LoggedIn } from '@solid/react';
 
 const App: React.FC = () => {
@@ -16,7 +16,7 @@ const App: React.FC = () => {
         <IncomingList/>
       </div>
       <div className="panel">
-         <FriendList/>
+        <FriendLists/>
       </div>
     </LoggedIn>
   </>;
