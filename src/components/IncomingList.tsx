@@ -1,7 +1,7 @@
 import React from 'react';
 import { useWebId } from '@solid/react';
 import { fetchDocument } from 'tripledoc';
-import { ldp } from 'rdf-namespaces';
+import { ldp, schema } from 'rdf-namespaces';
 
 async function getInboxUrl(webId: string) {
   const profileDoc = await fetchDocument(webId)
@@ -10,7 +10,7 @@ async function getInboxUrl(webId: string) {
   return inboxUrl;
 }
 
-async function getContainerItems(containerUrl: string) {
+async function getContainerItems(containerUrl: string): Promise<string[]> {
   const containerDoc = await fetchDocument(containerUrl);
   const containerNode = containerDoc.getSubject('');
   const containerItemRefs = containerNode.getAllNodeRefs(ldp.contains);
@@ -21,7 +21,21 @@ async function getContainerItems(containerUrl: string) {
       return null;
     }
   }))
-  return containedDocs.filter((doc) => doc !== null);
+  const webIds: string[] = [];
+  containedDocs.forEach((doc) => {
+    if (doc !== null) {
+      const subjects = doc.getSubjectsOfType(schema.BefriendAction)
+      // console.log('got doc!', subjects, doc);
+      subjects.forEach((subject) => {
+        const agent = subject.getNodeRef(schema.agent);
+        // console.log('got subject!', subject, agent);
+        if (typeof agent === 'string') {
+          webIds.push(agent)
+        }
+      })
+    }
+  });
+  return webIds;
 }
 
 async function getFriendRequestsFromInbox(webId: string) {
