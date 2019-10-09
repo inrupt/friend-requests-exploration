@@ -1,7 +1,7 @@
 import React from 'react';
 import { useWebId } from '@solid/react';
 import { fetchDocument } from 'tripledoc';
-import { ldp, schema } from 'rdf-namespaces';
+import { ldp, schema, vcard } from 'rdf-namespaces';
 
 async function getInboxUrl(webId: string) {
   const profileDoc = await fetchDocument(webId)
@@ -37,6 +37,20 @@ async function getContainerItems(containerUrl: string): Promise<string[]> {
   });
   return webIds;
 }
+async function resolveWebId(webId: string): Promise<any> {
+  try {
+    console.log('fetching', webId)
+    const profileDoc = await fetchDocument(webId);
+    const sub = profileDoc.getSubject(webId)
+    const name = sub.getLiteral(vcard.fn)
+    const picture = sub.getNodeRef(vcard.hasPhoto)
+    console.log('fetched', webId, name, picture);
+    return { name, picture }
+  } catch (e) {
+    console.error('failed to fetch profile for friend request', webId);
+    return null;
+  }
+}
 
 async function getFriendRequestsFromInbox(webId: string) {
   const inboxUrl = await getInboxUrl(webId);
@@ -52,16 +66,41 @@ export const IncomingList: React.FC = () => {
 
   React.useEffect(() => {
     if (webId) {
-      getFriendRequestsFromInbox(webId).then((friendRequests) => {
-        console.log('Fetched the following inbox items:', friendRequests);
-      })
+      getFriendRequestsFromInbox(webId).then((friendRequestWebIds) => {
+        return Promise.all(friendRequestWebIds.map(async (webId) => {
+          const obj = await resolveWebId(webId).catch((err) => {
+            console.error('why did we catch this here and not inside resolveWebId?', err.message);
+          });
+          return obj;
+        }));
+      }).then((friendRequestObjs) => {
+        console.log('Fetched the following inbox items:', friendRequestObjs);
+        // FIXME: having a bit of a fight convincing TypeScript here
+        // that after filtering, obj.name and obj.picture are definitely strings:
+        const filtered: { name: string, picture: string}[] = [];
+        friendRequestObjs.map(obj => {
+          console.log('got requester profile', obj)
+          if ((!!obj.name) && (!!obj.picture)) {
+            filtered.push({
+              name: obj.name as string,
+              picture: obj.picture as string
+            });
+          }
+        });
+        setFriendRequests(filtered);
+      });
     }
   }, [webId]);
 
   return <>
     {friendRequests ?
       friendRequests.map((item, index) => (
-        <li>friend request</li>
+      <li>
+         Friend request from "{item.name}"
+         <img src={item.picture}/>
+         <button type="submit" className='button is-primary'>Accept</button>
+         <button type="submit" className='button is-warning'>Reject</button>
+      </li>
       )
     ) : 'Inbox zero :)'}
   </>;
