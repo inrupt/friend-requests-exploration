@@ -45,7 +45,7 @@ async function resolveWebId(webId: string): Promise<any> {
     const name = sub.getLiteral(vcard.fn)
     const picture = sub.getNodeRef(vcard.hasPhoto)
     console.log('fetched', webId, name, picture);
-    return { name, picture }
+    return { name, picture, webId }
   } catch (e) {
     console.error('failed to fetch profile for friend request', webId);
     return null;
@@ -60,9 +60,18 @@ async function getFriendRequestsFromInbox(webId: string) {
   const inboxItems = await getContainerItems(inboxUrl)
   return inboxItems;
 }
+
+function accept(webId: string) {
+  console.log('accept!', webId);
+}
+
+function reject(webId: string) {
+  console.log('reject!', webId);
+}
+
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
-  const [friendRequests, setFriendRequests] = React.useState<Array<{ name: string, picture: string }>>();
+  const [friendRequests, setFriendRequests] = React.useState<Array<{ name: string, picture: string, webId: string }>>();
 
   React.useEffect(() => {
     if (webId) {
@@ -77,13 +86,14 @@ export const IncomingList: React.FC = () => {
         console.log('Fetched the following inbox items:', friendRequestObjs);
         // FIXME: having a bit of a fight convincing TypeScript here
         // that after filtering, obj.name and obj.picture are definitely strings:
-        const filtered: { name: string, picture: string}[] = [];
+        const filtered: { name: string, picture: string, webId: string}[] = [];
         friendRequestObjs.map(obj => {
           console.log('got requester profile', obj)
           if ((!!obj.name) && (!!obj.picture)) {
             filtered.push({
               name: obj.name as string,
-              picture: obj.picture as string
+              picture: obj.picture as string,
+              webId: obj.webId as string,
             });
           }
         });
@@ -96,10 +106,13 @@ export const IncomingList: React.FC = () => {
     {friendRequests ?
       friendRequests.map((item, index) => (
       <li>
-         Friend request from "{item.name}"
-         <img src={item.picture}/>
-         <button type="submit" className='button is-primary'>Accept</button>
-         <button type="submit" className='button is-warning'>Reject</button>
+        <p>Friend request from "{item.name}"</p>
+        <figure className="image is-128x128">
+          <img src={item.picture}/>
+        </figure>
+        <input type="hidden" name="webId" value="{item.webId}"/>
+        <button type="submit" className='button is-primary' onClick={() => accept(item.webId)}>Accept</button>
+        <button type="submit" className='button is-warning' onClick={() => reject(item.webId)}>Reject</button>
       </li>
       )
     ) : 'Inbox zero :)'}
