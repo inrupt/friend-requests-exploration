@@ -1,0 +1,25 @@
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+
+<#owner>
+  a acl:Authorization;
+  accessTo: <./friends-list.ttl>;
+  acl:agent <https://alice.com/profile/card#me>;
+  acl:mode
+    acl:Read,
+    acl:Write,
+    acl:Control;
+  acl:origin <https://my-admin-app.com>.
+
+<#member>
+  a acl:Authorization;
+  accessTo: <./friends-list.ttl>;
+  acl:agentGroup <./friends-list.ttl#friends>;
+  acl:mode acl:Read;
+  acl:origin
+    <https://my-admin-app.com>,
+    <https://your-admin-app.com>,
+    <https://some-other-admin-app.com>.
+
+
+
+  
