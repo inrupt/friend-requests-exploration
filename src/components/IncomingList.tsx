@@ -1,8 +1,46 @@
 import React from 'react';
 import { useWebId } from '@solid/react';
-import { fetchDocument } from 'tripledoc';
+import { fetchDocument, TripleDocument } from 'tripledoc';
 import { ldp, schema, vcard } from 'rdf-namespaces';
 
+class FriendRequestData {
+  url: string
+  webId?: string
+  name?: string | null
+  picture?: string | null
+  constructor(url: string) {
+    this.url = url;
+  }
+  async fetchAndParse() {
+    const doc = await fetchDocument(this.url);
+    if (doc !== null) {
+      const subjects = doc.getSubjectsOfType(schema.BefriendAction)
+      subjects.forEach((subject) => {
+        const agent = subject.getNodeRef(schema.agent);
+        // console.log('got subject!', subject, agent);
+        if (typeof agent === 'string') {
+          this.webId = agent;
+        }
+      });
+    }
+  }
+  async fetchProfile() {
+    if (!this.webId) {
+      return;
+    }
+    try {
+      console.log('fetching', this.webId)
+      const profileDoc = await fetchDocument(this.webId);
+      const sub = profileDoc.getSubject(this.webId)
+      this.name = sub.getString(vcard.fn)
+      this.picture = sub.getNodeRef(vcard.hasPhoto)
+      console.log('fetched', this.webId, this.name, this.picture);
+    } catch (e) {
+      console.error('failed to fetch profile for friend request', this.webId);
+      return null;
+    }
+  }
+}
 async function getInboxUrl(webId: string) {
   const profileDoc = await fetchDocument(webId)
   const profile = profileDoc.getSubject(webId);
@@ -13,88 +51,43 @@ async function getInboxUrl(webId: string) {
 async function getContainerItems(containerUrl: string): Promise<string[]> {
   const containerDoc = await fetchDocument(containerUrl);
   const containerNode = containerDoc.getSubject('');
-  const containerItemRefs = containerNode.getAllNodeRefs(ldp.contains);
-  const containedDocs = await Promise.all(containerItemRefs.map(async (nodeRef) => {
-    try {
-      return await fetchDocument(nodeRef);
-    } catch(e) {
-      return null;
-    }
-  }))
-  const webIds: string[] = [];
-  containedDocs.forEach((doc) => {
-    if (doc !== null) {
-      const subjects = doc.getSubjectsOfType(schema.BefriendAction)
-      // console.log('got doc!', subjects, doc);
-      subjects.forEach((subject) => {
-        const agent = subject.getNodeRef(schema.agent);
-        // console.log('got subject!', subject, agent);
-        if (typeof agent === 'string') {
-          webIds.push(agent)
-        }
-      })
-    }
-  });
-  return webIds;
-}
-async function resolveWebId(webId: string): Promise<any> {
-  try {
-    console.log('fetching', webId)
-    const profileDoc = await fetchDocument(webId);
-    const sub = profileDoc.getSubject(webId)
-    const name = sub.getLiteral(vcard.fn)
-    const picture = sub.getNodeRef(vcard.hasPhoto)
-    console.log('fetched', webId, name, picture);
-    return { name, picture, webId }
-  } catch (e) {
-    console.error('failed to fetch profile for friend request', webId);
-    return null;
-  }
+  return containerNode.getAllNodeRefs(ldp.contains);
 }
 
-async function getFriendRequestsFromInbox(webId: string) {
+async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestData[]> {
   const inboxUrl = await getInboxUrl(webId);
   if (!inboxUrl) {
     return [];
   }
   const inboxItems = await getContainerItems(inboxUrl)
-  return inboxItems;
+  return Promise.all(inboxItems.map(async (url: string) => {
+    const obj = new FriendRequestData(url);
+    await obj.fetchAndParse();
+    await obj.fetchProfile();
+    return obj;
+  }));
 }
 
-function accept(webId: string) {
-  console.log('accept!', webId);
+function accept(obj: FriendRequestData) {
+  console.log('accept!', obj);
 }
 
-function reject(webId: string) {
-  console.log('reject!', webId);
+function reject(obj: FriendRequestData) {
+  console.log('reject!', obj);
 }
 
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
-  const [friendRequests, setFriendRequests] = React.useState<Array<{ name: string, picture: string, webId: string }>>();
+  const [friendRequests, setFriendRequests] = React.useState<Array<FriendRequestData>>();
 
   React.useEffect(() => {
     if (webId) {
-      getFriendRequestsFromInbox(webId).then((friendRequestWebIds) => {
-        return Promise.all(friendRequestWebIds.map(async (webId) => {
-          const obj = await resolveWebId(webId).catch((err) => {
-            console.error('why did we catch this here and not inside resolveWebId?', err.message);
-          });
-          return obj;
-        }));
-      }).then((friendRequestObjs) => {
-        console.log('Fetched the following inbox items:', friendRequestObjs);
-        // FIXME: having a bit of a fight convincing TypeScript here
-        // that after filtering, obj.name and obj.picture are definitely strings:
-        const filtered: { name: string, picture: string, webId: string}[] = [];
+      getFriendRequestsFromInbox(webId).then((friendRequestObjs) => {
+        let filtered: FriendRequestData[] = [];
         friendRequestObjs.map(obj => {
           console.log('got requester profile', obj)
-          if ((!!obj.name) && (!!obj.picture)) {
-            filtered.push({
-              name: obj.name as string,
-              picture: obj.picture as string,
-              webId: obj.webId as string,
-            });
+          if ((!!obj.name) && (!!obj.picture) && (!!obj.webId)) {
+            filtered.push(obj);
           }
         });
         setFriendRequests(filtered);
@@ -108,11 +101,11 @@ export const IncomingList: React.FC = () => {
       <li>
         <p>Friend request from "{item.name}"</p>
         <figure className="image is-128x128">
-          <img src={item.picture}/>
+          <img src={item.picture || ''}/>
         </figure>
         <input type="hidden" name="webId" value="{item.webId}"/>
-        <button type="submit" className='button is-primary' onClick={() => accept(item.webId)}>Accept</button>
-        <button type="submit" className='button is-warning' onClick={() => reject(item.webId)}>Reject</button>
+        <button type="submit" className='button is-primary' onClick={() => accept(item)}>Accept</button>
+        <button type="submit" className='button is-warning' onClick={() => reject(item)}>Reject</button>
       </li>
       )
     ) : 'Inbox zero :)'}
