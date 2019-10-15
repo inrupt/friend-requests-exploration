@@ -136,7 +136,7 @@ export const IncomingList: React.FC = () => {
       })
     }
   }, [friendRequestsToAccept]);
-  
+
   function queueRejection(obj: FriendRequestData) {
     setFriendRequestsToReject((arr) => arr.concat(obj));
   }
@@ -168,7 +168,7 @@ export const IncomingList: React.FC = () => {
   React.useEffect(updateListSync, [webId]);
 
   return <>
-    {friendRequests ? 
+    {friendRequests ?
       (friendRequests.length ?
         friendRequests.map((item, index) => (
         <li key={item.url}>
