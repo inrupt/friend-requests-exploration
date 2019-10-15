@@ -24,7 +24,7 @@ export const FriendLists: React.FC = () => {
 
   if (!friendLists) {
     return <>
-      Loading&hellip;
+      Loading friends list&hellip;
     </>;
   }
 

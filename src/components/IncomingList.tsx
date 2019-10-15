@@ -19,7 +19,6 @@ class FriendRequestData {
       const subjects = doc.getSubjectsOfType(schema.BefriendAction)
       subjects.forEach((subject) => {
         const agent = subject.getNodeRef(schema.agent);
-        // console.log('got subject!', subject, agent);
         if (typeof agent === 'string') {
           this.webId = agent;
         }
@@ -31,12 +30,10 @@ class FriendRequestData {
       return;
     }
     try {
-      console.log('fetching', this.webId)
       const profileDoc = await fetchDocument(this.webId);
       const sub = profileDoc.getSubject(this.webId)
       this.name = sub.getString(vcard.fn)
       this.picture = sub.getNodeRef(vcard.hasPhoto)
-      console.log('fetched', this.webId, this.name, this.picture);
     } catch (e) {
       console.error('failed to fetch profile for friend request', this.webId);
       return null;
@@ -71,6 +68,9 @@ async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestD
 }
 
 async function removeRemoteDoc(url: string) {
+  // FIXME: this does not force rdflib.js to
+  // delete its copy of the doc, or of the
+  // container doc.
   await SolidAuth.fetch(url, {
     method: 'DELETE'
   });
@@ -96,48 +96,64 @@ async function addFriend(webId: string) {
   groups.forEach((group: TripleSubject) => {
     const groupName = group.getString(vcard.fn);
     if (groupName === 'Friends') {
-      console.log('friends group found');
       group.addNodeRef(vcard.hasMember, webId);
       found = true;
-    } else {
-      console.log('irrelevant group', groupName);
     }
   });
   if (!found) {
     throw new Error('you have an addressbook but no Friends group!');
   }
-  console.log('saving');
   await addressBookDocument.save();
-  console.log('saved');
 }
 
 async function accept(obj: FriendRequestData) {
-  console.log('accept!', obj);
   if (!obj.webId) {
     throw new Error('webId unknown from friend request!')
   }
   await addFriend(obj.webId);
   await removeFriendRequest(obj);
-  // await updateList();
 }
 
 async function reject(obj: FriendRequestData) {
-  console.log('reject!', obj);
   await removeFriendRequest(obj);
-  // await updateList();
 }
 
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
   const [friendRequests, setFriendRequests] = React.useState<Array<FriendRequestData>>();
+  const [friendRequestsToAccept, setFriendRequestsToAccept] = React.useState<Array<FriendRequestData>>([]);
+  const [friendRequestsToReject, setFriendRequestsToReject] = React.useState<Array<FriendRequestData>>([]);
 
-  // setting this now setFriendRequests is available:
+  function queueAcceptation(obj: FriendRequestData) {
+    setFriendRequestsToAccept((arr) => arr.concat(obj));
+  }
+
   React.useEffect(() => {
+    if (friendRequestsToAccept.length) {
+      Promise.all(friendRequestsToAccept.map((item) => accept(item))).then(() => {
+        setFriendRequestsToAccept([]);
+        updateList();
+      })
+    }
+  }, [friendRequestsToAccept]);
+  
+  function queueRejection(obj: FriendRequestData) {
+    setFriendRequestsToReject((arr) => arr.concat(obj));
+  }
+  React.useEffect(() => {
+    if (friendRequestsToReject.length) {
+      Promise.all(friendRequestsToReject.map((item) => reject(item))).then(() => {
+        setFriendRequestsToReject([]);
+        updateList();
+      })
+    }
+  }, [friendRequestsToReject]);
+
+  async function updateList () {
     if (webId) {
-      getFriendRequestsFromInbox(webId).then((friendRequestObjs) => {
+      await getFriendRequestsFromInbox(webId).then((friendRequestObjs) => {
         let filtered: FriendRequestData[] = [];
         friendRequestObjs.forEach(obj => {
-          console.log('got requester profile', obj)
           if ((!!obj.name) && (!!obj.picture) && (!!obj.webId)) {
             filtered.push(obj);
           }
@@ -145,21 +161,26 @@ export const IncomingList: React.FC = () => {
         setFriendRequests(filtered);
       });
     }
-  }, [webId]);
+  };
+  function updateListSync() {
+    updateList();
+  }
+  React.useEffect(updateListSync, [webId]);
 
   return <>
-    {friendRequests ?
-      friendRequests.map((item, index) => (
-      <li>
-        <p>Friend request from "{item.name}"</p>
-        <figure className="image is-128x128">
-          <img src={item.picture || ''}/>
-        </figure>
-        <input type="hidden" name="webId" value="{item.webId}"/>
-        <button type="submit" className='button is-primary' onClick={() => accept(item)}>Accept</button>
-        <button type="submit" className='button is-warning' onClick={() => reject(item)}>Reject</button>
-      </li>
-      )
-    ) : 'Inbox zero :)'}
+    {friendRequests ? 
+      (friendRequests.length ?
+        friendRequests.map((item, index) => (
+        <li key={item.url}>
+          <p>Friend request from "{item.name}"</p>
+          <figure className="image is-128x128">
+            <img src={item.picture || ''}/>
+          </figure>
+          <input type="hidden" name="webId" value="{item.webId}"/>
+          <button type="submit" className='button is-primary' onClick={() => queueAcceptation(item)}>Accept</button>
+          <button type="submit" className='button is-warning' onClick={() => queueRejection(item)}>Reject</button>
+        </li>
+        )) : 'Inbox zero :)'
+      ) : 'Loading friend requests ...'}
   </>;
 };
