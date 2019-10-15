@@ -1,7 +1,9 @@
 import React from 'react';
 import { useWebId } from '@solid/react';
-import { fetchDocument, TripleDocument } from 'tripledoc';
+import { fetchDocument, TripleSubject } from 'tripledoc';
 import { ldp, schema, vcard } from 'rdf-namespaces';
+import SolidAuth from 'solid-auth-client';
+import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 
 class FriendRequestData {
   url: string
@@ -68,23 +70,73 @@ async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestD
   }));
 }
 
-function accept(obj: FriendRequestData) {
-  console.log('accept!', obj);
+async function removeRemoteDoc(url: string) {
+  await SolidAuth.fetch(url, {
+    method: 'DELETE'
+  });
 }
 
-function reject(obj: FriendRequestData) {
+async function removeFriendRequest(obj: FriendRequestData) {
+  await removeRemoteDoc(obj.url)
+}
+
+async function addFriend(webId: string) {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession || !currentSession.webId) {
+    throw new Error('cannot add friend, you are not logged in!');
+  }
+
+  // Find a Document that lists vcard:Individual's
+  const addressBookDocument = await fetchDocumentForClass(vcard.Individual);
+  if (!addressBookDocument) {
+    throw new Error('cannot add friend, you do not have a Friends addressbook yet!');
+  }
+  const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
+  let found = false;
+  groups.forEach((group: TripleSubject) => {
+    const groupName = group.getString(vcard.fn);
+    if (groupName === 'Friends') {
+      console.log('friends group found');
+      group.addNodeRef(vcard.hasMember, webId);
+      found = true;
+    } else {
+      console.log('irrelevant group', groupName);
+    }
+  });
+  if (!found) {
+    throw new Error('you have an addressbook but no Friends group!');
+  }
+  console.log('saving');
+  await addressBookDocument.save();
+  console.log('saved');
+}
+
+async function accept(obj: FriendRequestData) {
+  console.log('accept!', obj);
+  if (!obj.webId) {
+    throw new Error('webId unknown from friend request!')
+  }
+  await addFriend(obj.webId);
+  await removeFriendRequest(obj);
+  // await updateList();
+}
+
+async function reject(obj: FriendRequestData) {
   console.log('reject!', obj);
+  await removeFriendRequest(obj);
+  // await updateList();
 }
 
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
   const [friendRequests, setFriendRequests] = React.useState<Array<FriendRequestData>>();
 
+  // setting this now setFriendRequests is available:
   React.useEffect(() => {
     if (webId) {
       getFriendRequestsFromInbox(webId).then((friendRequestObjs) => {
         let filtered: FriendRequestData[] = [];
-        friendRequestObjs.map(obj => {
+        friendRequestObjs.forEach(obj => {
           console.log('got requester profile', obj)
           if ((!!obj.name) && (!!obj.picture) && (!!obj.webId)) {
             filtered.push(obj);
