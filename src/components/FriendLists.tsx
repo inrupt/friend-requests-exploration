@@ -28,7 +28,8 @@ export const FriendLists: React.FC = () => {
     </>;
   }
 
-  const friendListElements = friendLists.map((friendlist, i) => <Friendlist key={'friendlist' + i} friendlist={friendlist}/>);
+  const friendListElements = friendLists.map(
+    (friendlist, i) => <Friendlist key={'friendlist' + i} friendlist={friendlist}/>);
 
   return <>
     <section className="section">
