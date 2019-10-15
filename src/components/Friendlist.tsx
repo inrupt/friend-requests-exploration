@@ -1,7 +1,7 @@
 import React from 'react';
 import { TripleSubject } from 'tripledoc';
 import { vcard } from 'rdf-namespaces';
-import { FriendSelecter } from './FriendSelecter';
+import { FriendSelector } from './FriendSelector';
 import { Friend } from './Friend';
 
 interface Props {
@@ -48,7 +48,7 @@ export const Friendlist: React.FC<Props> = (props) => {
       {friendElements}
     </section>
     <section className="section">
-      <FriendSelecter onSelect={onAddFriend}/>
+      <FriendSelector onSelect={onAddFriend}/>
     </section>
   </>;
 };

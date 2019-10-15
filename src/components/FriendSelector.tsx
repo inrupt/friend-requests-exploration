@@ -4,7 +4,7 @@ interface Props {
   onSelect: (webId: string) => void;
 };
 
-export const FriendSelecter: React.FC<Props> = (props) => {
+export const FriendSelector: React.FC<Props> = (props) => {
   const [webId, setWebId] = React.useState('');
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
