@@ -3,7 +3,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from 'react-router-dom';
 import { IncomingList } from './components/IncomingList';
 import { FriendLists } from './components/FriendLists';
