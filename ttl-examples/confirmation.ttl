@@ -1,0 +1,6 @@
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+
+<https://bob.com/social/friends-list.ttl>
+  vcard:hasMember <https://alice.com/profile/card#me> .
+
+

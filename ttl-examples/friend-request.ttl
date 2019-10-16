@@ -1,0 +1,3 @@
+@prefix schema: <http://schema.org/> .
+<> a schema:BefriendAction ;
+   schema:agent <https://alice.com/profile/card#me> .

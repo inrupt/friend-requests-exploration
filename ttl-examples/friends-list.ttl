@@ -1,0 +1,7 @@
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+
+<#friends>
+  a vcard:Group;
+  vcard:fn "Friends of Alice";
+  vcard:hasMember <https://james.com/profile/card#me> ;
+  vcard:hasMember <https://bob.com/profile/card#me> .
