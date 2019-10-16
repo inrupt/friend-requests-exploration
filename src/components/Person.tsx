@@ -6,7 +6,7 @@ interface Props {
   webId: string;
 };
 
-export const Friend: React.FC<Props> = (props) => {
+export const Person: React.FC<Props> = (props) => {
   const [friendSubject, setFriendSubject] = React.useState();
 
   React.useEffect(() => {
@@ -20,11 +20,7 @@ export const Friend: React.FC<Props> = (props) => {
     : <code>{props.webId}</code>;
 
   return <>
-    <div className="card">
-      <div className="section">
-        {profile}
-      </div>
-    </div>
+    {profile}
   </>;
 };
 
