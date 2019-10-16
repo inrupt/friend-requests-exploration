@@ -16,13 +16,16 @@ class FriendRequestData {
   async fetchAndParse() {
     const doc = await fetchDocument(this.url);
     if (doc !== null) {
-      const subjects = doc.getSubjectsOfType(schema.BefriendAction)
-      subjects.forEach((subject) => {
-        const agent = subject.getNodeRef(schema.agent);
-        if (typeof agent === 'string') {
-          this.webId = agent;
-        }
-      });
+      const subjects = doc.getSubjectsOfType(schema.BefriendAction);
+      if (subjects.length === 0) {
+        // inbox item does not contain a schema.BefriendAction
+        return;
+      }
+      if (subjects.length > 1) {
+        console.warn(`Notification contains ${subjects.length} schema.BefriendActions, only first one used.`);
+      }
+      const subjectToUse: TripleSubject = subjects[0];
+      this.webId = subjectToUse.getNodeRef(schema.agent) || undefined;
     }
   }
   async fetchProfile() {
