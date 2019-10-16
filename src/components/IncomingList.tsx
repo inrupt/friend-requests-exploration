@@ -96,16 +96,14 @@ async function addFriend(webId: string) {
   }
   const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
   let found = false;
-  groups.forEach((group: TripleSubject) => {
+  const friendsGroup = groups.find((group: TripleSubject) => {
     const groupName = group.getString(vcard.fn);
-    if (groupName === 'Friends') {
-      group.addNodeRef(vcard.hasMember, webId);
-      found = true;
-    }
+    return (groupName === 'Friends');
   });
-  if (!found) {
+  if (!friendsGroup) {
     throw new Error('you have an addressbook but no Friends group!');
   }
+  friendsGroup.addNodeRef(vcard.hasMember, webId);
   await addressBookDocument.save();
 }
 
