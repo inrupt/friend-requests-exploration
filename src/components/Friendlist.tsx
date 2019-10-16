@@ -3,10 +3,23 @@ import { TripleSubject } from 'tripledoc';
 import { vcard } from 'rdf-namespaces';
 import { FriendSelector } from './FriendSelector';
 import { Friend } from './Friend';
+import SolidAuth from 'solid-auth-client';
+import { getInboxUrl } from './IncomingList'
 
 interface Props {
   friendlist: TripleSubject;
 };
+
+async function sendFriendRequest(webId: string) {
+  const inboxUrl = await getInboxUrl(webId);
+  if (!inboxUrl) {
+    throw new Error('friend has no inbox?');
+  }
+  SolidAuth.fetch(inboxUrl, {
+    method: 'POST',
+    body: '(todo)'
+  });
+}
 
 export const Friendlist: React.FC<Props> = (props) => {
   const [addedFriends, setAddedFriends] = React.useState<string[]>([]);
@@ -19,6 +32,9 @@ export const Friendlist: React.FC<Props> = (props) => {
     }
     friendsToAdd.forEach((friend) => {
       props.friendlist.addNodeRef(vcard.hasMember, friend);
+      sendFriendRequest(friend).then(() => {
+        console.log('Friend request sent', friend);
+      });
     });
     props.friendlist.getDocument().save().then(() => {
       setStoredFriends(friends => friends.concat(friendsToAdd));
