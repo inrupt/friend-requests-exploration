@@ -139,7 +139,7 @@ export const IncomingList: React.FC = () => {
         setFriendRequestsToAccept([]);
         flushStore();
         updateList();
-        // window.location.href = '';
+        window.location.href = '';
       })
     }
   }, [friendRequestsToAccept]);
@@ -153,7 +153,7 @@ export const IncomingList: React.FC = () => {
         setFriendRequestsToReject([]);
         flushStore();
         updateList();
-        // window.location.href = '';
+        window.location.href = '';
       })
     }
   }, [friendRequestsToReject]);

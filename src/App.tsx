@@ -19,7 +19,10 @@ const App: React.FC = () => {
         </section>
       </LoggedOut>
       <LoggedIn>
-        <div>Logged in as {useWebId()}</div><LogoutButton className="button is-warning is-large" />
+        <div className="panel">
+          Logged in as {useWebId()}.&nbsp;
+          <LogoutButton className="button is-warning" />
+        </div>
         <Switch>
           <Route path="/profile/:webId">
             <Profile/>
