@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import { TripleDocument, NodeRef } from 'tripledoc';
+import { NodeRef } from 'tripledoc';
 import { getFriendListsForWebId } from '../services/getFriendListForWebId';
 import { Person } from './Person';
 

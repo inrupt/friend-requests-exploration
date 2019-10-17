@@ -5,7 +5,6 @@ import { FriendSelector } from './FriendSelector';
 import SolidAuth from 'solid-auth-client';
 import { getInboxUrl } from './IncomingList'
 import { Person } from './Person';
-import { useWebId } from '@solid/react';
 
 interface Props {
   friendlist: TripleSubject;

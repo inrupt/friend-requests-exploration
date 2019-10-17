@@ -1,6 +1,6 @@
 import React from 'react';
 import { useWebId } from '@solid/react';
-import { fetchDocument, TripleSubject } from 'tripledoc';
+import { fetchDocument, TripleSubject, flushStore } from 'tripledoc';
 import { ldp, schema, vcard } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
@@ -96,7 +96,6 @@ async function addFriend(webId: string) {
     throw new Error('cannot add friend, you do not have a Friends addressbook yet!');
   }
   const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
-  let found = false;
   const friendsGroup = groups.find((group: TripleSubject) => {
     const groupName = group.getString(vcard.fn);
     return (groupName === 'Friends');
@@ -134,10 +133,12 @@ export const IncomingList: React.FC = () => {
     if (friendRequestsToAccept.length) {
       Promise.all(friendRequestsToAccept.map((item) => accept(item))).then(() => {
         setFriendRequestsToAccept([]);
+        flushStore();
         updateList();
+        // window.location.href = '';
       })
     }
-  }, [friendRequestsToAccept]);
+  }, [friendRequestsToAccept, updateList]);
 
   function queueRejection(obj: FriendRequestData) {
     setFriendRequestsToReject((arr) => arr.concat(obj));
@@ -146,10 +147,12 @@ export const IncomingList: React.FC = () => {
     if (friendRequestsToReject.length) {
       Promise.all(friendRequestsToReject.map((item) => reject(item))).then(() => {
         setFriendRequestsToReject([]);
+        flushStore();
         updateList();
+        // window.location.href = '';
       })
     }
-  }, [friendRequestsToReject]);
+  }, [friendRequestsToReject, updateList]);
 
   async function updateList () {
     if (webId) {
