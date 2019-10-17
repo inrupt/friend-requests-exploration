@@ -1,6 +1,7 @@
 import React from 'react';
 import { fetchDocument, TripleSubject } from 'tripledoc';
 import { foaf, vcard } from 'rdf-namespaces';
+import { Link } from 'react-router-dom';
 
 interface Props {
   webId: string;
@@ -43,7 +44,12 @@ const Profile: React.FC<{ subject: TripleSubject }> = (props) => {
       {photo}
       <div className="media-content">
         <p className="content">
-          {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+          <Link
+            to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
+            title="View this person's friends"
+          >
+            {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+          </Link>
         </p>
       </div>
     </div>
