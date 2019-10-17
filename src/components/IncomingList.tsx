@@ -43,7 +43,8 @@ class FriendRequestData {
     }
   }
 }
-async function getInboxUrl(webId: string) {
+
+export async function getInboxUrl(webId: string) {
   const profileDoc = await fetchDocument(webId)
   const profile = profileDoc.getSubject(webId);
   const inboxUrl = profile.getNodeRef(ldp.inbox);

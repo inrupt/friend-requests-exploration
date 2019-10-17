@@ -2,11 +2,34 @@ import React from 'react';
 import { TripleSubject } from 'tripledoc';
 import { vcard } from 'rdf-namespaces';
 import { FriendSelector } from './FriendSelector';
+import SolidAuth from 'solid-auth-client';
+import { getInboxUrl } from './IncomingList'
 import { Person } from './Person';
+import { useWebId } from '@solid/react';
 
 interface Props {
   friendlist: TripleSubject;
 };
+
+async function sendFriendRequest(recipient: string) {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession || !currentSession.webId) {
+    return null;
+  }
+  const inboxUrl = await getInboxUrl(recipient);
+  if (!inboxUrl) {
+    throw new Error('friend has no inbox?');
+  }
+  SolidAuth.fetch(inboxUrl, {
+    method: 'POST',
+    body: `@prefix schema: <http://schema.org/> .
+    <> a schema:BefriendAction ;
+       schema:agent <${currentSession.webId}> .`,
+    headers: {
+      'Content-Type': 'text/turtle'
+    }
+  });
+}
 
 export const Friendlist: React.FC<Props> = (props) => {
   const [addedFriends, setAddedFriends] = React.useState<string[]>([]);
@@ -19,6 +42,9 @@ export const Friendlist: React.FC<Props> = (props) => {
     }
     friendsToAdd.forEach((friend) => {
       props.friendlist.addNodeRef(vcard.hasMember, friend);
+      sendFriendRequest(friend).then(() => {
+        console.log('Friend request sent', friend);
+      });
     });
     props.friendlist.getDocument().save().then(() => {
       setStoredFriends(friends => friends.concat(friendsToAdd));
