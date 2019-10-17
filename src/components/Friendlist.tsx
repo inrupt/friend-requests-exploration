@@ -2,7 +2,7 @@ import React from 'react';
 import { TripleSubject } from 'tripledoc';
 import { vcard } from 'rdf-namespaces';
 import { FriendSelector } from './FriendSelector';
-import { Friend } from './Friend';
+import { Person } from './Person';
 
 interface Props {
   friendlist: TripleSubject;
@@ -29,7 +29,7 @@ export const Friendlist: React.FC<Props> = (props) => {
   const friendElements = React.useMemo(() => {
     return (friends.length === 0)
       ? <p>You have not added any friends yet :(</p>
-      : friends.map((webId) => <Friend key={webId} webId={webId}/>)
+      : friends.map(getPersonCard)
       // We want to re-run this when `storedFriends` changes,
       // because `getAllNodeRefs` will then report new values,
       // even though it's still the same instance (i.e. it's not immutable):
@@ -52,3 +52,13 @@ export const Friendlist: React.FC<Props> = (props) => {
     </section>
   </>;
 };
+
+function getPersonCard(webId: string): React.ReactElement {
+  return <>
+    <div key={webId} className="card">
+      <div className="section">
+        <Person webId={webId}/>
+      </div>
+    </div>
+  </>;
+}
