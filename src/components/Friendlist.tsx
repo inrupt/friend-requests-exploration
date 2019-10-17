@@ -2,23 +2,32 @@ import React from 'react';
 import { TripleSubject } from 'tripledoc';
 import { vcard } from 'rdf-namespaces';
 import { FriendSelector } from './FriendSelector';
-import { Friend } from './Friend';
 import SolidAuth from 'solid-auth-client';
 import { getInboxUrl } from './IncomingList'
 import { Person } from './Person';
+import { useWebId } from '@solid/react';
 
 interface Props {
   friendlist: TripleSubject;
 };
 
-async function sendFriendRequest(webId: string) {
-  const inboxUrl = await getInboxUrl(webId);
+async function sendFriendRequest(recipient: string) {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession || !currentSession.webId) {
+    return null;
+  }
+  const inboxUrl = await getInboxUrl(recipient);
   if (!inboxUrl) {
     throw new Error('friend has no inbox?');
   }
   SolidAuth.fetch(inboxUrl, {
     method: 'POST',
-    body: '(todo)'
+    body: `@prefix schema: <http://schema.org/> .
+    <> a schema:BefriendAction ;
+       schema:agent <${currentSession.webId}> .`,
+    headers: {
+      'Content-Type': 'text/turtle'
+    }
   });
 }
 
