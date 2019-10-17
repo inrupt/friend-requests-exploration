@@ -4,6 +4,7 @@ import { fetchDocument, TripleSubject, flushStore } from 'tripledoc';
 import { ldp, schema, vcard } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
+import { objectMethod } from '@babel/types';
 
 class FriendRequestData {
   url: string
@@ -65,8 +66,11 @@ async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestD
   const inboxItems = await getContainerItems(inboxUrl)
   return Promise.all(inboxItems.map(async (url: string) => {
     const obj = new FriendRequestData(url);
+    console.log('step 1', obj);
     await obj.fetchAndParse();
+    console.log('step 2', obj);
     await obj.fetchProfile();
+    console.log('step 3', obj);
     return obj;
   }));
 }
@@ -138,7 +142,7 @@ export const IncomingList: React.FC = () => {
         // window.location.href = '';
       })
     }
-  }, [friendRequestsToAccept, updateList]);
+  }, [friendRequestsToAccept]);
 
   function queueRejection(obj: FriendRequestData) {
     setFriendRequestsToReject((arr) => arr.concat(obj));
@@ -152,14 +156,20 @@ export const IncomingList: React.FC = () => {
         // window.location.href = '';
       })
     }
-  }, [friendRequestsToReject, updateList]);
+  }, [friendRequestsToReject]);
 
   async function updateList () {
     if (webId) {
       await getFriendRequestsFromInbox(webId).then((friendRequestObjs) => {
         let filtered: FriendRequestData[] = [];
         friendRequestObjs.forEach(obj => {
-          if ((!!obj.name) && (!!obj.picture) && (!!obj.webId)) {
+          if (!!obj.webId) {
+            if (!obj.name) {
+              obj.name = obj.webId;
+            }
+            if (!obj.picture) {
+              obj.picture = 'https://melvincarvalho.github.io/solid-profile/images/profile.png'
+            }
             filtered.push(obj);
           }
         });

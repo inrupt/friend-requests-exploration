@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import { IncomingList } from './components/IncomingList';
 import { FriendLists } from './components/FriendLists';
-import { LoggedOut, LoginButton, LoggedIn } from '@solid/react';
+import { LoggedOut, LoginButton, LoggedIn, LogoutButton, useWebId } from '@solid/react';
 import { Profile } from './components/Profile';
 
 const App: React.FC = () => {
@@ -19,6 +19,7 @@ const App: React.FC = () => {
         </section>
       </LoggedOut>
       <LoggedIn>
+        <div>Logged in as {useWebId()}</div><LogoutButton className="button is-warning is-large" />
         <Switch>
           <Route path="/profile/:webId">
             <Profile/>
