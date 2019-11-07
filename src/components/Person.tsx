@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { fetchDocument, TripleSubject } from 'tripledoc';
 import { foaf, vcard } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
+import { useWebId } from '@solid/react';
+import { getFriendListsForWebId, AddressBook } from '../services/getFriendListForWebId';
+import { getFriendRequestsFromInbox, PersonData } from './IncomingList';
+import { getFriendLists } from '../services/getFriendList';
+import { sendFriendRequest } from './Friendlist';
 
 interface Props {
   webId: string;
@@ -16,17 +21,116 @@ export const Person: React.FC<Props> = (props) => {
     });
   }, [props.webId]);
 
-  const profile = (friendSubject)
-    ? <Profile subject={friendSubject}/>
+  const personView = (friendSubject)
+    ? <PersonView subject={friendSubject}/>
     : <code>{props.webId}</code>;
 
   return <>
-    {profile}
+    {personView}
   </>;
 };
 
-const Profile: React.FC<{ subject: TripleSubject }> = (props) => {
+enum PersonType {
+  me,
+  requester,
+  requested,
+  friend,
+  blocked,
+  stranger
+}
+
+
+const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> = (props) => {
+  switch (props.personType) {
+    case PersonType.me: return <>(this is you)</>;
+    case PersonType.requester: return <>
+      <button type="submit" className='button is-primary' onClick={() => {
+        window.location.href = '';
+      }}>See Friend Request</button>
+    </>;
+    case PersonType.requested: return <>
+      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
+    </>;
+    case PersonType.friend: return <>(you are friends)</>;
+    case PersonType.blocked: return <>(unblock)</>;
+    case PersonType.stranger: return <>
+      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Befriend</button>
+    </>;
+  }
+}
+
+const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
+  return <>(friends in common)</>;
+}
+
+function useAsync(fun: () => Promise<any>, defaultVal: any) {
+  const [val, setVal] = React.useState(defaultVal);
+  useEffect(() => {
+    fun().then((val) => {
+      setVal(val);
+    });
+  });
+  return val;
+}
+
+const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
   const profile = props.subject;
+  const personWebId = props.subject.asNodeRef();
+  const webId = useWebId();
+
+  const listsYou = useAsync(async () => {
+    if (webId) {
+      const friendList: AddressBook[] | null = await getFriendListsForWebId(personWebId);
+      if (friendList) {
+        friendList.forEach((addressBook: AddressBook) => {
+          if (addressBook.contacts.indexOf(webId) !== -1) {
+            return true;
+          }
+        });
+      }
+    }
+    return false;
+  }, false);
+
+  const isInInbox = useAsync(async () => {
+    if (webId) {
+      const friendRequests: PersonData[] = await getFriendRequestsFromInbox(webId);
+      friendRequests.forEach((friendRequest: PersonData) => {
+        if (friendRequest.webId === personWebId) {
+          return true;
+        }
+      });
+    }
+    return false;
+  }, false);
+
+  const isInYourList = useAsync(async () => {
+    if (webId) {
+      const friendLists: TripleSubject[] | null = await getFriendLists();
+      if (friendLists) {
+        friendLists.forEach((friendList) => {
+          const contacts = friendList.getAllNodeRefs(vcard.hasMember);
+          if (contacts.indexOf(webId) !== -1) {
+            return true;
+          }
+        });
+      }
+    }
+    return false;
+  }, false);
+
+  let personType: PersonType = PersonType.stranger;
+  if (personWebId === webId) {
+    personType = PersonType.me;
+  } else if (isInYourList) {
+    if (listsYou) {
+      personType = PersonType.friend
+    } else {
+      personType = PersonType.requested
+    }
+  } else if (isInInbox) {
+    personType = PersonType.requested
+  }
 
   const photoUrl = profile.getNodeRef(vcard.hasPhoto);
   const photo = (!photoUrl)
@@ -50,6 +154,8 @@ const Profile: React.FC<{ subject: TripleSubject }> = (props) => {
           >
             {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
           </Link>
+          <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
+          <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
         </p>
       </div>
     </div>
