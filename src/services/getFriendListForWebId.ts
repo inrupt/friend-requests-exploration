@@ -1,7 +1,7 @@
 import { fetchDocument, NodeRef } from 'tripledoc';
 import { solid, vcard } from 'rdf-namespaces';
 
-interface AddressBook {
+export interface AddressBook {
   name: string | null;
   contacts: NodeRef[];
 };

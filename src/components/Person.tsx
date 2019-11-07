@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { fetchDocument, TripleSubject } from 'tripledoc';
 import { foaf, vcard } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
+import { getFriendListsForWebId, AddressBook } from '../services/getFriendListForWebId';
+import { getInboxUrl, getFriendRequestsFromInbox, FriendRequestData } from './IncomingList';
+import { getFriendLists } from '../services/getFriendList';
 
 interface Props {
   webId: string;
@@ -50,37 +53,72 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   return <>(friends in common)</>;
 }
 
-async function isInYourFriendList (webId: string) {
-  // const addressBook = await getFriendListsForWebId(webId: string)
-  // interface AddressBook {
-  //   name: string | null;
-  //   contacts: NodeRef[];
-  // };
-  return false;
-}
-
-function listsYouAsFriend (webId: string) {
-  return false;
-}
-
-function isInInbox (webId: string) {
-  return false;
+function useAsync(fun: () => Promise<any>, defaultVal: any) {
+  const [val, setVal] = React.useState(defaultVal);
+  useEffect(() => {
+    fun().then((val) => {
+      setVal(val);
+    });
+  });
+  return val;
 }
 
 const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
   const profile = props.subject;
   const personWebId = props.subject.asNodeRef();
   const webId = useWebId();
+
+  const listsYou = useAsync(async () => {
+    if (webId) {
+      const friendList: AddressBook[] | null = await getFriendListsForWebId(personWebId);
+      if (friendList) {
+        friendList.forEach((addressBook: AddressBook) => {
+          if (addressBook.contacts.indexOf(webId) !== -1) {
+            return true;
+          }
+        });
+      }
+    }
+    return false;
+  }, false);
+
+  const isInInbox = useAsync(async () => {
+    if (webId) {
+      const friendRequests: FriendRequestData[] = await getFriendRequestsFromInbox(webId);
+      friendRequests.forEach((friendRequest: FriendRequestData) => {
+        if (friendRequest.webId === personWebId) {
+          return true;
+        }
+      });
+    }
+    return false;
+  }, false);
+
+  const isInYourList = useAsync(async () => {
+    if (webId) {
+      const friendLists: TripleSubject[] | null = await getFriendLists();
+      if (friendLists) {
+        friendLists.forEach((friendList) => {
+          const contacts = friendList.getAllNodeRefs(vcard.hasMember);
+          if (contacts.indexOf(webId) !== -1) {
+            return true;
+          }
+        });
+      }
+    }
+    return false;
+  }, false);
+
   let personType: PersonType = PersonType.stranger;
   if (personWebId === webId) {
     personType = PersonType.me;
-  } else if (isInYourFriendList(personWebId)) {
-    if (listsYouAsFriend(personWebId)) {
+  } else if (isInYourList) {
+    if (listsYou) {
       personType = PersonType.friend
     } else {
       personType = PersonType.requested
     }
-  } else if (isInInbox(personWebId)) {
+  } else if (isInInbox) {
     personType = PersonType.requested
   }
 

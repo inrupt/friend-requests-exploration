@@ -6,7 +6,7 @@ import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { objectMethod } from '@babel/types';
 
-class FriendRequestData {
+export class FriendRequestData {
   url: string
   webId?: string
   name?: string | null
@@ -58,7 +58,7 @@ async function getContainerItems(containerUrl: string): Promise<string[]> {
   return containerNode.getAllNodeRefs(ldp.contains);
 }
 
-async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestData[]> {
+export async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestData[]> {
   const inboxUrl = await getInboxUrl(webId);
   if (!inboxUrl) {
     return [];
