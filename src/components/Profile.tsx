@@ -8,29 +8,31 @@ interface PathParams {
   webId: string;
 };
 
-export const Profile: React.FC = (props) => {
-  const params = useParams<PathParams>();
-  const webId = decodeURIComponent(params.webId);
-
-  const [metaFriends, setMetaFriends] = React.useState<NodeRef[] | null>();
+export function usePersonFriends(webId: string | null) {
+  const [personFriends, setPersonFriends] = React.useState<Set<NodeRef> | null>();
 
   React.useEffect(() => {
     getFriendListsForWebId(webId).then(friendLists => {
       if (friendLists === null) {
-        setMetaFriends(null);
+        setPersonFriends(null);
         return;
       }
 
-      const theirFriends = friendLists.reduce((friends, list) => {
+      setPersonFriends(friendLists.reduce((friends, list) => {
         list.contacts.forEach(friendRef => friends.add(friendRef));
         return friends;
-      }, new Set<NodeRef>());
-
-      setMetaFriends(Array.from(theirFriends.values()));
+      }, new Set<NodeRef>()));
     });
   }, [webId]);
+  return personFriends;
+}
 
-  if (metaFriends === null) {
+export const Profile: React.FC = (props) => {
+  const params = useParams<PathParams>();
+  const webId = decodeURIComponent(params.webId);
+  const theirFriends = usePersonFriends(webId);
+
+  if (theirFriends === null) {
     return <>
       <section className="section">
         <p className="content">
@@ -40,7 +42,7 @@ export const Profile: React.FC = (props) => {
     </>;
   }
 
-  if (metaFriends === undefined) {
+  if (theirFriends === undefined) {
     return <>
       <section className="section">
         <p className="content">
@@ -50,7 +52,7 @@ export const Profile: React.FC = (props) => {
     </>;
   }
 
-  const profiles = metaFriends.map((friendRef) => {
+  const profiles = Array.from(theirFriends.values()).map((friendRef) => {
     return (
       <section key={friendRef} className="section">
         <div className="card">
@@ -63,6 +65,9 @@ export const Profile: React.FC = (props) => {
   });
 
   return <>
+    <section className="header">
+      <h2>Friends of {webId}:</h2>
+    </section>
     {profiles}
   </>;
 };

@@ -5,15 +5,17 @@ import { ldp, schema, vcard } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 
-class FriendRequestData {
-  url: string
+export class PersonData {
+  url?: string
   webId?: string
   name?: string | null
   picture?: string | null
-  constructor(url: string) {
-    this.url = url;
+  constructor() {
   }
   async fetchAndParse() {
+    if (!this.url) {
+      throw new Error('no inbox item url');
+    }
     const doc = await fetchDocument(this.url);
     if (doc !== null) {
       const subjects = doc.getSubjectsOfType(schema.BefriendAction);
@@ -57,19 +59,17 @@ async function getContainerItems(containerUrl: string): Promise<string[]> {
   return containerNode.getAllNodeRefs(ldp.contains);
 }
 
-async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestData[]> {
+export async function getFriendRequestsFromInbox(webId: string): Promise<PersonData[]> {
   const inboxUrl = await getInboxUrl(webId);
   if (!inboxUrl) {
     return [];
   }
   const inboxItems = await getContainerItems(inboxUrl)
   return Promise.all(inboxItems.map(async (url: string) => {
-    const obj = new FriendRequestData(url);
-    console.log('step 1', obj);
+    const obj = new PersonData();
+    obj.url =  url;
     await obj.fetchAndParse();
-    console.log('step 2', obj);
     await obj.fetchProfile();
-    console.log('step 3', obj);
     return obj;
   }));
 }
@@ -80,8 +80,10 @@ async function removeRemoteDoc(url: string) {
   });
 }
 
-async function removeFriendRequest(obj: FriendRequestData) {
-  await removeRemoteDoc(obj.url)
+async function removeFriendRequest(obj: PersonData) {
+  if (obj.url) {
+    await removeRemoteDoc(obj.url);
+  }
 }
 
 async function addFriend(webId: string) {
@@ -107,7 +109,7 @@ async function addFriend(webId: string) {
   await addressBookDocument.save();
 }
 
-async function accept(obj: FriendRequestData) {
+async function accept(obj: PersonData) {
   if (!obj.webId) {
     throw new Error('webId unknown from friend request!')
   }
@@ -115,17 +117,17 @@ async function accept(obj: FriendRequestData) {
   await removeFriendRequest(obj);
 }
 
-async function reject(obj: FriendRequestData) {
+async function reject(obj: PersonData) {
   await removeFriendRequest(obj);
 }
 
 export const IncomingList: React.FC = () => {
   const webId = useWebId();
-  const [friendRequests, setFriendRequests] = React.useState<Array<FriendRequestData>>();
-  const [friendRequestsToAccept, setFriendRequestsToAccept] = React.useState<Array<FriendRequestData>>([]);
-  const [friendRequestsToReject, setFriendRequestsToReject] = React.useState<Array<FriendRequestData>>([]);
+  const [friendRequests, setFriendRequests] = React.useState<Array<PersonData>>();
+  const [friendRequestsToAccept, setFriendRequestsToAccept] = React.useState<Array<PersonData>>([]);
+  const [friendRequestsToReject, setFriendRequestsToReject] = React.useState<Array<PersonData>>([]);
 
-  function queueAcceptation(obj: FriendRequestData) {
+  function queueAcceptation(obj: PersonData) {
     setFriendRequestsToAccept((arr) => arr.concat(obj));
   }
 
@@ -139,7 +141,7 @@ export const IncomingList: React.FC = () => {
     }
   }, [friendRequestsToAccept]);
 
-  function queueRejection(obj: FriendRequestData) {
+  function queueRejection(obj: PersonData) {
     setFriendRequestsToReject((arr) => arr.concat(obj));
   }
   React.useEffect(() => {
@@ -155,7 +157,7 @@ export const IncomingList: React.FC = () => {
   async function updateList () {
     if (webId) {
       await getFriendRequestsFromInbox(webId).then((friendRequestObjs) => {
-        let filtered: FriendRequestData[] = [];
+        let filtered: PersonData[] = [];
         friendRequestObjs.forEach(obj => {
           if (!!obj.webId) {
             if (!obj.name) {

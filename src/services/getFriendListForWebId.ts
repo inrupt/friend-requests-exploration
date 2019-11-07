@@ -1,12 +1,15 @@
 import { fetchDocument, NodeRef } from 'tripledoc';
 import { solid, vcard } from 'rdf-namespaces';
 
-interface AddressBook {
+export interface AddressBook {
   name: string | null;
   contacts: NodeRef[];
 };
 
-export async function getFriendListsForWebId(webId: string): Promise<AddressBook[] | null> {
+export async function getFriendListsForWebId(webId: string | null): Promise<AddressBook[] | null> {
+  if (!webId) {
+    return null;
+  }
   const profileDoc = await fetchDocument(webId);
   const profile = profileDoc.getSubject(webId);
   const publicTypeIndexRef = profile.getNodeRef(solid.publicTypeIndex);
