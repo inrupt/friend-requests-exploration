@@ -50,12 +50,38 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   return <>(friends in common)</>;
 }
 
+async function isInYourFriendList (webId: string) {
+  // const addressBook = await getFriendListsForWebId(webId: string)
+  // interface AddressBook {
+  //   name: string | null;
+  //   contacts: NodeRef[];
+  // };
+  return false;
+}
+
+function listsYouAsFriend (webId: string) {
+  return false;
+}
+
+function isInInbox (webId: string) {
+  return false;
+}
+
 const Profile: React.FC<{ subject: TripleSubject }> = (props) => {
   const profile = props.subject;
+  const personWebId = props.subject.asNodeRef();
   const webId = useWebId();
   let personType: PersonType = PersonType.stranger;
-  if (props.subject.asNodeRef() === webId) {
+  if (personWebId === webId) {
     personType = PersonType.me;
+  } else if (isInYourFriendList(personWebId)) {
+    if (listsYouAsFriend(personWebId)) {
+      personType = PersonType.friend
+    } else {
+      personType = PersonType.requested
+    }
+  } else if (isInInbox(personWebId)) {
+    personType = PersonType.requested
   }
 
   const photoUrl = profile.getNodeRef(vcard.hasPhoto);
