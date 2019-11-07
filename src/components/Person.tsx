@@ -17,12 +17,12 @@ export const Person: React.FC<Props> = (props) => {
     });
   }, [props.webId]);
 
-  const profile = (friendSubject)
-    ? <Profile subject={friendSubject}/>
+  const personView = (friendSubject)
+    ? <PersonView subject={friendSubject}/>
     : <code>{props.webId}</code>;
 
   return <>
-    {profile}
+    {personView}
   </>;
 };
 
@@ -67,7 +67,7 @@ function isInInbox (webId: string) {
   return false;
 }
 
-const Profile: React.FC<{ subject: TripleSubject }> = (props) => {
+const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
   const profile = props.subject;
   const personWebId = props.subject.asNodeRef();
   const webId = useWebId();
