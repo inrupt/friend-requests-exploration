@@ -12,25 +12,23 @@ export const Profile: React.FC = (props) => {
   const params = useParams<PathParams>();
   const webId = decodeURIComponent(params.webId);
 
-  const [metaFriends, setMetaFriends] = React.useState<NodeRef[] | null>();
+  const [theirFriends, setTheirFriends] = React.useState<Set<NodeRef> | null>();
 
   React.useEffect(() => {
     getFriendListsForWebId(webId).then(friendLists => {
       if (friendLists === null) {
-        setMetaFriends(null);
+        setTheirFriends(null);
         return;
       }
 
-      const theirFriends = friendLists.reduce((friends, list) => {
+      setTheirFriends(friendLists.reduce((friends, list) => {
         list.contacts.forEach(friendRef => friends.add(friendRef));
         return friends;
-      }, new Set<NodeRef>());
-
-      setMetaFriends(Array.from(theirFriends.values()));
+      }, new Set<NodeRef>()));
     });
   }, [webId]);
 
-  if (metaFriends === null) {
+  if (theirFriends === null) {
     return <>
       <section className="section">
         <p className="content">
@@ -40,7 +38,7 @@ export const Profile: React.FC = (props) => {
     </>;
   }
 
-  if (metaFriends === undefined) {
+  if (theirFriends === undefined) {
     return <>
       <section className="section">
         <p className="content">
@@ -50,7 +48,7 @@ export const Profile: React.FC = (props) => {
     </>;
   }
 
-  const profiles = metaFriends.map((friendRef) => {
+  const profiles = Array.from(theirFriends.values()).map((friendRef) => {
     return <>
       <section className="section">
         <div key={friendRef} className="card">
