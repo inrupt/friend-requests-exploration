@@ -63,6 +63,9 @@ export const Profile: React.FC = (props) => {
   });
 
   return <>
+    <section className="header">
+      <h2>Friends of {webId}:</h2>
+    </section>
     {profiles}
   </>;
 };
