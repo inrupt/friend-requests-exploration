@@ -4,8 +4,9 @@ import { foaf, vcard } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
 import { getFriendListsForWebId, AddressBook } from '../services/getFriendListForWebId';
-import { getInboxUrl, getFriendRequestsFromInbox, FriendRequestData } from './IncomingList';
+import { getFriendRequestsFromInbox, PersonData } from './IncomingList';
 import { getFriendLists } from '../services/getFriendList';
+import { sendFriendRequest } from './Friendlist';
 
 interface Props {
   webId: string;
@@ -38,14 +39,23 @@ enum PersonType {
   stranger
 }
 
+
 const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> = (props) => {
   switch (props.personType) {
     case PersonType.me: return <>(this is you)</>;
-    case PersonType.requester: return <>(accept) (reject)</>;
-    case PersonType.requested: return <>(resend)</>;
+    case PersonType.requester: return <>
+      <button type="submit" className='button is-primary' onClick={() => {
+        window.location.href = '';
+      }}>See Friend Request</button>
+    </>;
+    case PersonType.requested: return <>
+      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
+    </>;
     case PersonType.friend: return <>(you are friends)</>;
     case PersonType.blocked: return <>(unblock)</>;
-    case PersonType.stranger: return <>(befriend)</>;
+    case PersonType.stranger: return <>
+      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Befriend</button>
+    </>;
   }
 }
 
@@ -84,8 +94,8 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
 
   const isInInbox = useAsync(async () => {
     if (webId) {
-      const friendRequests: FriendRequestData[] = await getFriendRequestsFromInbox(webId);
-      friendRequests.forEach((friendRequest: FriendRequestData) => {
+      const friendRequests: PersonData[] = await getFriendRequestsFromInbox(webId);
+      friendRequests.forEach((friendRequest: PersonData) => {
         if (friendRequest.webId === personWebId) {
           return true;
         }

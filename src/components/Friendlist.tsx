@@ -10,7 +10,7 @@ interface Props {
   friendlist: TripleSubject;
 };
 
-async function sendFriendRequest(recipient: string) {
+export async function sendFriendRequest(recipient: string) {
   const currentSession = await SolidAuth.currentSession();
   if (!currentSession || !currentSession.webId) {
     return null;
