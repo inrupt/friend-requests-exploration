@@ -12,6 +12,7 @@
     "@types/solid-auth-client": "^2.3.1",
     "@types/solid__react": "^1.6.1",
     "bulma": "^0.7.5",
+    "jsonld": "^1.8.1",
     "node-sass": "^4.12.0",
     "rdf-namespaces": "^1.4.0",
     "react": "^16.10.1",
