@@ -12,6 +12,7 @@
     "@types/solid-auth-client": "^2.3.1",
     "@types/solid__react": "^1.6.1",
     "bulma": "^0.7.5",
+    "jsonld": "^1.8.1",
     "node-sass": "^4.12.0",
     "rdf-namespaces": "^1.4.0",
     "react": "^16.10.1",
@@ -20,7 +21,7 @@
     "react-scripts": "^3.1.2",
     "solid-auth-client": "^2.3.1",
     "styled-components": "^4.4.0",
-    "tripledoc": "github:michielbdejong/tripledoc",
+    "tripledoc": "light",
     "tripledoc-solid-helpers": "^0.1.2",
     "typescript": "^3.6.3"
   },

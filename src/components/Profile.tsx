@@ -49,15 +49,15 @@ export const Profile: React.FC = (props) => {
   }
 
   const profiles = Array.from(theirFriends.values()).map((friendRef) => {
-    return <>
-      <section className="section">
-        <div key={friendRef} className="card">
+    return (
+      <section key={friendRef} className="section">
+        <div className="card">
           <div className="section">
             <Person webId={friendRef}/>
           </div>
         </div>
       </section>
-    </>;
+    );
   });
 
   return <>

@@ -79,11 +79,11 @@ export const Friendlist: React.FC<Props> = (props) => {
 };
 
 function getPersonCard(webId: string): React.ReactElement {
-  return <>
+  return (
     <div key={webId} className="card">
       <div className="section">
         <Person webId={webId}/>
       </div>
     </div>
-  </>;
+  );
 }
