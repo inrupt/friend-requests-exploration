@@ -1,10 +1,9 @@
 import React from 'react';
 import { useWebId } from '@solid/react';
-import { fetchDocument, TripleSubject, flushStore } from 'tripledoc';
+import { fetchDocument, TripleSubject } from 'tripledoc';
 import { ldp, schema, vcard } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
-import { objectMethod } from '@babel/types';
 
 class FriendRequestData {
   url: string
@@ -76,9 +75,6 @@ async function getFriendRequestsFromInbox(webId: string): Promise<FriendRequestD
 }
 
 async function removeRemoteDoc(url: string) {
-  // FIXME: this does not force rdflib.js to
-  // delete its copy of the doc, or of the
-  // container doc.
   await SolidAuth.fetch(url, {
     method: 'DELETE'
   });
@@ -137,7 +133,6 @@ export const IncomingList: React.FC = () => {
     if (friendRequestsToAccept.length) {
       Promise.all(friendRequestsToAccept.map((item) => accept(item))).then(() => {
         setFriendRequestsToAccept([]);
-        flushStore();
         updateList();
         window.location.href = '';
       })
@@ -151,7 +146,6 @@ export const IncomingList: React.FC = () => {
     if (friendRequestsToReject.length) {
       Promise.all(friendRequestsToReject.map((item) => reject(item))).then(() => {
         setFriendRequestsToReject([]);
-        flushStore();
         updateList();
         window.location.href = '';
       })
