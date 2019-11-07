@@ -2,6 +2,7 @@ import React from 'react';
 import { fetchDocument, TripleSubject } from 'tripledoc';
 import { foaf, vcard } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
+import { useWebId } from '@solid/react';
 
 interface Props {
   webId: string;
@@ -25,8 +26,37 @@ export const Person: React.FC<Props> = (props) => {
   </>;
 };
 
+enum PersonType {
+  me,
+  requester,
+  requested,
+  friend,
+  blocked,
+  stranger
+}
+
+const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> = (props) => {
+  switch (props.personType) {
+    case PersonType.me: return <>(this is you)</>;
+    case PersonType.requester: return <>(accept) (reject)</>;
+    case PersonType.requested: return <>(resend)</>;
+    case PersonType.friend: return <>(you are friends)</>;
+    case PersonType.blocked: return <>(unblock)</>;
+    case PersonType.stranger: return <>(befriend)</>;
+  }
+}
+
+const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
+  return <>(friends in common)</>;
+}
+
 const Profile: React.FC<{ subject: TripleSubject }> = (props) => {
   const profile = props.subject;
+  const webId = useWebId();
+  let personType: PersonType = PersonType.stranger;
+  if (props.subject.asNodeRef() === webId) {
+    personType = PersonType.me;
+  }
 
   const photoUrl = profile.getNodeRef(vcard.hasPhoto);
   const photo = (!photoUrl)
@@ -50,6 +80,8 @@ const Profile: React.FC<{ subject: TripleSubject }> = (props) => {
           >
             {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
           </Link>
+          <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
+          <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
         </p>
       </div>
     </div>
