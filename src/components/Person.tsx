@@ -70,18 +70,16 @@ async function getFriendWebIds(webId: string) {
   return res;
 }
 const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
-  // const webId = useWebId();
-  // const theirFriends = usePersonFriends(props.personWebId);
-  // const myFriends = usePersonFriends(webId || null);
-  // const friendsInCommon = useAsync(async () => {
-  //   const res = [];
-  //   if (theirFriends && myFriends) {
-  //     return Array.from(theirFriends.values()).filter(item => myFriends.has(item));
-  //   }
-  //   return [];
-  // }, []);
-  // return <>{friendsInCommon.join(', ')}</>;
-  return <>(friends in common)</>;
+  const webId = useWebId();
+  const theirFriends = usePersonFriends(props.personWebId);
+  const myFriends = usePersonFriends(webId || null);
+  console.log({ webId, theirFriends, myFriends });
+  if (theirFriends && myFriends) {
+    const friendsInCommon: string[] = Array.from(theirFriends.values()).filter(item => myFriends.has(item));
+    const listElements = friendsInCommon.map(webId => <li>{webId}</li>);
+    return <>Friends in common: <ul>{listElements}</ul></>;
+  }
+  return <>(no friends in common)</>;
 }
 
 function useAsync(fun: () => Promise<any>, defaultVal: any) {
@@ -127,23 +125,19 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
   }, false);
 
   const isInYourList = useAsync(async () => {
-    console.log('isInYourList', personWebId, webId);
     let found = false;
     if (webId) {
       const friendLists: TripleSubject[] | null = await getFriendLists();
       if (friendLists) {
         friendLists.forEach((friendList) => {
           const contacts = friendList.getAllNodeRefs(vcard.hasMember);
-          console.log('looking for', contacts, personWebId);
           if (contacts.indexOf(personWebId) !== -1) {
-            console.log(personWebId, 'is in your list')
             found = true;
             // break;
           }
         });
       }
     }
-    console.log(personWebId, 'is NOT in your list')
     return found;
   }, false);
   if (!webId) {
