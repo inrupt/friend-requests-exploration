@@ -69,11 +69,8 @@ export async function getFriendRequestsFromInbox(webId: string): Promise<PersonD
   return Promise.all(inboxItems.map(async (url: string) => {
     const obj = new PersonData();
     obj.url =  url;
-    console.log('step 1', obj);
     await obj.fetchAndParse();
-    console.log('step 2', obj);
     await obj.fetchProfile();
-    console.log('step 3', obj);
     return obj;
   }));
 }
