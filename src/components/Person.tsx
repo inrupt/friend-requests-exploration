@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { fetchDocument, TripleSubject, NodeRef } from 'tripledoc';
+import { TripleSubject } from 'tripledoc';
 import { foaf, vcard, schema } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';

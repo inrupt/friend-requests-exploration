@@ -1,7 +1,10 @@
 import { vcard, rdf, acl } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
-import { fetchDocument, TripleSubject, createDocument } from 'tripledoc';
+import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
+import { getDocument } from './DocumentCache';
+
+let addressBookDocumentPromise: Promise<TripleDocument | null>;
 
 export async function getFriendLists(): Promise<TripleSubject[] | null> {
   const currentSession = await SolidAuth.currentSession();
@@ -10,7 +13,10 @@ export async function getFriendLists(): Promise<TripleSubject[] | null> {
   }
 
   // Find a Document that lists vcard:Individual's
-  const addressBookDocument = await fetchDocumentForClass(vcard.Individual);
+  if (!addressBookDocumentPromise) {
+    addressBookDocumentPromise = fetchDocumentForClass(vcard.Individual);
+  }
+  const addressBookDocument = await addressBookDocumentPromise;
   if (!addressBookDocument) {
     return null;
   }
@@ -28,7 +34,7 @@ export async function getFriendLists(): Promise<TripleSubject[] | null> {
     if (friendsAclRef) {
       let friendsAclDoc
       try {
-        await fetchDocument(friendsAclRef);
+        await getDocument(friendsAclRef);
       } catch (e) {
         friendsAclDoc = createDocument(friendsAclRef);
       }

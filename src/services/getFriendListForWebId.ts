@@ -1,5 +1,6 @@
-import { fetchDocument, NodeRef } from 'tripledoc';
+import { NodeRef } from 'tripledoc';
 import { solid, vcard } from 'rdf-namespaces';
+import { getDocument } from './DocumentCache';
 
 export interface AddressBook {
   name: string | null;
@@ -10,14 +11,14 @@ export async function getFriendListsForWebId(webId: string | null): Promise<Addr
   if (!webId) {
     return null;
   }
-  const profileDoc = await fetchDocument(webId);
+  const profileDoc = await getDocument(webId);
   const profile = profileDoc.getSubject(webId);
   const publicTypeIndexRef = profile.getNodeRef(solid.publicTypeIndex);
   if (!publicTypeIndexRef) {
     return null;
   }
 
-  const publicTypeIndex = await fetchDocument(publicTypeIndexRef);
+  const publicTypeIndex = await getDocument(publicTypeIndexRef);
   const individualIndex = publicTypeIndex.findSubject(solid.forClass, vcard.Individual);
   if (!individualIndex) {
     return null;
@@ -28,7 +29,7 @@ export async function getFriendListsForWebId(webId: string | null): Promise<Addr
     return null;
   }
 
-  const friendListsDoc = await fetchDocument(friendListsDocRef);
+  const friendListsDoc = await getDocument(friendListsDocRef);
   const friendLists = friendListsDoc.getSubjectsOfType(vcard.Group);
 
   const addressBooks = friendLists.map(list => {
