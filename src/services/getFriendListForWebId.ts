@@ -1,10 +1,10 @@
-import { NodeRef } from 'tripledoc';
+import { Reference } from 'tripledoc';
 import { solid, vcard } from 'rdf-namespaces';
 import { getDocument } from './DocumentCache';
 
 export interface AddressBook {
   name: string | null;
-  contacts: NodeRef[];
+  contacts: Reference[];
 };
 
 export async function getFriendListsForWebId(webId: string | null): Promise<AddressBook[] | null> {
