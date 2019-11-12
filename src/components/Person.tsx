@@ -58,16 +58,6 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
   }
 }
 
-async function getFriendWebIds(webId: string) {
-  let res: string[] = [];
-  const addressBooks: AddressBook[] | null = await getFriendListsForWebId(webId);
-  if (addressBooks) {
-    addressBooks.map((addressBook: AddressBook) => {
-      res = res.concat(addressBook.contacts);
-    });
-  }
-  return res;
-}
 const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const webId = useWebId();
   const theirFriends = usePersonFriends(props.personWebId);
