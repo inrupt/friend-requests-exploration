@@ -8,3 +8,4 @@ cd ..
 git add build
 git commit --no-verify -am"build"
 git push 5apps deploy:master
+git checkout -
