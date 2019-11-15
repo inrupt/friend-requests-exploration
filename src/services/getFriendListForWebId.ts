@@ -1,13 +1,17 @@
 import { Reference } from 'tripledoc';
-import { solid, vcard } from 'rdf-namespaces';
+import { solid, vcard as vcardUpstream} from 'rdf-namespaces';
 import { getDocument } from './DocumentCache';
 
-export interface AddressBook {
+const vcard = Object.assign({}, vcardUpstream, {
+  Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
+});
+
+export interface AddressBookGroup {
   name: string | null;
   contacts: Reference[];
 };
 
-export async function getFriendListsForWebId(webId: string | null): Promise<AddressBook[] | null> {
+export async function getFriendListsForWebId(webId: string | null): Promise<AddressBookGroup[] | null> {
   if (!webId) {
     return null;
   }
@@ -19,25 +23,24 @@ export async function getFriendListsForWebId(webId: string | null): Promise<Addr
   }
 
   const publicTypeIndex = await getDocument(publicTypeIndexRef);
-  const individualIndex = publicTypeIndex.findSubject(solid.forClass, vcard.Individual);
-  if (!individualIndex) {
+  const addressbookIndex = publicTypeIndex.findSubject(solid.forClass, vcard.Addressbook);
+  if (!addressbookIndex) {
     return null;
   }
 
-  const friendListsDocRef = individualIndex.getNodeRef(solid.instance);
-  if (!friendListsDocRef) {
+  const addressbookDocRef = addressbookIndex.getNodeRef(solid.instance);
+  if (!addressbookDocRef) {
     return null;
   }
 
-  const friendListsDoc = await getDocument(friendListsDocRef);
-  const friendLists = friendListsDoc.getSubjectsOfType(vcard.Group);
+  const addressbookDoc = await getDocument(addressbookDocRef);
+  const groupSubjects = addressbookDoc.getSubjectsOfType(vcard.Group);
 
-  const addressBooks = friendLists.map(list => {
-    const addressBook: AddressBook = {
+  return groupSubjects.map(list => {
+    const addressBookGroup: AddressBookGroup = {
       name: list.getString(vcard.fn),
       contacts: list.getAllNodeRefs(vcard.hasMember),
     };
-    return addressBook;
+    return addressBookGroup;
   });
-  return addressBooks;
 }

@@ -4,7 +4,7 @@ import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
 import { getDocument } from './DocumentCache';
 
-const vcard = Object.assign(vcardUpstream, {
+const vcard = Object.assign({}, vcardUpstream, {
   Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
 });
 

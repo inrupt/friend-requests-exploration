@@ -3,7 +3,7 @@ import { TripleSubject } from 'tripledoc';
 import { foaf, vcard, schema } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
-import { getFriendListsForWebId, AddressBook } from '../services/getFriendListForWebId';
+import { getFriendListsForWebId, AddressBookGroup } from '../services/getFriendListForWebId';
 import { getFriendLists, unFriend } from '../services/getFriendList';
 import { usePersonFriends } from './Profile';
 import { getProfile } from '../services/getProfile';
@@ -97,9 +97,9 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
   const listsYou = useAsync(async () => {
     let found = false;
     if (webId) {
-      const friendList: AddressBook[] | null = await getFriendListsForWebId(personWebId);
+      const friendList: AddressBookGroup[] | null = await getFriendListsForWebId(personWebId);
       if (friendList) {
-        friendList.forEach((addressBook: AddressBook) => {
+        friendList.forEach((addressBook: AddressBookGroup) => {
           if (addressBook.contacts.indexOf(webId) !== -1) {
             found = true;
           }
