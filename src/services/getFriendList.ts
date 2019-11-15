@@ -1,8 +1,10 @@
-import { vcard as vcardUpstream, rdf, acl } from 'rdf-namespaces';
+import { vcard as vcardUpstream, rdf, acl, ldp } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
 import { getDocument } from './DocumentCache';
+import { getProfile } from './getProfile';
+import { ensureContainer } from './ensureContainer';
 
 const vcard = Object.assign({}, vcardUpstream, {
   Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
@@ -46,7 +48,17 @@ export async function getFriendLists(): Promise<TripleSubject[] | null> {
     // If no vcard:Group exists yet in the address book, create one named "Friends":
     const firstGroup = addressBookDocument.addSubject();
     firstGroup.addNodeRef(rdf.type, vcard.Group);
-    firstGroup.addLiteral(vcard.fn, 'Friends')
+    firstGroup.addLiteral(vcard.fn, 'Friends');
+    const addressBookSubject = addressBookDocument.getSubject('#this');
+    const profile = await getProfile(currentSession.webId);
+    let inboxRef = profile.getRef(ldp.inbox);
+    if (!inboxRef) {
+      inboxRef = new URL('./inbox/', currentSession.webId).toString();
+    }
+    const friendRequestsInbox = new URL('./friend-requests/', inboxRef).toString();
+    await ensureContainer(friendRequestsInbox);
+    addressBookSubject.addRef(ldp.inbox, friendRequestsInbox);
+
     await addressBookDocument.save();
 
     // Then give everybody in that group permission to read the Document, and the Owner to modify it:

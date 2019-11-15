@@ -16,10 +16,10 @@ export async function getIncomingRequests(): Promise<TripleSubject[]> {
     throw new Error('Please log in to view your friend requests.');
   }
   const webId = currentSession.webId;
-  const otherPersonGroups = await getFriendLists();
+  const currentPersonGroups = await getFriendLists();
   let blocked: string[] = [];
-  if (otherPersonGroups) {
-    otherPersonGroups.forEach((group: TripleSubject) => {
+  if (currentPersonGroups) {
+    currentPersonGroups.forEach((group: TripleSubject) => {
       if (group.getLiteral(vcard.fn) === 'Blocked') {
         blocked = group.getAllRefs(vcard.hasMember);
       }
