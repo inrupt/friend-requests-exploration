@@ -2,7 +2,7 @@ import SolidAuth from 'solid-auth-client';
 import { ldp, schema, vcard } from 'rdf-namespaces';
 import { getProfile } from './getProfile';
 import { getInboxRefs } from './getInboxItems';
-import { getBefriendAction } from './getBefriendAction';
+import { getFollowAction } from './getFollowAction';
 import { TripleSubject } from 'tripledoc';
 import { getFriendLists } from './getFriendList';
 import { isBlockScoped } from '@babel/types';
@@ -62,7 +62,7 @@ export async function getIncomingRequests(): Promise<TripleSubject[]> {
   }
 
   const inboxItemRefs = await getInboxRefs(inboxRef);
-  const potentialFriendRequests = await Promise.all(inboxItemRefs.map(getBefriendAction));
+  const potentialFriendRequests = await Promise.all(inboxItemRefs.map(getFollowAction));
   const checkPromises: Promise<TripleSubject | null>[] = potentialFriendRequests.map(checkBlockAndHost);
   return (await Promise.all(checkPromises)).filter(isNotNull);;
 }

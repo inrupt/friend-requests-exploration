@@ -2,7 +2,7 @@ import SolidAuth from 'solid-auth-client';
 import { ldp } from 'rdf-namespaces';
 import { getProfile } from './getProfile';
 
-export async function sendBefriendActionNotification(recipient: string) {
+export async function sendActionNotification(recipient: string, activityType: string) {
     const currentSession = await SolidAuth.currentSession();
   if (!currentSession || !currentSession.webId) {
     throw new Error('Please log in to send friend requests.');
@@ -17,8 +17,8 @@ export async function sendBefriendActionNotification(recipient: string) {
   // TODO: Check if createDocument can do this with a URL we set manually:
   return SolidAuth.fetch(inboxUrl, {
     method: 'POST',
-    body: `@prefix schema: <http://schema.org/> .
-    <> a schema:BefriendAction ;
+    body: `@prefix as: <https://www.w3.org/ns/activitystreams#> .
+    <> a as.${activityType} ;
        schema:agent <${currentSession.webId}> .`,
     headers: {
       'Content-Type': 'text/turtle'
@@ -27,10 +27,9 @@ export async function sendBefriendActionNotification(recipient: string) {
 }
 
 export async function sendFriendRequest(recipient: string) {
-  return sendBefriendActionNotification(recipient);
+  return sendActionNotification(recipient, 'Follow');
 }
 
 export async function sendConfirmation(recipient: string) {
-  // Using schema:BefriendAction here as well
-  return sendBefriendActionNotification(recipient);
+  return sendActionNotification(recipient, 'Accept');
 }
