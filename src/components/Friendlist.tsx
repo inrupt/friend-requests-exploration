@@ -3,7 +3,7 @@ import { TripleSubject } from 'tripledoc';
 import { vcard } from 'rdf-namespaces';
 import { FriendSelector } from './FriendSelector';
 import { Person } from './Person';
-import { sendFriendRequest } from '../services/sendFriendRequest';
+import { sendBefriendActionNotification } from '../services/sendFriendRequest';
 
 interface Props {
   friendlist: TripleSubject;
@@ -21,7 +21,7 @@ export const Friendlist: React.FC<Props> = (props) => {
     }
     friendsToAdd.forEach((friend) => {
       storedFriendList.addRef(vcard.hasMember, friend);
-      sendFriendRequest(friend).then(() => {
+      sendBefriendActionNotification(friend).then(() => {
         console.log('Friend request sent', friend);
       });
     });

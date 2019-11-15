@@ -2,8 +2,8 @@ import SolidAuth from 'solid-auth-client';
 import { ldp } from 'rdf-namespaces';
 import { getProfile } from './getProfile';
 
-export async function sendFriendRequest(recipient: string) {
-  const currentSession = await SolidAuth.currentSession();
+export async function sendBefriendActionNotification(recipient: string) {
+    const currentSession = await SolidAuth.currentSession();
   if (!currentSession || !currentSession.webId) {
     throw new Error('Please log in to send friend requests.');
   }
@@ -24,4 +24,13 @@ export async function sendFriendRequest(recipient: string) {
       'Content-Type': 'text/turtle'
     }
   });
+}
+
+export async function sendFriendRequest(recipient: string) {
+  return sendBefriendActionNotification(recipient);
+}
+
+export async function sendConfirmation(recipient: string) {
+  // Using schema:BefriendAction here as well
+  return sendBefriendActionNotification(recipient);
 }

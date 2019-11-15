@@ -6,6 +6,7 @@ import SolidAuth from 'solid-auth-client';
 import { getIncomingRequests } from '../services/getIncomingRequests';
 import { FriendRequest } from './FriendRequest';
 import { getFriendLists } from '../services/getFriendList';
+import { sendConfirmation } from '../services/sendFriendRequest';
 
 async function removeRemoteDoc(url: string) {
   return await SolidAuth.fetch(url, {
@@ -25,7 +26,7 @@ export const IncomingList: React.FC = () => {
 
   if (!friendRequests || !friendlists) {
     return (
-      <p>Loading friend requests&hellip;</p>
+      <p className="subtitle">Loading friend requests&hellip;</p>
     );
   }
 
@@ -50,6 +51,7 @@ export const IncomingList: React.FC = () => {
       newFriendlists[friendlists.indexOf(friendlist)] = updatedList.getSubject(friendlist.asRef());
       setFriendlists(newFriendlists);
       removeRemoteDoc(request.getDocument().asRef());
+      sendConfirmation(agentRef);
     });
   }
 

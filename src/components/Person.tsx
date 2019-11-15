@@ -4,10 +4,10 @@ import { foaf, vcard, schema } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
 import { getFriendListsForWebId, AddressBook } from '../services/getFriendListForWebId';
-import { getFriendLists } from '../services/getFriendList';
+import { getFriendLists, unFriend } from '../services/getFriendList';
 import { usePersonFriends } from './Profile';
 import { getProfile } from '../services/getProfile';
-import { sendFriendRequest } from '../services/sendFriendRequest';
+import { sendBefriendActionNotification } from '../services/sendFriendRequest';
 import { getIncomingRequests } from '../services/getIncomingRequests';
 
 interface Props {
@@ -48,12 +48,21 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
       }}>See Friend Request</button>
     </>;
     case PersonType.requested: return <>
-      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
+      <button type="submit" className='button is-warning' onClick={() => sendBefriendActionNotification(props.personWebId)}>Resend</button>
     </>;
-    case PersonType.friend: return <>(you are friends)</>;
+    case PersonType.friend: return <>
+      <button type="submit" className='button is-danger' onClick={() => {
+        unFriend(props.personWebId).then(() => {
+          console.log('unfriended', props.personWebId);
+          window.location.href = '';  // FIXME: more subtle way to tell React to re-render
+        }, (e: Error) => {
+          console.log('could not unfriend', props.personWebId, e.message);
+        });
+    }}>Unfriend</button>
+    </>;
     case PersonType.blocked: return <>(unblock)</>;
     case PersonType.stranger: return <>
-      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Befriend</button>
+      <button type="submit" className='button is-primary' onClick={() => sendBefriendActionNotification(props.personWebId)}>Befriend</button>
     </>;
   }
 }
@@ -159,14 +168,20 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
       {photo}
       <div className="media-content">
         <p className="content">
-          <Link
-            to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
-            title="View this person's friends"
-          >
-            {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
-          </Link>
-          <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
-          <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
+          <div>
+            <Link
+              to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
+              title="View this person's friends"
+            >
+              {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+            </Link>
+          </div>
+          <div>
+            <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
+          </div>
+          <div>
+            <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
+          </div>         
         </p>
       </div>
     </div>

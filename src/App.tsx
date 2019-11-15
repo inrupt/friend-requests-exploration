@@ -14,13 +14,16 @@ const App: React.FC = () => {
     <Router>
       <LoggedOut>
         <section className="section">
-          <p className="content">This app requires you to log in. It requires <b>Control</b> access.</p>
-          <LoginButton popup="popup.html" className="button is-large is-primary">Log in to start using</LoginButton>
+          <h1 className="title">Friend Requests Exploration</h1>
+          <p className="subtitle">This app requires you to log in.
+          Unless launched from the <a href="https://launcher-exploration.inrupt.app/">Launcher app</a>,
+          it requires pod-wide <strong>Control</strong> access.</p>
+          <LoginButton popup="popup.html" className="button is-large is-primary">Log in to start using this app</LoginButton>
         </section>
       </LoggedOut>
       <LoggedIn>
         <div className="panel">
-          Logged in as {useWebId()}.&nbsp;
+          <p className="subtitle">Logged in as {useWebId()}.</p>
           <LogoutButton className="button is-warning" />
         </div>
         <Switch>

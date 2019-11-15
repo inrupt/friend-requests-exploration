@@ -1,26 +1,46 @@
-import { vcard, rdf, acl } from 'rdf-namespaces';
+import { vcard as vcardUpstream, rdf, acl } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
 import { getDocument } from './DocumentCache';
 
+const vcard = Object.assign(vcardUpstream, {
+  Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
+});
+
 let addressBookDocumentPromise: Promise<TripleDocument | null>;
+
+export async function unFriend(webId: string) {
+  const addressBookDocument: TripleDocument | null = await getAddressBookDocument();
+  if (!addressBookDocument) {
+    return null;
+  }
+  const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
+  groups.forEach((group: TripleSubject) => {
+    group.removeRef(vcard.hasMember, webId);
+  });
+  return addressBookDocument.save();
+}
+
+export async function getAddressBookDocument(): Promise<TripleDocument | null> {
+  
+  // Find a Document that is a vcard:Addressbook
+  if (!addressBookDocumentPromise) {
+    addressBookDocumentPromise = fetchDocumentForClass(vcard.Addressbook);
+  }
+  const addressBookDocument = await addressBookDocumentPromise;
+  return addressBookDocument;
+}
 
 export async function getFriendLists(): Promise<TripleSubject[] | null> {
   const currentSession = await SolidAuth.currentSession();
   if (!currentSession || !currentSession.webId) {
     return null;
   }
-
-  // Find a Document that lists vcard:Individual's
-  if (!addressBookDocumentPromise) {
-    addressBookDocumentPromise = fetchDocumentForClass(vcard.Individual);
-  }
-  const addressBookDocument = await addressBookDocumentPromise;
+  const addressBookDocument: TripleDocument | null = await getAddressBookDocument();
   if (!addressBookDocument) {
     return null;
   }
-
   const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
   if (groups.length === 0) {
     // If no vcard:Group exists yet in the address book, create one named "Friends":
