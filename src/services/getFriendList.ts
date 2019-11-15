@@ -1,8 +1,12 @@
-import { vcard, rdf, acl } from 'rdf-namespaces';
+import { vcard as vcardUpstream, rdf, acl } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
 import { getDocument } from './DocumentCache';
+
+const vcard = Object.assign(vcardUpstream, {
+  Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
+});
 
 let addressBookDocumentPromise: Promise<TripleDocument | null>;
 
@@ -20,9 +24,9 @@ export async function unFriend(webId: string) {
 
 export async function getAddressBookDocument(): Promise<TripleDocument | null> {
   
-  // Find a Document that lists vcard:Individual's
+  // Find a Document that is a vcard:Addressbook
   if (!addressBookDocumentPromise) {
-    addressBookDocumentPromise = fetchDocumentForClass(vcard.Individual);
+    addressBookDocumentPromise = fetchDocumentForClass(vcard.Addressbook);
   }
   const addressBookDocument = await addressBookDocumentPromise;
   return addressBookDocument;
