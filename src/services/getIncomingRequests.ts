@@ -5,10 +5,7 @@ import { getInboxRefs } from './getInboxItems';
 import { getFollowAction } from './getFollowAction';
 import { TripleSubject } from 'tripledoc';
 import { getFriendLists } from './getFriendList';
-import { isBlockScoped } from '@babel/types';
 import { getFriendListsForWebId, AddressBookGroup } from './getFriendListForWebId';
-import { Address } from 'cluster';
-import { BreadcrumbList } from 'rdf-namespaces/dist/schema';
 
 export async function getIncomingRequests(): Promise<TripleSubject[]> {
   const currentSession = await SolidAuth.currentSession();
