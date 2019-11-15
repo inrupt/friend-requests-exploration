@@ -39,6 +39,10 @@ enum PersonType {
   stranger
 }
 
+function unFriend(webId: string) {
+  window.alert('to do: implement');
+}
+
 const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> = (props) => {
   switch (props.personType) {
     case PersonType.me: return <>(this is you)</>;
@@ -48,9 +52,13 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
       }}>See Friend Request</button>
     </>;
     case PersonType.requested: return <>
-      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
+      <button type="submit" className='button is-warning' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
     </>;
-    case PersonType.friend: return <>(you are friends)</>;
+    case PersonType.friend: return <>
+      <button type="submit" className='button is-danger' onClick={() => {
+        unFriend(props.personWebId);
+      }}>Unfriend</button>
+    </>;
     case PersonType.blocked: return <>(unblock)</>;
     case PersonType.stranger: return <>
       <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Befriend</button>
