@@ -3,11 +3,11 @@ import { TripleSubject } from 'tripledoc';
 import { foaf, vcard, schema } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
-import { getFriendListsForWebId, AddressBook } from '../services/getFriendListForWebId';
+import { getFriendListsForWebId, AddressBookGroup } from '../services/getFriendListForWebId';
 import { getFriendLists, unFriend } from '../services/getFriendList';
 import { usePersonFriends } from './Profile';
 import { getProfile } from '../services/getProfile';
-import { sendBefriendActionNotification } from '../services/sendFriendRequest';
+import { sendActionNotification, sendFriendRequest } from '../services/sendFriendRequest';
 import { getIncomingRequests } from '../services/getIncomingRequests';
 
 interface Props {
@@ -48,7 +48,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
       }}>See Friend Request</button>
     </>;
     case PersonType.requested: return <>
-      <button type="submit" className='button is-warning' onClick={() => sendBefriendActionNotification(props.personWebId)}>Resend</button>
+      <button type="submit" className='button is-warning' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
     </>;
     case PersonType.friend: return <>
       <button type="submit" className='button is-danger' onClick={() => {
@@ -62,7 +62,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
     </>;
     case PersonType.blocked: return <>(unblock)</>;
     case PersonType.stranger: return <>
-      <button type="submit" className='button is-primary' onClick={() => sendBefriendActionNotification(props.personWebId)}>Befriend</button>
+      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Befriend</button>
     </>;
   }
 }
@@ -97,9 +97,9 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
   const listsYou = useAsync(async () => {
     let found = false;
     if (webId) {
-      const friendList: AddressBook[] | null = await getFriendListsForWebId(personWebId);
+      const friendList: AddressBookGroup[] | null = await getFriendListsForWebId(personWebId);
       if (friendList) {
-        friendList.forEach((addressBook: AddressBook) => {
+        friendList.forEach((addressBook: AddressBookGroup) => {
           if (addressBook.contacts.indexOf(webId) !== -1) {
             found = true;
           }
