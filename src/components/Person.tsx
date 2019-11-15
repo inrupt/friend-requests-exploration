@@ -7,7 +7,7 @@ import { getFriendListsForWebId, AddressBook } from '../services/getFriendListFo
 import { getFriendLists, unFriend } from '../services/getFriendList';
 import { usePersonFriends } from './Profile';
 import { getProfile } from '../services/getProfile';
-import { sendFriendRequest } from '../services/sendFriendRequest';
+import { sendBefriendActionNotification } from '../services/sendFriendRequest';
 import { getIncomingRequests } from '../services/getIncomingRequests';
 
 interface Props {
@@ -48,7 +48,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
       }}>See Friend Request</button>
     </>;
     case PersonType.requested: return <>
-      <button type="submit" className='button is-warning' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
+      <button type="submit" className='button is-warning' onClick={() => sendBefriendActionNotification(props.personWebId)}>Resend</button>
     </>;
     case PersonType.friend: return <>
       <button type="submit" className='button is-danger' onClick={() => {
@@ -62,7 +62,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
     </>;
     case PersonType.blocked: return <>(unblock)</>;
     case PersonType.stranger: return <>
-      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Befriend</button>
+      <button type="submit" className='button is-primary' onClick={() => sendBefriendActionNotification(props.personWebId)}>Befriend</button>
     </>;
   }
 }
