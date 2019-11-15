@@ -7,7 +7,7 @@ import { getFriendListsForWebId, AddressBookGroup } from '../services/getFriendL
 import { getFriendLists, unFriend } from '../services/getFriendList';
 import { usePersonFriends } from './Profile';
 import { getProfile } from '../services/getProfile';
-import { sendActionNotification, sendFriendRequest } from '../services/sendFriendRequest';
+import { sendFriendRequest } from '../services/sendFriendRequest';
 import { getIncomingRequests } from '../services/getIncomingRequests';
 
 interface Props {

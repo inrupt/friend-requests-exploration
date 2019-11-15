@@ -3,7 +3,7 @@ import { TripleSubject } from 'tripledoc';
 import { vcard } from 'rdf-namespaces';
 import { FriendSelector } from './FriendSelector';
 import { Person } from './Person';
-import { sendActionNotification, sendFriendRequest } from '../services/sendFriendRequest';
+import { sendFriendRequest } from '../services/sendFriendRequest';
 
 interface Props {
   friendlist: TripleSubject;
