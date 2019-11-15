@@ -159,14 +159,20 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
       {photo}
       <div className="media-content">
         <p className="content">
-          <Link
-            to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
-            title="View this person's friends"
-          >
-            {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
-          </Link>
-          <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
-          <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
+          <div>
+            <Link
+              to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
+              title="View this person's friends"
+            >
+              {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+            </Link>
+          </div>
+          <div>
+            <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
+          </div>
+          <div>
+            <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
+          </div>         
         </p>
       </div>
     </div>

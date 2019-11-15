@@ -27,14 +27,14 @@ export const FriendRequest: React.FC<Props> = (props) => {
 
   if (profile === null) {
     return (
-      <p>
+      <p className="subtitle">
         There was an error getting the profile details of the person that sent this friend request.
       </p>
     );
   }
   if (typeof profile === 'undefined') {
     return (
-      <p>
+      <p className="subtitle">
         Loading&hellip;
       </p>
     );

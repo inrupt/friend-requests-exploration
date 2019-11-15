@@ -23,9 +23,9 @@ export const FriendLists: React.FC = () => {
   }, [webId]);
 
   if (!friendLists) {
-    return <>
+    return <p className="subtitle">
       Loading friends list&hellip;
-    </>;
+    </p>;
   }
 
   const friendListElements = friendLists.map(

@@ -25,7 +25,7 @@ export const IncomingList: React.FC = () => {
 
   if (!friendRequests || !friendlists) {
     return (
-      <p>Loading friend requests&hellip;</p>
+      <p className="subtitle">Loading friend requests&hellip;</p>
     );
   }
 
