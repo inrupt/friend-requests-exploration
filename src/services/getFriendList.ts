@@ -6,21 +6,37 @@ import { getDocument } from './DocumentCache';
 
 let addressBookDocumentPromise: Promise<TripleDocument | null>;
 
-export async function getFriendLists(): Promise<TripleSubject[] | null> {
-  const currentSession = await SolidAuth.currentSession();
-  if (!currentSession || !currentSession.webId) {
+export async function unFriend(webId: string) {
+  const addressBookDocument: TripleDocument | null = await getAddressBookDocument();
+  if (!addressBookDocument) {
     return null;
   }
+  const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
+  groups.forEach((group: TripleSubject) => {
+    group.removeRef(vcard.hasMember, webId);
+  });
+  return addressBookDocument.save();
+}
 
+export async function getAddressBookDocument(): Promise<TripleDocument | null> {
+  
   // Find a Document that lists vcard:Individual's
   if (!addressBookDocumentPromise) {
     addressBookDocumentPromise = fetchDocumentForClass(vcard.Individual);
   }
   const addressBookDocument = await addressBookDocumentPromise;
+  return addressBookDocument;
+}
+
+export async function getFriendLists(): Promise<TripleSubject[] | null> {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession || !currentSession.webId) {
+    return null;
+  }
+  const addressBookDocument: TripleDocument | null = await getAddressBookDocument();
   if (!addressBookDocument) {
     return null;
   }
-
   const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
   if (groups.length === 0) {
     // If no vcard:Group exists yet in the address book, create one named "Friends":

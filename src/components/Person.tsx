@@ -4,7 +4,7 @@ import { foaf, vcard, schema } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
 import { getFriendListsForWebId, AddressBook } from '../services/getFriendListForWebId';
-import { getFriendLists } from '../services/getFriendList';
+import { getFriendLists, unFriend } from '../services/getFriendList';
 import { usePersonFriends } from './Profile';
 import { getProfile } from '../services/getProfile';
 import { sendFriendRequest } from '../services/sendFriendRequest';
@@ -39,10 +39,6 @@ enum PersonType {
   stranger
 }
 
-function unFriend(webId: string) {
-  window.alert('to do: implement');
-}
-
 const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> = (props) => {
   switch (props.personType) {
     case PersonType.me: return <>(this is you)</>;
@@ -56,8 +52,13 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
     </>;
     case PersonType.friend: return <>
       <button type="submit" className='button is-danger' onClick={() => {
-        unFriend(props.personWebId);
-      }}>Unfriend</button>
+        unFriend(props.personWebId).then(() => {
+          console.log('unfriended', props.personWebId);
+          window.location.href = '';  // FIXME: more subtle way to tell React to re-render
+        }, (e: Error) => {
+          console.log('could not unfriend', props.personWebId, e.message);
+        });
+    }}>Unfriend</button>
     </>;
     case PersonType.blocked: return <>(unblock)</>;
     case PersonType.stranger: return <>
