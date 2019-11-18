@@ -21,7 +21,7 @@
     "react-scripts": "^3.2.0",
     "solid-auth-client": "^2.3.1",
     "styled-components": "^4.4.0",
-    "tripledoc": "^2.4.0-light-350513058-54880d22",
+    "tripledoc": "^3.0.0",
     "tripledoc-solid-helpers": "^0.1.2",
     "typescript": "^3.6.3"
   },
