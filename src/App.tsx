@@ -12,17 +12,18 @@ import { Person, PersonSummary } from './components/Person';
 
 const App: React.FC = () => {
   return <>
-    <Router>
-      <LoggedOut>
-        <section className="section">
-          <h1 className="title">Friend Requests Exploration</h1>
-          <p className="subtitle">This app requires you to log in.
-          Unless launched from the <a href="https://launcher-exploration.inrupt.app/">Launcher app</a>,
-          it requires pod-wide <strong>Control</strong> access.</p>
-          <LoginButton popup="popup.html" className="button is-large is-primary">Log in to start using this app</LoginButton>
-        </section>
-      </LoggedOut>
-      <LoggedIn>
+    <React.StrictMode>
+      <Router>
+        <LoggedOut>
+          <section className="section">
+            <h1 className="title">Friend Requests Exploration</h1>
+            <p className="subtitle">This app requires you to log in.
+            Unless launched from the <a href="https://launcher-exploration.inrupt.app/">Launcher app</a>,
+            it requires pod-wide <strong>Control</strong> access.</p>
+            <LoginButton popup="popup.html" className="button is-large is-primary">Log in to start using this app</LoginButton>
+          </section>
+        </LoggedOut>
+        <LoggedIn>
         <nav className="nav has-shadow">
           <div className="container">
             <div className="nav-left">
@@ -87,8 +88,9 @@ const App: React.FC = () => {
             </div>
           </div>
         </footer>
-      </LoggedIn>
-    </Router>
+        </LoggedIn>
+      </Router>
+    </React.StrictMode>
   </>;
 }
 
