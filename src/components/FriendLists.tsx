@@ -3,6 +3,7 @@ import { TripleSubject } from 'tripledoc';
 import { getFriendLists } from '../services/getFriendList';
 import { useWebId } from '@solid/react';
 import { Friendlist } from './Friendlist';
+import { vcard } from 'rdf-namespaces';
 
 export const FriendLists: React.FC = () => {
   const webId = useWebId();
@@ -28,8 +29,16 @@ export const FriendLists: React.FC = () => {
     </p>;
   }
 
-  const friendListElements = friendLists.map(
-    (friendlist, i) => <Friendlist key={'friendlist' + i} friendlist={friendlist}/>);
+  let foundFriends = false;
+  const friendListElements = friendLists.map((friendlist, i) => {
+    if (friendlist.getLiteral(vcard.fn)) {
+      if (!foundFriends) {
+        foundFriends = true;
+        return <Friendlist key={'friendlist' + i} friendlist={friendlist}/>;
+      }
+    }
+    return <></>;
+  });
 
   return <>
     <section className="section">

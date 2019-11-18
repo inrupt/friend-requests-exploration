@@ -65,43 +65,10 @@ const App: React.FC = () => {
             <ul className="menu-list">
                 <PersonSummary webId={(useWebId() || undefined)} />
               <li>
-                <a href="#" className="is-active">
-                  <span className="icon"><i className="fa fa-table"></i></span> Pending
-                </a>
-                <ul>
-                  <li>
-                    <PersonSummary webId={(useWebId() || undefined)} />                    
-                  </li>
-                  <li>
-                    <PersonSummary webId={(useWebId() || undefined)} />
-                  </li>
-                </ul>
+                <IncomingList />
               </li>
               <li>
-                <a href="#" className="is-active">
-                  <span className="icon"><i className="fa fa-table"></i></span> Friends
-                </a>
-                <ul>
-                  <li>
-                    <PersonSummary webId={(useWebId() || undefined)} />                    
-                  </li>
-                  <li>
-                    <PersonSummary webId={(useWebId() || undefined)} />
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a href="#" className="is-active">
-                  <span className="icon"><i className="fa fa-table"></i></span> Blocked
-                </a>
-                <ul>
-                  <li>
-                    <PersonSummary webId={(useWebId() || undefined)} />                    
-                  </li>
-                  <li>
-                    <PersonSummary webId={(useWebId() || undefined)} />
-                  </li>
-                </ul>
+                <FriendLists />
               </li>
             </ul>
           </aside>
