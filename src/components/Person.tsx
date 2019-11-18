@@ -167,7 +167,7 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
     <div className="media">
       {photo}
       <div className="media-content">
-        <p className="content">
+        <div className="content">
           <div>
             <Link
               to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
@@ -182,7 +182,7 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
           <div>
             <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
           </div>         
-        </p>
+        </div>
       </div>
     </div>
   </>;
