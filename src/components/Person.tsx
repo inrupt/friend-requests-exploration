@@ -11,20 +11,38 @@ import { sendFriendRequest } from '../services/sendFriendRequest';
 import { getIncomingRequests } from '../services/getIncomingRequests';
 
 interface Props {
-  webId: string;
+  webId?: string;
 };
 
 export const Person: React.FC<Props> = (props) => {
   const [profile, setProfile] = React.useState();
 
   React.useEffect(() => {
-    getProfile(props.webId).then(setProfile);
+    if (props.webId) {
+      getProfile(props.webId).then(setProfile);
+    }
   }, [props.webId]);
 
   const personView = (profile)
-    ? <PersonView subject={profile}/>
-    : <code>{props.webId}</code>;
+    ? <FullPersonView subject={profile}/>
+      : <code>{props.webId}</code>;
+  return <>
+    {personView}
+  </>;
+};
 
+export const PersonSummary: React.FC<Props> = (props) => {
+  const [profile, setProfile] = React.useState();
+
+  React.useEffect(() => {
+    if (props.webId) {
+      getProfile(props.webId).then(setProfile);
+    }
+  }, [props.webId]);
+
+  const personView = (profile)
+    ? <PersonSummaryView subject={profile}/>
+      : <code>{props.webId}</code>;
   return <>
     {personView}
   </>;
@@ -90,17 +108,15 @@ function useAsync(fun: () => Promise<any>, defaultVal: any) {
   return val;
 }
 
-const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
-  const profile = props.subject;
-  const personWebId = props.subject.asNodeRef();
-  const webId = useWebId();
+function usePersonType(personWebId: string): PersonType | null {
+  const userWebId = useWebId();
   const listsYou = useAsync(async () => {
     let found = false;
-    if (webId) {
+    if (userWebId) {
       const friendList: AddressBookGroup[] | null = await getFriendListsForWebId(personWebId);
       if (friendList) {
         friendList.forEach((addressBook: AddressBookGroup) => {
-          if (addressBook.contacts.indexOf(webId) !== -1) {
+          if (addressBook.contacts.indexOf(userWebId) !== -1) {
             found = true;
           }
         });
@@ -111,7 +127,7 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
 
   const isInInbox = useAsync(async () => {
     let found = false;
-    if (webId) {
+    if (userWebId) {
       const friendRequests = await getIncomingRequests();
       return friendRequests.findIndex(request => request.getRef(schema.agent) === personWebId) !== -1;
     }
@@ -120,7 +136,7 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
 
   const isInYourList = useAsync(async () => {
     let found = false;
-    if (webId) {
+    if (userWebId) {
       const friendLists: TripleSubject[] | null = await getFriendLists();
       if (friendLists) {
         friendLists.forEach((friendList) => {
@@ -134,13 +150,13 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
     }
     return found;
   }, false);
-  if (!webId) {
-    return <>(loading {personWebId})</>;
+  if (!userWebId) {
+    return null;
   }
 
   console.log({ personWebId, isInYourList, isInInbox, listsYou });
   let personType: PersonType = PersonType.stranger;
-  if (personWebId === webId) {
+  if (personWebId === userWebId) {
     personType = PersonType.me;
   } else if (isInYourList) {
     if (listsYou) {
@@ -151,7 +167,50 @@ const PersonView: React.FC<{ subject: TripleSubject }> = (props) => {
   } else if (isInInbox) {
     personType = PersonType.requested
   }
+  return personType;
+}
+const PersonSummaryView: React.FC<{ subject: TripleSubject }> = (props) => {
+  const profile = props.subject;
+  const personWebId = props.subject.asNodeRef();
+  const personType = usePersonType(personWebId);
+  const photoUrl = profile.getNodeRef(vcard.hasPhoto);
+  const photo = (!photoUrl)
+    ? null
+    : <>
+        <figure className="media-left">
+          <p className="image is-64x64">
+            <img src={profile.getNodeRef(vcard.hasPhoto)!} alt="Avatar" className="is-rounded"/>
+          </p>
+        </figure>
+      </>;
 
+  return <>
+    <div className="media">
+      {photo}
+      <div className="media-content">
+        <div className="content">
+          <div>
+            <Link
+              to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
+              title="View this person's friends"
+            >
+              {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  </>;
+};
+
+const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
+  const profile = props.subject;
+  const personWebId = props.subject.asNodeRef();
+  const personType: PersonType | null = usePersonType(personWebId);
+  console.log(personType, PersonType, 'person type!');
+  if (personType === null) {
+    return <>(loading {personWebId})</>;
+  }
   const photoUrl = profile.getNodeRef(vcard.hasPhoto);
   const photo = (!photoUrl)
     ? null
