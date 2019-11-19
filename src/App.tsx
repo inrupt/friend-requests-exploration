@@ -27,9 +27,7 @@ const App: React.FC = () => {
           <nav className="nav has-shadow">
             <div className="container">
               <div className="nav-left">
-                <a className="nav-item">
-                  <LogoutButton className="button is-primary"/>
-                </a>
+                <LogoutButton className="nav-item button is-primary"/>
               </div>
               <div className="nav-toggle">
                 <span></span>
