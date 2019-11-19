@@ -85,6 +85,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
   }
 }
 
+
 const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const webId = useWebId();
   const theirFriends = usePersonFriends(props.personWebId);
@@ -92,7 +93,8 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   console.log({ webId, theirFriends, myFriends });
   if (theirFriends && myFriends) {
     const friendsInCommon: string[] = Array.from(theirFriends.values()).filter(item => myFriends.has(item));
-    const listElements = friendsInCommon.map(webId => <li>{webId}</li>);
+    const listElements = friendsInCommon.map(webId => <li key={webId}> {webId}</li> );
+
     return <>Friends in common: <ul>{listElements}</ul></>;
   }
   return <>(no friends in common)</>;

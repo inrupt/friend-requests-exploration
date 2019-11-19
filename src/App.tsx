@@ -28,7 +28,7 @@ const App: React.FC = () => {
             <div className="container">
               <div className="nav-left">
                 <a className="nav-item">
-                  Website
+                  <LogoutButton className="button is-primary"/>
                 </a>
               </div>
               <div className="nav-toggle">
