@@ -1,5 +1,5 @@
 import { TripleDocument, TripleSubject } from 'tripledoc';
-import { getDocument } from './DocumentCache';
+import { getDocument } from '../DocumentCache';
 
 const cachedProfileDocs: Map<string, TripleDocument> = new Map();
 

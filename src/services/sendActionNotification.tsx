@@ -1,8 +1,8 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp } from 'rdf-namespaces';
-import { getProfile } from './getProfile';
+import { getProfile } from './old/getProfile-old';
 import { TripleDocument } from 'tripledoc';
-import { getAddressBookDocForWebId } from './getFriendListForWebId';
+import { getAddressBookDocForWebId } from './old/getFriendListForWebId-old';
 
 export async function sendActionNotification(recipient: string, activityType: string) {
     const currentSession = await SolidAuth.currentSession();

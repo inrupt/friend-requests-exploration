@@ -44,18 +44,27 @@ export function useDocument(url: string | null): TripleDocument | null {
   // sometimes (uselessly) calling `useDocument(null)`. It feels like there
   // must be a better solution for this, but leaving it as this for now:
   const [ doc, setDoc ] = React.useState<TripleDocument | null>(null);
+
   if (url === null) {
     return null;
   }
-  if (!doc) {
-    getDocument(url).then((fetched: TripleDocument) => {
+
+  function loadDocument(url: string) {
+    return getDocument(url).then((fetched: TripleDocument) => {
       setDoc(fetched);
     }).catch((e: Error) => {
       // console.error('getDocument failed (again?)', e.message);
     });
+  }
+  
+  if (!doc) {
+    loadDocument(url);
     return null;
   }
   return Object.assign({
+    load: async () => {
+      return loadDocument(url);
+    },
     save: async () => {
       const newDoc = await doc.save();
       setDoc(newDoc);

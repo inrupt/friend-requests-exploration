@@ -1,5 +1,5 @@
 import { Reference, TripleSubject } from 'tripledoc';
-import { getDocument } from './DocumentCache';
+import { getDocument } from '../DocumentCache';
 
 const as = {
   Accept: 'https://www.w3.org/ns/activitystreams#Accept',

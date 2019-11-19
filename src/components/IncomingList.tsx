@@ -1,12 +1,13 @@
 import React from 'react';
 import { useWebId } from '@solid/react';
-import { TripleSubject, Reference } from 'tripledoc';
-import { schema, vcard } from 'rdf-namespaces';
+import { TripleSubject, Reference, TripleDocument } from 'tripledoc';
+import { schema, vcard, ldp } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
-import { getIncomingRequests } from '../services/getIncomingRequests';
+import { getIncomingRequests } from '../services/old/getIncomingRequests-old';
 import { FriendRequest } from './FriendRequest';
-import { getFriendLists } from '../services/getFriendList';
-import { sendConfirmation } from '../services/sendFriendRequest';
+import { getFriendLists } from '../services/old/getFriendList-old';
+import { sendConfirmation } from '../services/sendActionNotification';
+import { useDocument } from '../services/DocumentCache';
 
 async function removeRemoteDoc(url: string) {
   return await SolidAuth.fetch(url, {
@@ -15,7 +16,9 @@ async function removeRemoteDoc(url: string) {
 }
 
 export const IncomingList: React.FC = () => {
-  const webId = useWebId();
+  const incomingFriendRequests: IncomingFriendRequest[] | null = useIncomingFriendRequests();
+
+  
   const [friendRequests, setFriendRequests] = React.useState<TripleSubject[]>();
   const [friendlists, setFriendlists] = React.useState<TripleSubject[] | null>();
 

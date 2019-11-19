@@ -1,6 +1,6 @@
 import { Reference } from 'tripledoc';
 import { ldp } from 'rdf-namespaces';
-import { getDocument } from './DocumentCache';
+import { getDocument } from '../DocumentCache';
 
 export async function getInboxRefs(inboxRef: Reference): Promise<Reference[]> {
   const containerDoc = await getDocument(inboxRef);

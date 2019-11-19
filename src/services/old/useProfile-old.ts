@@ -1,5 +1,5 @@
 import { TripleDocument, TripleSubject } from 'tripledoc';
-import { useDocument } from './DocumentCache';
+import { useDocument } from '../DocumentCache';
 
 export function useProfile(webId: string | null): TripleSubject | null {
   const cachedProfileDoc: TripleDocument | null = useDocument(webId);

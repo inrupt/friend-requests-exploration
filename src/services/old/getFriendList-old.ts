@@ -2,10 +2,10 @@ import { vcard as vcardUpstream, rdf, acl, ldp } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
-import { getDocument } from './DocumentCache';
-import { ensureContainer } from './ensureContainer';
-import { getProfile } from './getProfile';
-import { getFriendListsSubjectsForWebId } from './getFriendListForWebId';
+import { getDocument } from '../DocumentCache';
+import { ensureContainer } from '../ensureContainer';
+import { getProfile } from './getProfile-old';
+import { getFriendListsSubjectsForWebId } from './getFriendListForWebId-old';
 
 const vcard = Object.assign({}, vcardUpstream, {
   Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'

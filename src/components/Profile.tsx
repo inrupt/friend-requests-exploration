@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router';
 import { NodeRef } from 'tripledoc';
-import { getFriendListsForWebId } from '../services/getFriendListForWebId';
+import { getFriendListsForWebId } from '../services/old/getFriendListForWebId-old';
 import { Person } from './Person';
 
 interface PathParams {

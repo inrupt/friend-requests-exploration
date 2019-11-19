@@ -1,7 +1,7 @@
 import React from 'react';
 import { TripleSubject, Reference } from 'tripledoc';
 import { schema, vcard, foaf } from 'rdf-namespaces';
-import { useProfile } from '../services/useProfile';
+import { useProfile } from '../services/old/useProfile-old';
 
 interface Props {
   request: TripleSubject;

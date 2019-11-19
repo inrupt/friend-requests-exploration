@@ -3,12 +3,12 @@ import { TripleSubject } from 'tripledoc';
 import { foaf, vcard, schema } from 'rdf-namespaces';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
-import { getFriendListsForWebId, AddressBookGroup } from '../services/getFriendListForWebId';
-import { getFriendLists, unFriend } from '../services/getFriendList';
+import { getFriendListsForWebId, AddressBookGroup } from '../services/old/getFriendListForWebId-old';
+import { getFriendLists, unFriend } from '../services/old/getFriendList-old';
 import { usePersonFriends } from './Profile';
-import { useProfile } from '../services/useProfile';
-import { sendFriendRequest } from '../services/sendFriendRequest';
-import { getIncomingRequests } from '../services/getIncomingRequests';
+import { useProfile } from '../services/old/useProfile-old';
+import { sendFriendRequest } from '../services/sendActionNotification';
+import { getIncomingRequests } from '../services/old/getIncomingRequests-old';
 
 interface Props {
   webId?: string;

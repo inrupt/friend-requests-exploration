@@ -1,6 +1,6 @@
 import { Reference, TripleDocument, TripleSubject } from 'tripledoc';
 import { solid, vcard as vcardUpstream} from 'rdf-namespaces';
-import { getDocument } from './DocumentCache';
+import { getDocument } from '../DocumentCache';
 
 const vcard = Object.assign({}, vcardUpstream, {
   Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
@@ -47,6 +47,13 @@ export async function getFriendListsSubjectsForWebId(webId: string | null): Prom
   if (!addressbookDoc) {
     return null;
   }
+  console.log('friend lists for', webId, addressbookDoc.getSubjectsOfType(vcard.Group).map(list => {
+    const addressBookGroup: AddressBookGroup = {
+      name: list.getString(vcard.fn),
+      contacts: list.getAllNodeRefs(vcard.hasMember),
+    };
+    return addressBookGroup;
+  }));
   return addressbookDoc.getSubjectsOfType(vcard.Group);
 }
 

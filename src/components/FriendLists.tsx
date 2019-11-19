@@ -1,6 +1,6 @@
 import React from 'react';
 import { TripleSubject } from 'tripledoc';
-import { getFriendLists } from '../services/getFriendList';
+import { getFriendLists } from '../services/old/getFriendList-old';
 import { useWebId } from '@solid/react';
 import { Friendlist } from './Friendlist';
 import { vcard } from 'rdf-namespaces';
