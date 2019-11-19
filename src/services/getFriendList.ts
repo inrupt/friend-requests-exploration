@@ -2,10 +2,10 @@ import { vcard as vcardUpstream, rdf, acl, ldp } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
-import { useDocument, getDocument } from './DocumentCache';
-import { useProfile } from './useProfile';
+import { getDocument } from './DocumentCache';
 import { ensureContainer } from './ensureContainer';
 import { getProfile } from './getProfile';
+import { getFriendListsSubjectsForWebId } from './getFriendListForWebId';
 
 const vcard = Object.assign({}, vcardUpstream, {
   Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
@@ -40,9 +40,18 @@ export async function getFriendLists(): Promise<TripleSubject[] | null> {
   if (!currentSession || !currentSession.webId) {
     return null;
   }
-  const addressBookDocument: TripleDocument | null = await getAddressBookDocument();
-  if (!addressBookDocument) {
+  return getFriendListsSubjectsForWebId(currentSession.webId);
+}
+export async function ensureAddressbook() {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession || !currentSession.webId) {
     return null;
+  }
+
+  let addressBookDocument: TripleDocument | null = await getAddressBookDocument();
+  if (!addressBookDocument) {
+    const addressBookLocation = new URL('/bookmarks.ttl', currentSession.webId).toString()
+    addressBookDocument = createDocument(addressBookLocation);
   }
   const groups = addressBookDocument.getSubjectsOfType(vcard.Group);
   if (groups.length === 0) {

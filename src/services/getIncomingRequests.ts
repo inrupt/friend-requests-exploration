@@ -1,6 +1,5 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp, schema, vcard } from 'rdf-namespaces';
-import { useProfile } from './useProfile';
 import { getInboxRefs } from './getInboxItems';
 import { getFollowAction } from './getFollowAction';
 import { TripleSubject } from 'tripledoc';

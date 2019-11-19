@@ -1,4 +1,4 @@
-import { Reference, TripleDocument } from 'tripledoc';
+import { Reference, TripleDocument, TripleSubject } from 'tripledoc';
 import { solid, vcard as vcardUpstream} from 'rdf-namespaces';
 import { getDocument } from './DocumentCache';
 
@@ -42,13 +42,19 @@ export async function getAddressBookDocForWebId(webId: string | null): Promise<T
   return getDocument(addressbookDocRef);
 }
 
-export async function getFriendListsForWebId(webId: string | null): Promise<AddressBookGroup[] | null> {
+export async function getFriendListsSubjectsForWebId(webId: string | null): Promise<TripleSubject[] | null> {
   const addressbookDoc: TripleDocument | null = await getAddressBookDocForWebId(webId);
   if (!addressbookDoc) {
     return null;
   }
-  const groupSubjects = addressbookDoc.getSubjectsOfType(vcard.Group);
+  return addressbookDoc.getSubjectsOfType(vcard.Group);
+}
 
+export async function getFriendListsForWebId(webId: string | null): Promise<AddressBookGroup[] | null> {
+  const groupSubjects = await getFriendListsSubjectsForWebId(webId);
+  if (!groupSubjects) {
+    return null;
+  }
   return groupSubjects.map(list => {
     const addressBookGroup: AddressBookGroup = {
       name: list.getString(vcard.fn),
@@ -57,3 +63,4 @@ export async function getFriendListsForWebId(webId: string | null): Promise<Addr
     return addressBookGroup;
   });
 }
+
