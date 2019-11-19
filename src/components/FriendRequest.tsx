@@ -1,7 +1,7 @@
 import React from 'react';
 import { TripleSubject, Reference } from 'tripledoc';
 import { schema, vcard, foaf } from 'rdf-namespaces';
-import { getProfile } from '../services/getProfile';
+import { useProfile } from '../services/useProfile';
 
 interface Props {
   request: TripleSubject;
@@ -10,20 +10,12 @@ interface Props {
   onReject: () => void;
 };
 export const FriendRequest: React.FC<Props> = (props) => {
-  const [profile, setProfile] = React.useState<TripleSubject | null>();
-
   const agentRef = props.request.getRef(schema.agent);
-  React.useEffect(() => {
-    if (!agentRef) {
-      return setProfile(null);
-    }
-
-    getProfile(agentRef).then(setProfile);
-  }, [props.request, agentRef]);
-
-  if (!agentRef) {
-    return null;
-  }
+  // FIXME: use profile of agentRef that may be null
+  // if (!agentRef) {
+  //   return null;
+  // }
+  const profile: TripleSubject | null = useProfile(agentRef);
 
   if (profile === null) {
     return (

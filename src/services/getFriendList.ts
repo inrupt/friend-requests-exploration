@@ -3,7 +3,7 @@ import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
 import { useDocument } from './DocumentCache';
-import { getProfile } from './getProfile';
+import { useProfile } from './useProfile';
 import { ensureContainer } from './ensureContainer';
 
 const vcard = Object.assign({}, vcardUpstream, {
@@ -50,7 +50,7 @@ export async function getFriendLists(): Promise<TripleSubject[] | null> {
     firstGroup.addNodeRef(rdf.type, vcard.Group);
     firstGroup.addLiteral(vcard.fn, 'Friends');
     const addressBookSubject = addressBookDocument.getSubject('#this');
-    const profile = await getProfile(currentSession.webId);
+    const profile = useProfile(currentSession.webId);
     if (!profile) {
       return [];
     }

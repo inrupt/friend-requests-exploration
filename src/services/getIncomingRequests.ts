@@ -1,6 +1,6 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp, schema, vcard } from 'rdf-namespaces';
-import { getProfile } from './getProfile';
+import { useProfile } from './useProfile';
 import { getInboxRefs } from './getInboxItems';
 import { getFollowAction } from './getFollowAction';
 import { TripleSubject } from 'tripledoc';
@@ -51,8 +51,10 @@ export async function getIncomingRequests(): Promise<TripleSubject[]> {
   }
 
 
-  const profile = await getProfile(webId);
-
+  const profile: TripleSubject | null = useProfile(webId);
+  if (!profile) {
+    return [];
+  }
   const inboxRef = profile.getRef(ldp.inbox);
   if (!inboxRef) {
     return [];

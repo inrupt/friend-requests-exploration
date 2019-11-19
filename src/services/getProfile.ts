@@ -1,5 +1,5 @@
 import { TripleDocument, TripleSubject } from 'tripledoc';
-import { useDocument } from './DocumentCache';
+import { getDocument } from './DocumentCache';
 
 const cachedProfileDocs: Map<string, TripleDocument> = new Map();
 
@@ -9,7 +9,7 @@ export async function getProfile(webId: string): Promise<TripleSubject | null> {
     return cachedProfileDoc.getSubject(webId);
   }
 
-  const profileDoc = useDocument(webId);
+  const profileDoc = await getDocument(webId);
   if (!profileDoc) {
     return null;
   }

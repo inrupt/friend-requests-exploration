@@ -6,7 +6,7 @@ import { useWebId } from '@solid/react';
 import { getFriendListsForWebId, AddressBookGroup } from '../services/getFriendListForWebId';
 import { getFriendLists, unFriend } from '../services/getFriendList';
 import { usePersonFriends } from './Profile';
-import { getProfile } from '../services/getProfile';
+import { useProfile } from '../services/useProfile';
 import { sendFriendRequest } from '../services/sendFriendRequest';
 import { getIncomingRequests } from '../services/getIncomingRequests';
 
@@ -15,14 +15,10 @@ interface Props {
 };
 
 export const Person: React.FC<Props> = (props) => {
-  const [profile, setProfile] = React.useState();
-
-  React.useEffect(() => {
-    if (props.webId) {
-      getProfile(props.webId).then(setProfile);
-    }
-  }, [props.webId]);
-
+  let profile: TripleSubject | null = null;
+  if (props.webId){
+    profile = useProfile(props.webId);
+  }
   const personView = (profile)
     ? <FullPersonView subject={profile}/>
       : <code>{props.webId}</code>;
@@ -32,13 +28,10 @@ export const Person: React.FC<Props> = (props) => {
 };
 
 export const PersonSummary: React.FC<Props> = (props) => {
-  const [profile, setProfile] = React.useState();
-
-  React.useEffect(() => {
-    if (props.webId) {
-      getProfile(props.webId).then(setProfile);
-    }
-  }, [props.webId]);
+  let profile: TripleSubject | null = null;
+  if (props.webId){
+    profile = useProfile(props.webId);
+  }
 
   const personView = (profile)
     ? <PersonSummaryView subject={profile}/>

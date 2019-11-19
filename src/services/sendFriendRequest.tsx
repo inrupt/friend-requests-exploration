@@ -18,8 +18,12 @@ export async function sendActionNotification(recipient: string, activityType: st
     }
   }
   if (!inboxUrl) { // Try main inbox
+    // Using `await getProfile` instead of `useProfile to force a fetch here.
+    // See https://github.com/inrupt/friend-requests-exploration/issues/56
     const recipientProfile = await getProfile(recipient);
-    inboxUrl = recipientProfile.getRef(ldp.inbox);
+    if (recipientProfile) {
+      inboxUrl = recipientProfile.getRef(ldp.inbox);
+    }
   }
   if (!inboxUrl) {
     throw new Error('This person does not accept friend requests.');
