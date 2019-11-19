@@ -1,6 +1,6 @@
 import { Reference, TripleDocument } from 'tripledoc';
 import { solid, vcard as vcardUpstream} from 'rdf-namespaces';
-import { useDocument } from './DocumentCache';
+import { getDocument } from './DocumentCache';
 
 const vcard = Object.assign({}, vcardUpstream, {
   Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
@@ -15,7 +15,7 @@ export async function getAddressBookDocForWebId(webId: string | null): Promise<T
   if (!webId) {
     return null;
   }
-  const profileDoc = useDocument(webId);
+  const profileDoc = await getDocument(webId);
   if (!profileDoc) {
     return null;
   }
@@ -25,7 +25,7 @@ export async function getAddressBookDocForWebId(webId: string | null): Promise<T
     return null;
   }
 
-  const publicTypeIndex = await useDocument(publicTypeIndexRef);
+  const publicTypeIndex = await getDocument(publicTypeIndexRef);
   if (!publicTypeIndex) {
     return null;
   }
@@ -39,7 +39,7 @@ export async function getAddressBookDocForWebId(webId: string | null): Promise<T
     return null;
   }
 
-  return useDocument(addressbookDocRef);
+  return getDocument(addressbookDocRef);
 }
 
 export async function getFriendListsForWebId(webId: string | null): Promise<AddressBookGroup[] | null> {

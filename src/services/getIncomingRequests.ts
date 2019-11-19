@@ -6,6 +6,7 @@ import { getFollowAction } from './getFollowAction';
 import { TripleSubject } from 'tripledoc';
 import { getFriendLists } from './getFriendList';
 import { getFriendListsForWebId, AddressBookGroup } from './getFriendListForWebId';
+import { getProfile } from './getProfile';
 
 export async function getIncomingRequests(): Promise<TripleSubject[]> {
   const currentSession = await SolidAuth.currentSession();
@@ -51,7 +52,7 @@ export async function getIncomingRequests(): Promise<TripleSubject[]> {
   }
 
 
-  const profile: TripleSubject | null = useProfile(webId);
+  const profile: TripleSubject | null = await getProfile(webId);
   if (!profile) {
     return [];
   }

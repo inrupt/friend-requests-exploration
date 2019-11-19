@@ -2,9 +2,10 @@ import { vcard as vcardUpstream, rdf, acl, ldp } from 'rdf-namespaces';
 import SolidAuth from 'solid-auth-client';
 import { fetchDocumentForClass } from 'tripledoc-solid-helpers';
 import { TripleSubject, createDocument, TripleDocument } from 'tripledoc';
-import { useDocument } from './DocumentCache';
+import { useDocument, getDocument } from './DocumentCache';
 import { useProfile } from './useProfile';
 import { ensureContainer } from './ensureContainer';
+import { getProfile } from './getProfile';
 
 const vcard = Object.assign({}, vcardUpstream, {
   Addressbook: 'http://www.w3.org/2006/vcard/ns#Addressbook'
@@ -50,7 +51,7 @@ export async function getFriendLists(): Promise<TripleSubject[] | null> {
     firstGroup.addNodeRef(rdf.type, vcard.Group);
     firstGroup.addLiteral(vcard.fn, 'Friends');
     const addressBookSubject = addressBookDocument.getSubject('#this');
-    const profile = useProfile(currentSession.webId);
+    const profile = await getProfile(currentSession.webId);
     if (!profile) {
       return [];
     }
@@ -67,7 +68,7 @@ export async function getFriendLists(): Promise<TripleSubject[] | null> {
     // Then give everybody in that group permission to read the Document, and the Owner to modify it:
     const friendsAclRef = addressBookDocument.getAclRef();
     if (friendsAclRef) {
-      const friendsAclDoc = useDocument(friendsAclRef);
+      const friendsAclDoc = await getDocument(friendsAclRef);
       // FIXME: deal with create-if-missing
       // } catch (e) {
       //   friendsAclDoc = createDocument(friendsAclRef);

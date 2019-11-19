@@ -15,10 +15,7 @@ interface Props {
 };
 
 export const Person: React.FC<Props> = (props) => {
-  let profile: TripleSubject | null = null;
-  if (props.webId){
-    profile = useProfile(props.webId);
-  }
+  let profile: TripleSubject | null = useProfile(props.webId || null);
   const personView = (profile)
     ? <FullPersonView subject={profile}/>
       : <code>{props.webId}</code>;
@@ -28,10 +25,7 @@ export const Person: React.FC<Props> = (props) => {
 };
 
 export const PersonSummary: React.FC<Props> = (props) => {
-  let profile: TripleSubject | null = null;
-  if (props.webId){
-    profile = useProfile(props.webId);
-  }
+  let profile: TripleSubject | null = useProfile(props.webId || null);
 
   const personView = (profile)
     ? <PersonSummaryView subject={profile}/>
