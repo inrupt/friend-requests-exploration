@@ -1,5 +1,5 @@
 import { Reference, TripleSubject } from 'tripledoc';
-import { getDocument } from './DocumentCache';
+import { useDocument } from './DocumentCache';
 
 const as = {
   Accept: 'https://www.w3.org/ns/activitystreams#Accept',
@@ -9,7 +9,10 @@ const as = {
 
 export async function getFollowAction(inboxRef: Reference): Promise<TripleSubject | null> {
   try {
-    const inboxDocument = await getDocument(inboxRef);
+    const inboxDocument = useDocument(inboxRef);
+    if (!inboxDocument) {
+      return null;
+    }
     const befriendActions = inboxDocument.getSubjectsOfType(as.Follow);
 
     // If an inbox item is not exactly in the format we expect,

@@ -1,14 +1,15 @@
 import { TripleDocument, Reference, fetchDocument, TripleSubject } from 'tripledoc';
+import React from 'react';
 
-const cache: {[iri: string]: Promise<TripleDocument>} = {};
+const promises: {[iri: string]: Promise<TripleDocument>} = {};
 
-export function getDocument(url: string): Promise<TripleDocument> {
+function getDocument(url: string): Promise<TripleDocument> {
   // Remove fragment identifiers (e.g. `#me`) from the URI:
   const docUrl = new URL(url);
   const documentRef: Reference = docUrl.origin + docUrl.pathname + docUrl.search;
 
-  if (typeof cache[documentRef] !== 'undefined') {
-    return cache[documentRef];
+  if (typeof promises[documentRef] !== 'undefined') {
+    return promises[documentRef];
   }
 
   const documentPromise = fetchDocument(url).then((document) => {
@@ -16,7 +17,7 @@ export function getDocument(url: string): Promise<TripleDocument> {
     const actualSave = document.save;
     const cachingSave = async (subjects?: TripleSubject[]) => {
       const updatedDocument = await actualSave(subjects);
-      cache[documentRef] = Promise.resolve(updatedDocument);
+      promises[documentRef] = Promise.resolve(updatedDocument);
       return updatedDocument;
     };
 
@@ -25,7 +26,29 @@ export function getDocument(url: string): Promise<TripleDocument> {
       save: cachingSave,
     };
   });
-  cache[documentRef] = documentPromise;
+  promises[documentRef] = documentPromise;
 
   return documentPromise;
+}
+
+// FIXME: make this shared state across the whole app?
+// I think this way it will work to trigger a re-render of the
+// current component, but not of others.
+export function useDocument(url: string): TripleDocument | null {
+  const [ doc, setDoc ] = React.useState<TripleDocument | null>(null);
+  if (!doc) {
+    getDocument(url).then((fetched: TripleDocument) => {
+      setDoc(fetched);
+    }).catch((e: Error) => {
+      // console.error('getDocument failed (again?)', e.message);
+    });
+    return null;
+  }
+  return Object.assign({
+    save: async () => {
+      const newDoc = await doc.save();
+      setDoc(newDoc);
+      return newDoc;
+    }
+  }, doc);
 }
