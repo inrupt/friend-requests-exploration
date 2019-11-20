@@ -24,7 +24,7 @@ export const FriendLists: React.FC = () => {
   }, [webId]);
 
   if (!friendLists) {
-    return <p className="subtitle">
+    return <p className="panel-block">
       Loading friends list&hellip;
     </p>;
   }
@@ -41,8 +41,8 @@ export const FriendLists: React.FC = () => {
   });
 
   return <>
-    <section className="section">
+    <div>
       {friendListElements}
-    </section>
+    </div>
   </>;
 };

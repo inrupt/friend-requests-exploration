@@ -34,7 +34,7 @@ export const FriendRequest: React.FC<Props> = (props) => {
   }
   if (typeof profile === 'undefined') {
     return (
-      <p className="subtitle">
+      <p className="panel-block">
         Loading&hellip;
       </p>
     );
@@ -59,7 +59,7 @@ export const FriendRequest: React.FC<Props> = (props) => {
         </figure>
       </div>
       <div className="media-body content">
-        <h3 className="subtitle is-5">
+        <h3 className="panel-block is-5">
           {profile.getString(foaf.name)}
         </h3>
         <form onSubmit={acceptRequest}>
