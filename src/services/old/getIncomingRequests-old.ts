@@ -1,11 +1,11 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp, schema, vcard } from 'rdf-namespaces';
-import { getInboxRefs } from './getInboxItems';
-import { getFollowAction } from './getFollowAction';
+import { getInboxRefs } from './getInboxItems-old';
+import { getFollowAction } from './getFollowAction-old';
 import { TripleSubject } from 'tripledoc';
-import { getFriendLists } from './getFriendList';
-import { getFriendListsForWebId, AddressBookGroup } from './getFriendListForWebId';
-import { getProfile } from './getProfile';
+import { getFriendLists } from './getFriendList-old';
+import { getFriendListsForWebId, AddressBookGroup } from './getFriendListForWebId-old';
+import { getProfile } from './getProfile-old';
 
 export async function getIncomingRequests(): Promise<TripleSubject[]> {
   const currentSession = await SolidAuth.currentSession();
