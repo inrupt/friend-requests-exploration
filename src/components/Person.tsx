@@ -93,13 +93,15 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   console.log({ webId, theirFriends, myFriends });
   if (theirFriends && myFriends) {
     const friendsInCommon: string[] = Array.from(theirFriends.values()).filter(item => myFriends.has(item));
-    const listElements = friendsInCommon.map(webId => <li key={webId}><a> {webId}</a></li> );
+    const listElements = friendsInCommon.map(webId => <a key={webId}> {webId}</a> );
 
     return ( 
-      <div>
-       <p className="menu-label">Friends in common: </p>
+      <div className="media">
+       <div className="media-left">
+       <p><strong>Friends in common: </strong> </p>
 
-       <ul className="menu-list">{listElements}</ul>
+       <div className="media-content">{listElements}</div>
+       </div>
       </div>
       );
   }
