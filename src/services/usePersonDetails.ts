@@ -1,6 +1,7 @@
 import React from "react";
 import { getDocument } from "./DocumentCache";
 import { vcard } from "rdf-namespaces";
+import { createDocument, TripleDocument } from "tripledoc";
 
 export enum PersonType {
   me,
@@ -17,6 +18,10 @@ export type PersonDetails = {
   fullName: string,
   friends: string[],
   personType: PersonType
+}
+
+export async function getFriendslistRef(webId: string): Promise<string> {
+  return '';
 }
 
 async function getFriends(webId: string): Promise<string[]> {

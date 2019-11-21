@@ -4,43 +4,32 @@ import { vcard } from 'rdf-namespaces';
 import { FriendSelector } from './FriendSelector';
 import { Person } from './Person';
 import { sendFriendRequest } from '../services/sendActionNotification';
+import { usePersonDetails } from '../services/usePersonDetails';
+import { useWebId } from '@solid/react';
 
-interface Props {
-  friendlist: TripleSubject;
-};
 
-export const Friendlist: React.FC<Props> = (props) => {
-  const [addedFriends, setAddedFriends] = React.useState<string[]>([]);
-  const [storedFriendList, setStoredFriendlist] = React.useState(props.friendlist);
-
-  const friends = storedFriendList.getAllNodeRefs(vcard.hasMember);
-  React.useEffect(() => {
-    const friendsToAdd = addedFriends.filter(friend => !friends.includes(friend));
-    if (friendsToAdd.length === 0) {
-      return;
-    }
-    friendsToAdd.forEach((friend) => {
-      storedFriendList.addRef(vcard.hasMember, friend);
-      sendFriendRequest(friend).then(() => {
-        console.log('Friend request sent', friend);
-      });
-    });
-    storedFriendList.getDocument().save().then((storedFriendlistDoc) => {
-      setStoredFriendlist(storedFriendlistDoc.getSubject(storedFriendList.asRef()));
-    });
-  }, [storedFriendList, addedFriends, friends]);
-
-  const friendElements = (friends.length === 0)
+export const FriendList: React.FC<{}> = () => {
+  const webId: string | null = useWebId() || null;
+  const myDetails = usePersonDetails(webId);
+  if (!myDetails) {
+    return <>Loading...</>;
+  }
+  const friendElements = (myDetails.friends.length === 0)
     ? <p>You have not added any friends yet :(</p>
-    : friends.map(getPersonCard);
+    : myDetails.friends.map(getPersonCard);
 
   const onAddFriend = (webId: string) => {
-    setAddedFriends(friends => friends.concat(webId));
+    sendFriendRequest(webId).then(() => {
+      window.alert('Friend request sent ' + webId);
+    }).catch((e) => {
+      console.error(e);
+      window.alert('Could not send friend request ' + webId);
+    });
   };
 
   return <>
     <h2 className="title">
-      {props.friendlist.getLiteral(vcard.fn)}
+      Friends
     </h2>
     <section className="section">
       {friendElements}

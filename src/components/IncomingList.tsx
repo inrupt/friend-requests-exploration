@@ -1,14 +1,11 @@
 import React from 'react';
-import { useWebId } from '@solid/react';
-import { TripleSubject, Reference, TripleDocument } from 'tripledoc';
-import { schema, vcard, ldp } from 'rdf-namespaces';
-import SolidAuth from 'solid-auth-client';
-import { getIncomingRequests } from '../services/old/getIncomingRequests-old';
+import { vcard } from 'rdf-namespaces';
+import SolidAuth, { Session } from 'solid-auth-client';
 import { FriendRequest } from './FriendRequest';
-import { getFriendLists } from '../services/old/getFriendList-old';
 import { sendConfirmation } from '../services/sendActionNotification';
-import { useDocument } from '../services/DocumentCache';
+import { getDocument } from '../services/DocumentCache';
 import { IncomingFriendRequest, useIncomingFriendRequests } from '../services/useIncomingFriendRequests';
+import { getFriendslistRef } from '../services/usePersonDetails';
 
 async function removeRemoteDoc(url: string) {
   return await SolidAuth.fetch(url, {
@@ -25,47 +22,37 @@ export const IncomingList: React.FC = () => {
     );
   }
 
-  function acceptRequest(request: TripleSubject, targetList: Reference) {
-    // if (!incomingFriendRequests) {
-    //   throw new Error('Cannot accept the request because we cannot find your friend lists.');
-    // }
-
-    // const agentRef = request.getRef(schema.agent);
-    // if (!agentRef) {
-    //   throw new Error('The friend request was malformed and could not be accepted.');
-    // }
-
-    // const friendlist = incomingFriendRequests.find(item => item.inboxItem === targetList);
-    // if (!friendlist) {
-    //   throw new Error('Could not find the selected friend list.');
-    // }
-
-    // friendlist.addRef(vcard.hasMember, agentRef);
-    // friendlist.getDocument().save().then((updatedList) => {
-    //   const newFriendlists = [...friendlists];
-    //   newFriendlists[friendlists.indexOf(friendlist)] = updatedList.getSubject(friendlist.asRef());
-    //   setFriendlists(newFriendlists);
-    //   removeRemoteDoc(request.getDocument().asRef());
-    //   sendConfirmation(agentRef);
-    // });
+  async function onAccept(request: IncomingFriendRequest) {
+    const session: Session | undefined = await SolidAuth.currentSession();
+    if (session === undefined) {
+      window.alert('not logged in!');
+      return;
+    }
+    const webId = session.webId;
+    const friendsListRef = await getFriendslistRef(webId);
+    const friendsDoc = await getDocument(friendsListRef);
+    const friendsSub = friendsDoc.getSubject(friendsListRef);
+    friendsSub.addRef(vcard.hasMember, webId);
+    await friendsDoc.save();
+    await sendConfirmation(webId);
+    await removeRemoteDoc(request.inboxItem);
+    window.alert('friend added');
   }
 
-  function rejectRequest(request: TripleSubject) {
-    removeRemoteDoc(request.getDocument().asRef()).then(() => {
-      // setFriendRequests(oldRequests => (oldRequests || []).filter(oldRequest => oldRequest !== request));
-    });
+  async function onReject(request: IncomingFriendRequest) {
+    await removeRemoteDoc(request.inboxItem);
+    window.alert('friend added');
   }
 
   const requestElements = incomingFriendRequests.map((request) => {
     return (
-    <div>{request.inboxItem} from {request.webId}</div>
-      // <FriendRequest
-        // key={request.inboxItem}
-        // request={request}
-        // friendlists={friendlists}
-        // onAccept={(targetList) => acceptRequest(request, targetList)}
-        // onReject={() => rejectRequest(request)}
-      // />
+    // <div>{request.inboxItem} from {request.webId}</div>
+      <FriendRequest
+        key={request.inboxItem}
+        request={request}
+        onAccept={onAccept}
+        onReject={onReject}
+      />
     );
   });
 

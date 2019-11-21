@@ -5,19 +5,19 @@ import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
 import { getFriendListsForWebId, AddressBookGroup } from '../services/old/getFriendListForWebId-old';
 import { getFriendLists, unFriend } from '../services/old/getFriendList-old';
-import { usePersonFriends } from './Profile';
 import { useProfile } from '../services/old/useProfile-old';
 import { sendFriendRequest } from '../services/sendActionNotification';
 import { getIncomingRequests } from '../services/old/getIncomingRequests-old';
+import { PersonDetails, usePersonDetails } from '../services/usePersonDetails';
 
 interface Props {
   webId?: string;
 };
 
 export const Person: React.FC<Props> = (props) => {
-  let profile: TripleSubject | null = useProfile(props.webId || null);
-  const personView = (profile)
-    ? <FullPersonView subject={profile}/>
+  let details: PersonDetails | null = usePersonDetails(props.webId || null);
+  const personView = (details)
+    ? <FullPersonView details={details}/>
       : <code>{props.webId}</code>;
   return <>
     {personView}
@@ -75,11 +75,11 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
 
 const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const webId = useWebId();
-  const theirFriends = usePersonFriends(props.personWebId);
-  const myFriends = usePersonFriends(webId || null);
-  console.log({ webId, theirFriends, myFriends });
-  if (theirFriends && myFriends) {
-    const friendsInCommon: string[] = Array.from(theirFriends.values()).filter(item => myFriends.has(item));
+  const theirDetails = usePersonDetails(props.personWebId);
+  const myDetails = usePersonDetails(webId || null);
+  console.log({ webId, theirDetails, myDetails });
+  if (theirDetails && myDetails) {
+    const friendsInCommon: string[] = theirDetails.friends.filter(item => myDetails.friends.indexOf(item) !== -1);
     const listElements = friendsInCommon.map(webId => <li key={webId}> {webId}</li> );
 
     return <>Friends in common: <ul>{listElements}</ul></>;
@@ -192,24 +192,17 @@ const PersonSummaryView: React.FC<{ subject: TripleSubject }> = (props) => {
   </>;
 };
 
-const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
-  const profile = props.subject;
-  const personWebId = props.subject.asNodeRef();
-  const personType: PersonType | null = usePersonType(personWebId);
-  console.log(personType, PersonType, 'person type!');
-  if (personType === null) {
-    return <>(loading {personWebId})</>;
+const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
+  if (details.personType === null) {
+    return <>(loading {details.webId})</>;
   }
-  const photoUrl = profile.getNodeRef(vcard.hasPhoto);
-  const photo = (!photoUrl)
-    ? null
-    : <>
-        <figure className="media-left">
-          <p className="image is-64x64">
-            <img src={profile.getNodeRef(vcard.hasPhoto)!} alt="Avatar" className="is-rounded"/>
-          </p>
-        </figure>
-      </>;
+  const photo = <>
+    <figure className="media-left">
+      <p className="image is-64x64">
+        <img src={details.avatarUrl} alt="Avatar" className="is-rounded"/>
+      </p>
+    </figure>
+  </>;
 
   return <>
     <div className="media">
@@ -218,17 +211,17 @@ const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
         <div className="content">
           <div>
             <Link
-              to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
+              to={`/profile/${encodeURIComponent(details.webId)}`}
               title="View this person's friends"
             >
-              {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+              {details.fullName}
             </Link>
           </div>
           <div>
-            <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
+            <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
           </div>
           <div>
-            <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
+            <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
           </div>         
         </div>
       </div>
