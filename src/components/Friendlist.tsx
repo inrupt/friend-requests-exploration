@@ -38,17 +38,17 @@ export const Friendlist: React.FC<Props> = (props) => {
     setAddedFriends(friends => friends.concat(webId));
   };
 
-  return <>
-    <h2 className="title">
+  return <div>
+    <p className="panel-heading">
       {props.friendlist.getLiteral(vcard.fn)}
-    </h2>
-    <section className="section">
+    </p>
+    <p className="panel-block">
       {friendElements}
-    </section>
-    <section className="section">
+    </p>
+    <p className="panel-block">
       <FriendSelector onSelect={onAddFriend}/>
-    </section>
-  </>;
+    </p>
+  </div>;
 };
 
 function getPersonCard(webId: string): React.ReactElement {

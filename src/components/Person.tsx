@@ -93,9 +93,15 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   console.log({ webId, theirFriends, myFriends });
   if (theirFriends && myFriends) {
     const friendsInCommon: string[] = Array.from(theirFriends.values()).filter(item => myFriends.has(item));
-    const listElements = friendsInCommon.map(webId => <li key={webId}> {webId}</li> );
+    const listElements = friendsInCommon.map(webId => <li key={webId}><a> {webId}</a></li> );
 
-    return <>Friends in common: <ul>{listElements}</ul></>;
+    return ( 
+      <div>
+       <p className="menu-label">Friends in common: </p>
+
+       <ul className="menu-list">{listElements}</ul>
+      </div>
+      );
   }
   return <>(no friends in common)</>;
 }
@@ -179,8 +185,8 @@ const PersonSummaryView: React.FC<{ subject: TripleSubject }> = (props) => {
   const photo = (!photoUrl)
     ? null
     : <>
-        <figure className="media-left">
-          <p className="image is-64x64">
+        <figure className="card-header-title">
+          <p className="image is-48x48">
             <img src={profile.getNodeRef(vcard.hasPhoto)!} alt="Avatar" className="is-rounded"/>
           </p>
         </figure>
@@ -225,10 +231,9 @@ const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
       </>;
 
   return <>
-    <div className="media">
+    <header className="card-header">
+      <div className="card-header-title">
       {photo}
-      <div className="media-content">
-        <div className="content">
           <div>
             <Link
               to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
@@ -237,14 +242,19 @@ const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
               {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
             </Link>
           </div>
+       </div>
+     </header>  
+     <div className="card-content">
+       <div className="content">  
           <div>
             <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
           </div>
           <div>
             <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
-          </div>         
+          </div>
         </div>
-      </div>
-    </div>
+      </div>         
+
+
   </>;
 };
