@@ -25,14 +25,10 @@ const App: React.FC = () => {
           <div className="container">
             <nav className="navbar has-shadow">
               <div className="navbar-start">
-                <a className="navbar-item">
-                  <PersonSummary webId={(useWebId() || undefined)} />
-                </a>
+                <PersonSummary webId={(useWebId() || undefined)} />
               </div>
               <div className="navbar-end">
-                <a className="navbar-item">
-                  <LogoutButton className="button is-primary"/>
-                </a>
+                <LogoutButton className="button is-primary"/>
               </div>
               <div className="nav-toggle">
                 <span></span>
