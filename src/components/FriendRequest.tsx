@@ -1,7 +1,4 @@
 import React from 'react';
-import { TripleSubject, Reference } from 'tripledoc';
-import { schema, vcard, foaf } from 'rdf-namespaces';
-import { useProfile } from '../services/old/useProfile-old';
 import { IncomingFriendRequest } from '../services/useIncomingFriendRequests';
 import { usePersonDetails } from '../services/usePersonDetails';
 

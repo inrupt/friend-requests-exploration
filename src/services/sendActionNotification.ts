@@ -1,30 +1,40 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp } from 'rdf-namespaces';
-import { getProfile } from './old/getProfile-old';
-import { TripleDocument } from 'tripledoc';
-import { getAddressBookDocForWebId } from './old/getFriendListForWebId-old';
+import { getUriSub } from './usePersonDetails';
+
+const as = {
+  following: 'https://www.w3.org/TR/activitypub/#following'
+}
+
+export async function determineUriRef(uri: string, ref: string): Promise<string | null> {
+  const uriSub = await getUriSub(uri);
+  if (uriSub === null) {
+    return null;
+  }
+  return uriSub.getRef(ref);
+}
+export async function determineUriInbox(uri: string): Promise<string | null> {
+  return determineUriRef(uri, ldp.inbox);
+}
+
+export async function determineInboxToUse(recipient: string): Promise<string | null> {
+  const recipientAddressBookUrl: string | null = await determineUriRef(recipient, as.following);
+  if (recipientAddressBookUrl) {
+    const addressBookInbox = determineUriInbox(recipientAddressBookUrl);
+    if (addressBookInbox) {
+      return addressBookInbox;
+    }
+  }
+  // fallback to recipient's main inbox:
+  return determineUriInbox(recipient);
+}
 
 export async function sendActionNotification(recipient: string, activityType: string) {
-    const currentSession = await SolidAuth.currentSession();
-  if (!currentSession || !currentSession.webId) {
-    throw new Error('Please log in to send friend requests.');
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession) {
+    throw new Error('not logged in!');
   }
-  let inboxUrl: string | null = null;
-  const recipientAddressBookDoc: TripleDocument | null = await getAddressBookDocForWebId(recipient);
-  if (recipientAddressBookDoc) { // Try addressbook inbox
-    const sub = recipientAddressBookDoc.getSubject('#this');
-    if (sub) {
-      inboxUrl = sub.getRef(ldp.inbox);
-    }
-  }
-  if (!inboxUrl) { // Try main inbox
-    // Using `await getProfile` instead of `useProfile to force a fetch here.
-    // See https://github.com/inrupt/friend-requests-exploration/issues/56
-    const recipientProfile = await getProfile(recipient);
-    if (recipientProfile) {
-      inboxUrl = recipientProfile.getRef(ldp.inbox);
-    }
-  }
+  const inboxUrl = await determineInboxToUse(recipient);
   if (!inboxUrl) {
     throw new Error('This person does not accept friend requests.');
   }
