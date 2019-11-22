@@ -21,7 +21,7 @@ export const FriendSelector: React.FC<Props> = (props) => {
     <form onSubmit={onSubmit}>
       <div className="field">
         <div className="control">
-          <input className="input is-large" onChange={onChange} value={webId} type="url" name="webid" id="webid"/>
+          <input className="input is-small" onChange={onChange} value={webId} type="url" name="webid" id="webid"/>
         </div>
       </div>
       <div className="field">
