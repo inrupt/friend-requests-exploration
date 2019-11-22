@@ -1,10 +1,6 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp } from 'rdf-namespaces';
-import { getUriSub } from './usePersonDetails';
-
-const as = {
-  following: 'https://www.w3.org/TR/activitypub/#following'
-}
+import { getUriSub, getFriendslistRef } from './usePersonDetails';
 
 export async function determineUriRef(uri: string, ref: string): Promise<string | null> {
   const uriSub = await getUriSub(uri);
@@ -18,7 +14,7 @@ export async function determineUriInbox(uri: string): Promise<string | null> {
 }
 
 export async function determineInboxToUse(recipient: string): Promise<string | null> {
-  const recipientAddressBookUrl: string | null = await determineUriRef(recipient, as.following);
+  const recipientAddressBookUrl: string | null = await getFriendslistRef(recipient, false);
   if (recipientAddressBookUrl) {
     const addressBookInbox = determineUriInbox(recipientAddressBookUrl);
     if (addressBookInbox) {

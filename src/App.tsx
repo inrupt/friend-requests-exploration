@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  BrowserRouter as Router
+  BrowserRouter as Router, useParams
 } from 'react-router-dom';
 import { IncomingList } from './components/IncomingList';
 import { LoggedOut, LoginButton, LoggedIn, LogoutButton, useWebId } from '@solid/react';
@@ -74,7 +74,11 @@ const App: React.FC = () => {
             <div className="container column is-8">
               <div className="section">
                 <div className="card">
-                  <Person webId={(useWebId() || undefined)} />                    
+                  <Person webId={(() => {
+                    const params = useParams<{ webId: string }>();
+                    const webId = decodeURIComponent(params.webId);
+                    return webId || undefined;
+                  })()} />
                 </div>
                </div>
             </div>
