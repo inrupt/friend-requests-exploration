@@ -1,30 +1,17 @@
-import React, { useEffect } from 'react';
-import { TripleSubject } from 'tripledoc';
-import { foaf, vcard, schema } from 'rdf-namespaces';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useWebId } from '@solid/react';
-import { getFriendListsForWebId, AddressBookGroup } from '../services/getFriendListForWebId';
-import { getFriendLists, unFriend } from '../services/getFriendList';
-import { usePersonFriends } from './Profile';
-import { getProfile } from '../services/getProfile';
-import { sendFriendRequest } from '../services/sendFriendRequest';
-import { getIncomingRequests } from '../services/getIncomingRequests';
+import { sendFriendRequest } from '../services/sendActionNotification';
+import { PersonDetails, usePersonDetails } from '../services/usePersonDetails';
 
 interface Props {
   webId?: string;
 };
 
 export const Person: React.FC<Props> = (props) => {
-  const [profile, setProfile] = React.useState();
-
-  React.useEffect(() => {
-    if (props.webId) {
-      getProfile(props.webId).then(setProfile);
-    }
-  }, [props.webId]);
-
-  const personView = (profile)
-    ? <FullPersonView subject={profile}/>
+  let details: PersonDetails | null = usePersonDetails(props.webId || null);
+  const personView = (details)
+    ? <FullPersonView details={details}/>
       : <code>{props.webId}</code>;
   return <>
     {personView}
@@ -32,16 +19,10 @@ export const Person: React.FC<Props> = (props) => {
 };
 
 export const PersonSummary: React.FC<Props> = (props) => {
-  const [profile, setProfile] = React.useState();
+  const details = usePersonDetails(props.webId || null);
 
-  React.useEffect(() => {
-    if (props.webId) {
-      getProfile(props.webId).then(setProfile);
-    }
-  }, [props.webId]);
-
-  const personView = (profile)
-    ? <PersonSummaryView subject={profile}/>
+  const personView = (details)
+    ? <PersonSummaryView details={details}/>
       : <code>{props.webId}</code>;
   return <>
     {personView}
@@ -70,12 +51,12 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
     </>;
     case PersonType.friend: return <>
       <button type="submit" className='button is-danger' onClick={() => {
-        unFriend(props.personWebId).then(() => {
-          console.log('unfriended', props.personWebId);
-          window.location.href = '';  // FIXME: more subtle way to tell React to re-render
-        }, (e: Error) => {
-          console.log('could not unfriend', props.personWebId, e.message);
-        });
+        // unFriend(props.personWebId).then(() => {
+        //   console.log('unfriended', props.personWebId);
+        //   window.location.href = '';  // FIXME: more subtle way to tell React to re-render
+        // }, (e: Error) => {
+        //   console.log('could not unfriend', props.personWebId, e.message);
+        // });
     }}>Unfriend</button>
     </>;
     case PersonType.blocked: return <>(unblock)</>;
@@ -88,12 +69,12 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
 
 const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const webId = useWebId();
-  const theirFriends = usePersonFriends(props.personWebId);
-  const myFriends = usePersonFriends(webId || null);
-  console.log({ webId, theirFriends, myFriends });
-  if (theirFriends && myFriends) {
-    const friendsInCommon: string[] = Array.from(theirFriends.values()).filter(item => myFriends.has(item));
-    const listElements = friendsInCommon.map(webId => <a key={webId}> {webId}</a> );
+  const theirDetails = usePersonDetails(props.personWebId);
+  const myDetails = usePersonDetails(webId || null);
+  console.log({ webId, theirDetails, myDetails });
+  if (theirDetails && myDetails) {
+    const friendsInCommon: string[] = theirDetails.friends.filter(item => myDetails.friends.indexOf(item) !== -1);
+    const listElements = friendsInCommon.map(webId => <li key={webId}> {webId}</li> );
 
     return ( 
       <div className="media">
@@ -108,91 +89,14 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   return <>(no friends in common)</>;
 }
 
-function useAsync(fun: () => Promise<any>, defaultVal: any) {
-  const [val, setVal] = React.useState(defaultVal);
-  useEffect(() => {
-    fun().then((val) => {
-      setVal(val);
-    });
-  });
-  return val;
-}
-
-function usePersonType(personWebId: string): PersonType | null {
-  const userWebId = useWebId();
-  const listsYou = useAsync(async () => {
-    let found = false;
-    if (userWebId) {
-      const friendList: AddressBookGroup[] | null = await getFriendListsForWebId(personWebId);
-      if (friendList) {
-        friendList.forEach((addressBook: AddressBookGroup) => {
-          if (addressBook.contacts.indexOf(userWebId) !== -1) {
-            found = true;
-          }
-        });
-      }
-    }
-    return found;
-  }, false);
-
-  const isInInbox = useAsync(async () => {
-    let found = false;
-    if (userWebId) {
-      const friendRequests = await getIncomingRequests();
-      return friendRequests.findIndex(request => request.getRef(schema.agent) === personWebId) !== -1;
-    }
-    return found;
-  }, false);
-
-  const isInYourList = useAsync(async () => {
-    let found = false;
-    if (userWebId) {
-      const friendLists: TripleSubject[] | null = await getFriendLists();
-      if (friendLists) {
-        friendLists.forEach((friendList) => {
-          const contacts = friendList.getAllNodeRefs(vcard.hasMember);
-          if (contacts.indexOf(personWebId) !== -1) {
-            found = true;
-            // break;
-          }
-        });
-      }
-    }
-    return found;
-  }, false);
-  if (!userWebId) {
-    return null;
-  }
-
-  console.log({ personWebId, isInYourList, isInInbox, listsYou });
-  let personType: PersonType = PersonType.stranger;
-  if (personWebId === userWebId) {
-    personType = PersonType.me;
-  } else if (isInYourList) {
-    if (listsYou) {
-      personType = PersonType.friend
-    } else {
-      personType = PersonType.requested
-    }
-  } else if (isInInbox) {
-    personType = PersonType.requested
-  }
-  return personType;
-}
-const PersonSummaryView: React.FC<{ subject: TripleSubject }> = (props) => {
-  const profile = props.subject;
-  const personWebId = props.subject.asNodeRef();
-  const personType = usePersonType(personWebId);
-  const photoUrl = profile.getNodeRef(vcard.hasPhoto);
-  const photo = (!photoUrl)
-    ? null
-    : <>
-        <figure className="card-header-title">
-          <p className="image is-48x48">
-            <img src={profile.getNodeRef(vcard.hasPhoto)!} alt="Avatar" className="is-rounded"/>
-          </p>
-        </figure>
-      </>;
+const PersonSummaryView: React.FC<{ details: PersonDetails }> = ({ details }) => {
+  const photo = <>
+    <figure className="card-header-title">
+      <p className="image is-48x48">
+        <img src={details.avatarUrl} alt="Avatar" className="is-rounded"/>
+      </p>
+    </figure>
+  </>;
 
   return <>
     <div className="media">
@@ -201,10 +105,10 @@ const PersonSummaryView: React.FC<{ subject: TripleSubject }> = (props) => {
         <div className="content">
           <div>
             <Link
-              to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
+              to={`/profile/${encodeURIComponent(details.webId)}`}
               title="View this person's friends"
             >
-              {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+              {details.fullName}
             </Link>
           </div>
         </div>
@@ -213,24 +117,17 @@ const PersonSummaryView: React.FC<{ subject: TripleSubject }> = (props) => {
   </>;
 };
 
-const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
-  const profile = props.subject;
-  const personWebId = props.subject.asNodeRef();
-  const personType: PersonType | null = usePersonType(personWebId);
-  console.log(personType, PersonType, 'person type!');
-  if (personType === null) {
-    return <>(loading {personWebId})</>;
+const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
+  if (details.personType === null) {
+    return <>(loading {details.webId})</>;
   }
-  const photoUrl = profile.getNodeRef(vcard.hasPhoto);
-  const photo = (!photoUrl)
-    ? null
-    : <>
-        <figure className="media-left">
-          <p className="image is-64x64">
-            <img src={profile.getNodeRef(vcard.hasPhoto)!} alt="Avatar" className="is-rounded"/>
-          </p>
-        </figure>
-      </>;
+  const photo = <>
+    <figure className="media-left">
+      <p className="image is-64x64">
+        <img src={details.avatarUrl} alt="Avatar" className="is-rounded"/>
+      </p>
+    </figure>
+  </>;
 
   return <>
     <header className="card-header">
@@ -238,10 +135,10 @@ const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
       {photo}
           <div>
             <Link
-              to={`/profile/${encodeURIComponent(profile.asNodeRef())}`}
+              to={`/profile/${encodeURIComponent(details.webId)}`}
               title="View this person's friends"
             >
-              {profile.getLiteral(foaf.name) || profile.getLiteral(vcard.fn) || profile.asNodeRef()}
+              {details.fullName}
             </Link>
           </div>
        </div>
@@ -249,11 +146,11 @@ const FullPersonView: React.FC<{ subject: TripleSubject }> = (props) => {
      <div className="card-content">
        <div className="content">  
           <div>
-            <PersonActions personType={personType} personWebId={props.subject.asNodeRef()}></PersonActions>
+            <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
           </div>
           <div>
-            <FriendsInCommon personWebId={props.subject.asNodeRef()}></FriendsInCommon>
-          </div>
+            <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
+          </div>         
         </div>
       </div>         
 

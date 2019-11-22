@@ -1,12 +1,11 @@
 import React from 'react';
-import { useWebId } from '@solid/react';
-import { TripleSubject, Reference } from 'tripledoc';
-import { schema, vcard } from 'rdf-namespaces';
-import SolidAuth from 'solid-auth-client';
-import { getIncomingRequests } from '../services/getIncomingRequests';
+import { vcard } from 'rdf-namespaces';
+import SolidAuth, { Session } from 'solid-auth-client';
 import { FriendRequest } from './FriendRequest';
-import { getFriendLists } from '../services/getFriendList';
-import { sendConfirmation } from '../services/sendFriendRequest';
+import { sendConfirmation } from '../services/sendActionNotification';
+import { getDocument } from '../services/DocumentCache';
+import { IncomingFriendRequest, useIncomingFriendRequests } from '../services/useIncomingFriendRequests';
+import { getFriendslistRef } from '../services/usePersonDetails';
 
 async function removeRemoteDoc(url: string) {
   return await SolidAuth.fetch(url, {
@@ -15,60 +14,44 @@ async function removeRemoteDoc(url: string) {
 }
 
 export const IncomingList: React.FC = () => {
-  const webId = useWebId();
-  const [friendRequests, setFriendRequests] = React.useState<TripleSubject[]>();
-  const [friendlists, setFriendlists] = React.useState<TripleSubject[] | null>();
+  const incomingFriendRequests: IncomingFriendRequest[] | null = useIncomingFriendRequests();
 
-  React.useEffect(() => {
-    getIncomingRequests().then(setFriendRequests);
-    getFriendLists().then(setFriendlists);
-  }, [webId]);
-
-  if (!friendRequests || !friendlists) {
+  if (!incomingFriendRequests) {
     return (
       <p className="subtitle">Loading friend requests&hellip;</p>
     );
   }
 
-  function acceptRequest(request: TripleSubject, targetList: Reference) {
-    if (!friendlists) {
-      throw new Error('Cannot accept the request because we cannot find your friend lists.');
+  async function onAccept(request: IncomingFriendRequest) {
+    const session: Session | undefined = await SolidAuth.currentSession();
+    if (session === undefined) {
+      window.alert('not logged in!');
+      return;
     }
-
-    const agentRef = request.getRef(schema.agent);
-    if (!agentRef) {
-      throw new Error('The friend request was malformed and could not be accepted.');
-    }
-
-    const friendlist = friendlists.find(list => list.asRef() === targetList);
-    if (!friendlist) {
-      throw new Error('Could not find the selected friend list.');
-    }
-
-    friendlist.addRef(vcard.hasMember, agentRef);
-    friendlist.getDocument().save().then((updatedList) => {
-      const newFriendlists = [...friendlists];
-      newFriendlists[friendlists.indexOf(friendlist)] = updatedList.getSubject(friendlist.asRef());
-      setFriendlists(newFriendlists);
-      removeRemoteDoc(request.getDocument().asRef());
-      sendConfirmation(agentRef);
-    });
+    const webId = session.webId;
+    const friendsListRef = await getFriendslistRef(webId);
+    const friendsDoc = await getDocument(friendsListRef);
+    const friendsSub = friendsDoc.getSubject(friendsListRef);
+    friendsSub.addRef(vcard.hasMember, webId);
+    await friendsDoc.save();
+    await sendConfirmation(webId);
+    await removeRemoteDoc(request.inboxItem);
+    window.alert('friend added');
   }
 
-  function rejectRequest(request: TripleSubject) {
-    removeRemoteDoc(request.getDocument().asRef()).then(() => {
-      setFriendRequests(oldRequests => (oldRequests || []).filter(oldRequest => oldRequest !== request));
-    });
+  async function onReject(request: IncomingFriendRequest) {
+    await removeRemoteDoc(request.inboxItem);
+    window.alert('friend added');
   }
 
-  const requestElements = friendRequests.map((request) => {
+  const requestElements = incomingFriendRequests.map((request) => {
     return (
+    // <div>{request.inboxItem} from {request.webId}</div>
       <FriendRequest
-        key={request.asRef()}
+        key={request.inboxItem}
         request={request}
-        friendlists={friendlists}
-        onAccept={(targetList) => acceptRequest(request, targetList)}
-        onReject={() => rejectRequest(request)}
+        onAccept={onAccept}
+        onReject={onReject}
       />
     );
   });

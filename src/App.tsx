@@ -3,10 +3,9 @@ import {
   BrowserRouter as Router
 } from 'react-router-dom';
 import { IncomingList } from './components/IncomingList';
-import { FriendLists } from './components/FriendLists';
 import { LoggedOut, LoginButton, LoggedIn, LogoutButton, useWebId } from '@solid/react';
-//import { Profile } from './components/Profile';
 import { Person, PersonSummary } from './components/Person';
+import { FriendList } from './components/Friendlist';
 
 const App: React.FC = () => {
   return <>
@@ -68,7 +67,7 @@ const App: React.FC = () => {
                   <IncomingList />
                 </nav>
                 <nav className="panel">
-                  <FriendLists />
+                  <FriendList />
                 </nav>
               </div>
             </aside>
