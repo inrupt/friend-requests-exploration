@@ -28,20 +28,19 @@ export const IncomingList: React.FC = () => {
       window.alert('not logged in!');
       return;
     }
-    const webId = session.webId;
-    const friendsListRef = await getFriendslistRef(webId);
+    const friendsListRef = await getFriendslistRef(session.webId, true);
     const friendsDoc = await getDocument(friendsListRef);
     const friendsSub = friendsDoc.getSubject(friendsListRef);
-    friendsSub.addRef(vcard.hasMember, webId);
+    friendsSub.addRef(vcard.hasMember, request.webId);
     await friendsDoc.save();
-    await sendConfirmation(webId);
+    await sendConfirmation(request.webId);
     await removeRemoteDoc(request.inboxItem);
     window.alert('friend added');
   }
 
   async function onReject(request: IncomingFriendRequest) {
     await removeRemoteDoc(request.inboxItem);
-    window.alert('friend added');
+    window.alert('friend request rejected');
   }
 
   const requestElements = incomingFriendRequests.map((request) => {

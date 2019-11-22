@@ -2,6 +2,11 @@ import React from "react";
 import { getDocument } from "./DocumentCache";
 import { vcard } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
+import { determineUriRef } from "./sendActionNotification";
+
+const as = {
+  following: 'https://www.w3.org/TR/activitypub/#following'
+};
 
 export enum PersonType {
   me,
@@ -20,8 +25,11 @@ export type PersonDetails = {
   personType: PersonType
 }
 
-export async function getFriendslistRef(webId: string): Promise<string> {
-  return '';
+export async function getFriendslistRef(webId: string | null, createIfMissing: boolean): Promise<string | null> {
+  if (webId === null) {
+    return null;
+  }
+  return determineUriRef(webId, as.following);
 }
 
 async function getFriends(webId: string): Promise<string[]> {
