@@ -53,13 +53,8 @@ export const FriendRequest: React.FC<Props> = (props) => {
         </figure>
       </div>
       <div className="media-body content">
-<<<<<<< HEAD
-        <h3 className="subtitle is-5">
-          {profile.fullName}
-=======
         <h3 className="panel-block is-5">
-          {profile.getString(foaf.name)}
->>>>>>> origin/master
+          {profile.fullName}
         </h3>
         <form>
           <div className="field is-grouped">

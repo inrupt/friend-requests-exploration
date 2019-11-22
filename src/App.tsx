@@ -1,17 +1,9 @@
 import React from 'react';
 import {
-<<<<<<< HEAD
-  BrowserRouter as Router,
-=======
   BrowserRouter as Router
->>>>>>> origin/master
 } from 'react-router-dom';
 import { IncomingList } from './components/IncomingList';
 import { LoggedOut, LoginButton, LoggedIn, LogoutButton, useWebId } from '@solid/react';
-<<<<<<< HEAD
-=======
-//import { Profile } from './components/Profile';
->>>>>>> origin/master
 import { Person, PersonSummary } from './components/Person';
 import { FriendList } from './components/Friendlist';
 
