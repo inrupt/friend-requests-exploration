@@ -1,9 +1,17 @@
 import React from 'react';
 import {
+<<<<<<< HEAD
   BrowserRouter as Router,
+=======
+  BrowserRouter as Router
+>>>>>>> origin/master
 } from 'react-router-dom';
 import { IncomingList } from './components/IncomingList';
 import { LoggedOut, LoginButton, LoggedIn, LogoutButton, useWebId } from '@solid/react';
+<<<<<<< HEAD
+=======
+//import { Profile } from './components/Profile';
+>>>>>>> origin/master
 import { Person, PersonSummary } from './components/Person';
 import { FriendList } from './components/Friendlist';
 
@@ -21,10 +29,13 @@ const App: React.FC = () => {
           </section>
         </LoggedOut>
         <LoggedIn>
-          <nav className="nav has-shadow">
-            <div className="container">
-              <div className="nav-left">
-                <LogoutButton className="nav-item button is-primary"/>
+          <div className="container">
+            <nav className="navbar has-shadow">
+              <div className="navbar-start">
+                <PersonSummary webId={(useWebId() || undefined)} />
+              </div>
+              <div className="navbar-end">
+                <LogoutButton className="button is-primary"/>
               </div>
               <div className="nav-toggle">
                 <span></span>
@@ -53,27 +64,27 @@ const App: React.FC = () => {
                   <span className="icon"><i className="fa fa-sign-out"></i></span>
                 </a>
               </div>
-            </div>
-          </nav>
+            </nav>
+          </div>
           <section className="main-content columns is-fullheight">
             <aside className="column is-4 is-narrow-mobile is-fullheight section is-hidden-mobile">
-              <p className="menu-label is-hidden-touch">Navigation</p>
-              <ul className="menu-list">
-                  <PersonSummary webId={(useWebId() || undefined)} />
-                <li>
+  
+              <div className="menu-list">
+
+                <nav className="panel">
                   <IncomingList />
-                </li>
-                <li>
+                </nav>
+                <nav className="panel">
                   <FriendList />
-                </li>
-              </ul>
+                </nav>
+              </div>
             </aside>
             <div className="container column is-8">
               <div className="section">
                 <div className="card">
                   <Person webId={(useWebId() || undefined)} />                    
                 </div>
-                </div>
+               </div>
             </div>
           </section>
           <footer className="footer is-hidden">

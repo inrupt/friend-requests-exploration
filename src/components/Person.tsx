@@ -76,19 +76,27 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
     const friendsInCommon: string[] = theirDetails.friends.filter(item => myDetails.friends.indexOf(item) !== -1);
     const listElements = friendsInCommon.map(webId => <li key={webId}> {webId}</li> );
 
-    return <>Friends in common: <ul>{listElements}</ul></>;
+    return ( 
+      <div className="media">
+       <div className="media-left">
+       <p><strong>Friends in common: </strong> </p>
+
+       <div className="media-content">{listElements}</div>
+       </div>
+      </div>
+      );
   }
   return <>(no friends in common)</>;
 }
 
 const PersonSummaryView: React.FC<{ details: PersonDetails }> = ({ details }) => {
   const photo = <>
-      <figure className="media-left">
-        <p className="image is-64x64">
-          <img src={details.avatarUrl} alt="Avatar" className="is-rounded"/>
-        </p>
-      </figure>
-    </>;
+    <figure className="card-header-title">
+      <p className="image is-48x48">
+        <img src={details.avatarUrl} alt="Avatar" className="is-rounded"/>
+      </p>
+    </figure>
+  </>;
 
   return <>
     <div className="media">
@@ -122,10 +130,9 @@ const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
   </>;
 
   return <>
-    <div className="media">
+    <header className="card-header">
+      <div className="card-header-title">
       {photo}
-      <div className="media-content">
-        <div className="content">
           <div>
             <Link
               to={`/profile/${encodeURIComponent(details.webId)}`}
@@ -134,6 +141,10 @@ const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
               {details.fullName}
             </Link>
           </div>
+       </div>
+     </header>  
+     <div className="card-content">
+       <div className="content">  
           <div>
             <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
           </div>
@@ -141,7 +152,8 @@ const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
             <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
           </div>         
         </div>
-      </div>
-    </div>
+      </div>         
+
+
   </>;
 };

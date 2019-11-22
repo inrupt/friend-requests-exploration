@@ -57,9 +57,9 @@ export const IncomingList: React.FC = () => {
   });
 
   return (
-    <section className="section">
-      <h2 className="title">Friend requests</h2>
+    <div>
+      <p className="panel-heading">Friend requests</p>
       {requestElements}
-    </section>
+    </div>
   );
 };

@@ -12,6 +12,13 @@ export const FriendRequest: React.FC<Props> = (props) => {
   if (profile === null) {
     return (
       <p className="subtitle">
+        There was an error getting the profile details of the person that sent this friend request.
+      </p>
+    );
+  }
+  if (typeof profile === 'undefined') {
+    return (
+      <p className="panel-block">
         Loading&hellip;
       </p>
     );
@@ -46,8 +53,13 @@ export const FriendRequest: React.FC<Props> = (props) => {
         </figure>
       </div>
       <div className="media-body content">
+<<<<<<< HEAD
         <h3 className="subtitle is-5">
           {profile.fullName}
+=======
+        <h3 className="panel-block is-5">
+          {profile.getString(foaf.name)}
+>>>>>>> origin/master
         </h3>
         <form>
           <div className="field is-grouped">
