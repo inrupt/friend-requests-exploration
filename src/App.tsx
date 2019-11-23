@@ -8,6 +8,9 @@ import { Person, PersonSummary } from './components/Person';
 import { FriendList } from './components/Friendlist';
 
 const App: React.FC = () => {
+  const params = useParams<{ webId: string }>();
+  const webId = decodeURIComponent(params.webId);
+  const mainPanelWebId = webId || undefined;
   return <>
     <React.StrictMode>
       <Router>
@@ -74,11 +77,7 @@ const App: React.FC = () => {
             <div className="container column is-8">
               <div className="section">
                 <div className="card">
-                  <Person webId={(() => {
-                    const params = useParams<{ webId: string }>();
-                    const webId = decodeURIComponent(params.webId);
-                    return webId || undefined;
-                  })()} />
+                  <Person webId={mainPanelWebId} />
                 </div>
                </div>
             </div>
