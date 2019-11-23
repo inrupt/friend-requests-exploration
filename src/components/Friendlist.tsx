@@ -1,6 +1,6 @@
 import React from 'react';
 import { FriendSelector } from './FriendSelector';
-import { Person } from './Person';
+import { MainPanel } from './Person';
 import { sendFriendRequest } from '../services/sendActionNotification';
 import { usePersonDetails } from '../services/usePersonDetails';
 import { useWebId } from '@solid/react';
@@ -42,7 +42,7 @@ function getPersonCard(webId: string): React.ReactElement {
   return (
     <div key={webId} className="card">
       <div className="section">
-        <Person webId={webId}/>
+        <MainPanel webId={webId}/>
       </div>
     </div>
   );

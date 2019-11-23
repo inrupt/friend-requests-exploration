@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router';
-import { Person } from './Person';
+import { MainPanel } from './Person';
 import { usePersonDetails } from '../services/usePersonDetails';
 
 interface PathParams {
@@ -8,7 +8,7 @@ interface PathParams {
 };
 
 export const Profile: React.FC = (props) => {
-  const params = useParams<PathParams>();
+  const params = { webId: '' }; // useParams<PathParams>();
   const webId = decodeURIComponent(params.webId);
   const theirDetails = usePersonDetails(webId);
   if (theirDetails === null) {
@@ -39,7 +39,7 @@ export const Profile: React.FC = (props) => {
       <section key={friendRef} className="section">
         <div className="card">
           <div className="section">
-            <Person webId={friendRef}/>
+            <MainPanel webId={friendRef}/>
           </div>
         </div>
       </section>
