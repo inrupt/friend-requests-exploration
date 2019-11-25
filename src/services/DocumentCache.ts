@@ -5,7 +5,7 @@ const promises: {[iri: string]: Promise<TripleDocument>} = {};
 
 export function getDocument(url: string): Promise<TripleDocument> {
   // Remove fragment identifiers (e.g. `#me`) from the URI:
-  console.log('removing fragment', url);
+  // console.log('removing fragment', url);
   const docUrl = new URL(url);
   const documentRef: Reference = docUrl.origin + docUrl.pathname + docUrl.search;
 

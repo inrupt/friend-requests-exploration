@@ -17,14 +17,14 @@ async function getContainerDocuments(containerUrl: string): Promise<TripleDocume
     const containerItemUrls = containerSub.getAllRefs(ldp.contains);
     const result: TripleDocument[] = [];
     const promises = containerItemUrls.map(async (url: string) => {
-      console.log('fetching inbox doc', url);
+      // console.log('fetching inbox doc', url);
       try {
         const doc = await getDocument(url);
         if (doc) {
           result.push(doc);
         }
       } catch (e) {
-        console.error('could not parse inbox item', url, e);
+        // console.error('could not parse inbox item', url, e);
       }
     });
     await Promise.all(promises);
@@ -46,15 +46,15 @@ export function useIncomingFriendRequests(): IncomingFriendRequest[] | null {
 
 async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {
   const myInboxUrl = await determineInboxToUse(webId);
-  console.log({ myInboxUrl });
+  // console.log({ myInboxUrl });
   if (myInboxUrl) {
     const notificationDocs = await getContainerDocuments(myInboxUrl);
     const filtered: IncomingFriendRequest[] = [];
     notificationDocs.forEach((doc) => {
       const inboxItem = doc.asRef();
-      console.log({ inboxItem });
+      // console.log({ inboxItem });
       const webId = doc.getSubject(inboxItem).getRef(schema.agent);
-      console.log('schema agent', webId, doc.getStatements());
+      // console.log('schema agent', webId, doc.getStatements());
       if (webId) {
         filtered.push({
           webId,

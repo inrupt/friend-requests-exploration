@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useWebId } from '@solid/react';
-import { sendFriendRequest } from '../services/sendActionNotification';
+import { addFriend } from '../services/sendActionNotification';
 import { PersonDetails, usePersonDetails } from '../services/usePersonDetails';
 
 interface Props {
@@ -52,7 +52,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
       }}>See Friend Request</button>
     </>;
     case PersonType.requested: return <>
-      <button type="submit" className='button is-warning' onClick={() => sendFriendRequest(props.personWebId)}>Resend</button>
+      <button type="submit" className='button is-warning' onClick={() => addFriend(props.personWebId)}>Resend</button>
     </>;
     case PersonType.friend: return <>
       <button type="submit" className='button is-danger' onClick={() => {
@@ -66,7 +66,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
     </>;
     case PersonType.blocked: return <>(unblock)</>;
     case PersonType.stranger: return <>
-      <button type="submit" className='button is-primary' onClick={() => sendFriendRequest(props.personWebId)}>Befriend</button>
+      <button type="submit" className='button is-primary' onClick={() => addFriend(props.personWebId)}>Befriend</button>
     </>;
   }
 }
@@ -76,7 +76,7 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const webId = useWebId();
   const theirDetails = usePersonDetails(props.personWebId);
   const myDetails = usePersonDetails(webId || null);
-  console.log({ webId, theirDetails, myDetails });
+  // console.log({ webId, theirDetails, myDetails });
   if (theirDetails && myDetails) {
     if (theirDetails.friends === null || myDetails.friends === null) {
       return <>(could not display friends in common)</>;

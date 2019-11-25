@@ -1,6 +1,7 @@
 import SolidAuth from 'solid-auth-client';
-import { ldp } from 'rdf-namespaces';
-import { getUriSub, getFriendslistRef } from './usePersonDetails';
+import { ldp, vcard } from 'rdf-namespaces';
+import { getUriSub, getFriendsListRef as getFriendsListRef } from './usePersonDetails';
+import { getDocument } from './DocumentCache';
 
 export async function determineUriRef(uri: string, ref: string): Promise<string | null> {
   const uriSub = await getUriSub(uri);
@@ -8,7 +9,7 @@ export async function determineUriRef(uri: string, ref: string): Promise<string 
     return null;
   }
   const ret = uriSub.getRef(ref);
-  console.log('determined uri ref', uri, ref, ret);
+  // console.log('determined uri ref', uri, ref, ret);
   return ret;
 }
 export async function determineUriInbox(uri: string): Promise<string | null> {
@@ -16,7 +17,7 @@ export async function determineUriInbox(uri: string): Promise<string | null> {
 }
 
 export async function determineInboxToUse(recipient: string): Promise<string | null> {
-  const recipientAddressBookUrl: string | null = await getFriendslistRef(recipient, false);
+  const recipientAddressBookUrl: string | null = await getFriendsListRef(recipient, false);
   if (recipientAddressBookUrl) {
     const addressBookInbox = determineUriInbox(recipientAddressBookUrl);
     if (addressBookInbox) {
@@ -50,7 +51,33 @@ export async function sendActionNotification(recipient: string, activityType: st
   });
 }
 
+export async function addToFriendsList(webId: string) {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession) {
+    throw new Error('not logged in!');
+  }
+  const friendsListRef = await getFriendsListRef(currentSession.webId, true);
+  if (!friendsListRef) {
+    throw new Error('could not find my friends list');
+  }
+  const friendsListDoc = await getDocument(friendsListRef);
+  if (!friendsListDoc) {
+    throw new Error('could not access my friends list document');
+  }
+  const friendListSub = friendsListDoc.getSubject(friendsListRef);
+  if (!friendListSub) {
+    throw new Error('could not access my friends list group');
+  }
+  friendListSub.addRef(vcard.hasMember, webId);
+  await friendsListDoc.save();
+}
+
 export async function sendFriendRequest(recipient: string) {
+  return sendActionNotification(recipient, 'Follow');
+}
+
+export async function addFriend(recipient: string) {
+  await addToFriendsList(recipient);
   return sendActionNotification(recipient, 'Follow');
 }
 

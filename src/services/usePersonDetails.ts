@@ -1,15 +1,16 @@
 import React from "react";
 import { getDocument } from "./DocumentCache";
 import { vcard } from "rdf-namespaces";
-import { TripleSubject } from "tripledoc";
+import { TripleSubject, TripleDocument } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
 import SolidAuth from 'solid-auth-client';
+import { countriesNotSupported } from "rdf-namespaces/dist/schema";
 
 const as = {
   following: 'https://www.w3.org/TR/activitypub/#following'
 };
 const pim = {
-  storage: 'http://www.w3.org/ns/pim/space#'
+  storage: 'http://www.w3.org/ns/pim/space#storage'
 };
 
 export enum PersonType {
@@ -38,19 +39,25 @@ export async function getPodRoot(webId: string | null): Promise<string | null> {
   if (webId === null) {
     return null;
   }
+  console.log('determining pod root', webId, pim.storage);
   return determineUriRef(webId, pim.storage);
 }
 
-export async function getFriendslistRef(webId: string | null, createIfMissing: boolean): Promise<string | null> {
+export async function getFriendsListRef(webId: string | null, createIfMissing: boolean): Promise<string | null> {
   if (webId === null) {
+    console.log('no webId!');
     return null;
   }
+  console.log('getting friendslist ref', webId);
   let ret = await determineUriRef(webId, as.following);
   if (createIfMissing && !ret) {
+    console.log('creating!');
     const podRoot = await getPodRoot(webId);
     if (!podRoot) {
+      console.log('no podRoot!');
       return null;
     }
+    console.log('calling POST');
     // FIXME?: is there a way to do this with tripledoc?
     const response = await SolidAuth.fetch(podRoot, {
       method: 'POST',
@@ -61,22 +68,35 @@ export async function getFriendslistRef(webId: string | null, createIfMissing: b
       body: '<#this> a <http://www.w3.org/2006/vcard/ns#Group> .'
         + '<#this> <http://www.w3.org/2006/vcard/ns#fn> "Solid Friends" .'
     });
-    const location = response.headers.get('Location');
-    if (!location) {
+    console.log('POST result', response);
+    const relativeLocation = response.headers.get('Location')
+    if (!relativeLocation) {
+      console.log('no created location!');
       return null
     }
-    console.log('getting created location', location);
-    ret = new URL('#this', location).toString();
-    const profile: TripleSubject | null = await getUriSub(webId);
-    if (profile) {
-      profile.addRef(as.following, ret);
+    // console.log('getting created location', location);
+    const absoluteLocation = new URL(relativeLocation, podRoot);  
+    ret = new URL('#this', absoluteLocation).toString();
+    const profileDoc: TripleDocument | null = await getDocument(webId);
+    if (!profileDoc) {
+      console.log('profile doc not fetched!');
+      return null
     }
+    const profileSub: TripleSubject | null = profileDoc.getSubject(webId);
+    if (!profileSub) {
+      console.log('profile sub not found!');
+      return null
+    }
+    profileSub.addRef(as.following, ret);
+    console.log('friends list created, linking', webId, ret);
+    await profileDoc.save();
   }
+  console.log('returning!', ret);
   return ret;
 }
 
 async function getFriends(webId: string): Promise<string[] | null> {
-  const friendsListRef: string | null = await getFriendslistRef(webId, false);
+  const friendsListRef: string | null = await getFriendsListRef(webId, false);
   if (!friendsListRef) {
     return null;
   }
@@ -127,7 +147,9 @@ export async function getUriSub(uri: string): Promise<TripleSubject | null> {
   if (doc === null) {
     return null;
   }
-  return doc.getSubject(uri);
+  return Object.assign({
+    save: doc.save.bind(doc)
+  }, doc.getSubject(uri));
 }
 
 export async function getPersonDetails(webId: string): Promise<PersonDetails | null> {
@@ -142,7 +164,7 @@ export async function getPersonDetails(webId: string): Promise<PersonDetails | n
     friends: await getFriends(webId),
     personType: await getPersonType(webId)
   };
-  console.log('person details', webId, profileSub, ret);
+  // console.log('person details', webId, profileSub, ret);
   return ret;
 }
 
