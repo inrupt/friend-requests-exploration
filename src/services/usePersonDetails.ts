@@ -4,6 +4,7 @@ import { vcard } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
 import SolidAuth from 'solid-auth-client';
+import { string } from "prop-types";
 
 const as = {
   following: 'https://www.w3.org/TR/activitypub/#following'
@@ -86,70 +87,39 @@ async function getFriends(webId: string): Promise<string[] | null> {
   return friendsListSub.getAllRefs(vcard.hasMember);
 }
 
-async function getPersonType(webId: string): Promise<PersonType> {
-  // function usePersonType(personWebId: string): PersonType | null {
-  //   const userWebId = useWebId();
-  //   const listsYou = useAsync(async () => {
-  //     let found = false;
-  //     if (userWebId) {
-  //       const friendList: AddressBookGroup[] | null = await getFriendListsForWebId(personWebId);
-  //       if (friendList) {
-  //         friendList.forEach((addressBook: AddressBookGroup) => {
-  //           if (addressBook.contacts.indexOf(userWebId) !== -1) {
-  //             found = true;
-  //           }
-  //         });
-  //       }
-  //     }
-  //     return found;
-  //   }, false);
-  
-  //   const isInInbox = useAsync(async () => {
-  //     let found = false;
-  //     if (userWebId) {
-  //       const friendRequests = await getIncomingRequests();
-  //       return friendRequests.findIndex(request => request.getRef(schema.agent) === personWebId) !== -1;
-  //     }
-  //     return found;
-  //   }, false);
-  
-  //   const isInYourList = useAsync(async () => {
-  //     let found = false;
-  //     if (userWebId) {
-  //       const friendLists: TripleSubject[] | null = await getFriendLists();
-  //       if (friendLists) {
-  //         friendLists.forEach((friendList) => {
-  //           const contacts = friendList.getAllNodeRefs(vcard.hasMember);
-  //           if (contacts.indexOf(personWebId) !== -1) {
-  //             found = true;
-  //             // break;
-  //           }
-  //         });
-  //       }
-  //     }
-  //     return found;
-  //   }, false);
-  //   if (!userWebId) {
-  //     return null;
-  //   }
-  
-  //   console.log({ personWebId, isInYourList, isInInbox, listsYou });
-  //   let personType: PersonType = PersonType.stranger;
-  //   if (personWebId === userWebId) {
-  //     personType = PersonType.me;
-  //   } else if (isInYourList) {
-  //     if (listsYou) {
-  //       personType = PersonType.friend
-  //     } else {
-  //       personType = PersonType.requested
-  //     }
-  //   } else if (isInInbox) {
-  //     personType = PersonType.requested
-  //   }
-  //   return personType;
-  // }
-  
-  return PersonType.stranger;
+async function lists (webId1: string, webId2: string): Promise<boolean | null> {
+  const friends = await getFriends(webId1);
+  if (!friends) {
+    return null;
+  }
+  return (friends.indexOf(webId2) !== -1);
+}
+
+async function getPersonType(theirWebId: string): Promise<PersonType | null> {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession) {
+    return null;
+  }
+  const myWebId = currentSession.webId;
+  if (!myWebId) {
+    return null;
+  }
+  if (theirWebId === myWebId) {
+    return PersonType.me;
+  }
+  if (await lists(theirWebId, myWebId)) {
+    if (await lists(myWebId, theirWebId)) {
+      return PersonType.friend;
+    } else {
+      return PersonType.requester;
+    }
+  } else {
+    if (await lists(myWebId, theirWebId)) {
+      return PersonType.requested;
+    } else {
+      return PersonType.stranger;
+    }
+  }
 }
 
 export async function getUriSub(uri: string): Promise<TripleSubject | null> {
