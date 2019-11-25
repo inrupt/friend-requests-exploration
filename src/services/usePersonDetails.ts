@@ -80,7 +80,10 @@ async function getFriends(webId: string): Promise<string[] | null> {
     return null;
   }
   const friendsListSub = await getUriSub(friendsListRef);
-  return [];
+  if (!friendsListSub) {
+    return null;
+  }
+  return friendsListSub.getAllRefs(vcard.hasMember);
 }
 
 async function getPersonType(webId: string): Promise<PersonType> {
