@@ -96,15 +96,22 @@ export async function getFriendsListRef(webId: string | null, createIfMissing: b
 }
 
 async function getFriends(webId: string): Promise<string[] | null> {
-  const friendsListRef: string | null = await getFriendsListRef(webId, false);
-  if (!friendsListRef) {
+  try {
+    const friendsListRef: string | null = await getFriendsListRef(webId, false);
+    if (!friendsListRef) {
+      console.log('no friends list ref', webId);
+      return null;
+    }
+    const friendsListSub = await getUriSub(friendsListRef);
+    if (!friendsListSub) {
+      console.log('no friends list sub', webId);
+      return null;
+    }
+    return friendsListSub.getAllRefs(vcard.hasMember);
+  } catch (e) {
+    console.log('something went wrong', webId, e);
     return null;
   }
-  const friendsListSub = await getUriSub(friendsListRef);
-  if (!friendsListSub) {
-    return null;
-  }
-  return friendsListSub.getAllRefs(vcard.hasMember);
 }
 
 async function lists (webId1: string, webId2: string): Promise<boolean | null> {

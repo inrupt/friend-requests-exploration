@@ -5,8 +5,17 @@ import { LoggedOut, LoginButton, LoggedIn, LogoutButton, useWebId } from '@solid
 import { MainPanel, PersonSummary } from './components/Person';
 import { FriendList } from './components/Friendlist';
 import { FriendSelector } from './components/FriendSelector';
+import { getFriendsListRef } from './services/usePersonDetails';
 
 const App: React.FC = () => {
+  const myWebId = (useWebId() || undefined)
+  if (myWebId) {
+    void getFriendsListRef(myWebId, true).then(() => {
+      console.log('prefetched logged-in profile');
+    }).catch((e) => {
+      console.log('could not prefetch logged-in profile', e);
+    });
+  }
   return <>
     <React.StrictMode>
       <BrowserRouter>
@@ -23,13 +32,13 @@ const App: React.FC = () => {
           <div className="container">
             <nav className="navbar has-shadow">
               <div className="navbar-start">
-               You: <PersonSummary webId={(useWebId() || undefined)} />
+               You: <PersonSummary webId={myWebId || undefined} />
               </div>
-              <p className="panel-block">
+              <div className="panel-block">
                 <FriendSelector onSelect={(webId: string) => {
                   window.location.href = `/profile/${encodeURIComponent(webId)}`;
                 }}/>
-              </p>
+              </div>
               <div className="navbar-end">
                 <LogoutButton className="button is-primary"/>
               </div>

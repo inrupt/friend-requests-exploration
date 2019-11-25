@@ -31,9 +31,9 @@ export const FriendList: React.FC<{}> = () => {
     <p className="panel-heading">
       Friends
     </p>
-    <p className="panel-block">
+    <div className="panel-block">
       {friendElements}
-    </p>
+    </div>
   </div>;
 };
 
