@@ -1,10 +1,10 @@
 import React from "react";
 import { getDocument } from "./DocumentCache";
 import { vcard } from "rdf-namespaces";
-import { TripleSubject, TripleDocument } from "tripledoc";
+import { TripleSubject } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
 import SolidAuth from 'solid-auth-client';
-import { countriesNotSupported } from "rdf-namespaces/dist/schema";
+import { createFriendsList } from "./createFriendsList";
 
 const as = {
   following: 'https://www.w3.org/TR/activitypub/#following'
@@ -51,53 +51,15 @@ export async function getFriendsListRef(webId: string | null, createIfMissing: b
   console.log('getting friendslist ref', webId);
   let ret = await determineUriRef(webId, as.following);
   if (createIfMissing && !ret) {
-    console.log('creating!');
-    const podRoot = await getPodRoot(webId);
-    if (!podRoot) {
-      console.log('no podRoot!');
-      return null;
-    }
-    console.log('calling POST');
-    // FIXME?: is there a way to do this with tripledoc?
-    const response = await SolidAuth.fetch(podRoot, {
-      method: 'POST',
-      headers: {
-        Slug: 'friends',
-        'Content-Type': 'text/turtle'
-      },
-      body: '<#this> a <http://www.w3.org/2006/vcard/ns#Group> .'
-        + '<#this> <http://www.w3.org/2006/vcard/ns#fn> "Solid Friends" .'
-    });
-    console.log('POST result', response);
-    const relativeLocation = response.headers.get('Location')
-    if (!relativeLocation) {
-      console.log('no created location!');
-      return null
-    }
-    // console.log('getting created location', location);
-    const absoluteLocation = new URL(relativeLocation, podRoot);  
-    ret = new URL('#this', absoluteLocation).toString();
-    const profileDoc: TripleDocument | null = await getDocument(webId);
-    if (!profileDoc) {
-      console.log('profile doc not fetched!');
-      return null
-    }
-    const profileSub: TripleSubject | null = profileDoc.getSubject(webId);
-    if (!profileSub) {
-      console.log('profile sub not found!');
-      return null
-    }
-    profileSub.addRef(as.following, ret);
-    console.log('friends list created, linking', webId, ret);
-    await profileDoc.save();
+    ret = await createFriendsList(webId);
   }
   console.log('returning!', ret);
   return ret;
 }
 
-async function getFriends(webId: string): Promise<string[] | null> {
+async function getFriends(webId: string, createIfMissing = false): Promise<string[] | null> {
   try {
-    const friendsListRef: string | null = await getFriendsListRef(webId, false);
+    const friendsListRef: string | null = await getFriendsListRef(webId, createIfMissing);
     if (!friendsListRef) {
       console.log('no friends list ref', webId);
       return null;
@@ -159,7 +121,7 @@ export async function getUriSub(uri: string): Promise<TripleSubject | null> {
   }, doc.getSubject(uri));
 }
 
-export async function getPersonDetails(webId: string): Promise<PersonDetails | null> {
+export async function getPersonDetails(webId: string, createFriendsListIfMissing = false): Promise<PersonDetails | null> {
   const profileSub = await getUriSub(webId);
   if (profileSub === null) {
     return null;
@@ -168,7 +130,7 @@ export async function getPersonDetails(webId: string): Promise<PersonDetails | n
     webId,
     avatarUrl: profileSub.getRef(vcard.hasPhoto) || null,
     fullName: profileSub.getString(vcard.fn) || null,
-    friends: await getFriends(webId),
+    friends: await getFriends(webId, createFriendsListIfMissing),
     personType: await getPersonType(webId)
   };
   // console.log('person details', webId, profileSub, ret);
@@ -179,13 +141,13 @@ export async function getPersonDetails(webId: string): Promise<PersonDetails | n
 (window as any).getFriends = getFriends;
 (window as any).getPersonDetails = getPersonDetails;
 
-export function usePersonDetails(webId: string | null): PersonDetails | null {
+export function usePersonDetails(webId: string | null, createFriendsListIfMissing = false): PersonDetails | null {
   const [personDetails, setPersonDetails] = React.useState<PersonDetails | null>(null);
   if (webId === null) {
     return null;
   }
   if (webId && !personDetails) {
-    getPersonDetails(webId).then(setPersonDetails).catch((e: Error) => {
+    getPersonDetails(webId, createFriendsListIfMissing).then(setPersonDetails).catch((e: Error) => {
       console.error(e.message);
     });
   }

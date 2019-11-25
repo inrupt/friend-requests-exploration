@@ -4,7 +4,6 @@ import { sendFriendRequest } from '../services/sendActionNotification';
 import { usePersonDetails } from '../services/usePersonDetails';
 import { useWebId } from '@solid/react';
 
-
 export const FriendList: React.FC<{}> = () => {
   const webId: string | null = useWebId() || null;
   const myDetails = usePersonDetails(webId);
