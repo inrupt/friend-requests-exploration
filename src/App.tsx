@@ -35,25 +35,25 @@ const App: React.FC = () => {
                 </div>
                 <input type="checkbox" id="menu-toggle" className="is-hidden"/>
                 <div className="nav-right nav-menu">
-                  <a className="nav-item is-tab is-hidden-tablet">
+                  <div className="nav-item is-tab is-hidden-tablet">
                     <span className="icon"><i className="fa fa-home"></i></span> You
-                  </a>
-                  <a className="nav-item is-tab is-hidden-tablet">
+                  </div>
+                  <div className="nav-item is-tab is-hidden-tablet">
                     <span className="icon"><i className="fa fa-table"></i></span> Pending
-                  </a>
-                  <a className="nav-item is-tab is-hidden-tablet">
+                  </div>
+                  <div className="nav-item is-tab is-hidden-tablet">
                     <span className="icon"><i className="fa fa-info"></i></span> Friends
-                  </a>
-                  <a className="nav-item is-tab is-hidden-tablet">
+                  </div>
+                  <div className="nav-item is-tab is-hidden-tablet">
                     <span className="icon"><i className="fa fa-info"></i></span> Blocked
-                  </a>
+                  </div>
                   
-                  <a className="nav-item is-tab is-active">
+                  <div className="nav-item is-tab is-active">
                     <span className="icon"><i className="fa fa-user"></i></span>
-                  </a>
-                  <a className="nav-item is-tab">
+                  </div>
+                  <div className="nav-item is-tab">
                     <span className="icon"><i className="fa fa-sign-out"></i></span>
-                  </a>
+                  </div>
                 </div>
               </nav>
             </div>
