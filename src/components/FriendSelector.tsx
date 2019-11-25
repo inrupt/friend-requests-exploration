@@ -26,7 +26,7 @@ export const FriendSelector: React.FC<Props> = (props) => {
       </div>
       <div className="field">
         <div className="control">
-          <button type="submit" className="button is-primary">Add</button>
+          <button type="submit" className="button is-primary">Search</button>
         </div>
       </div>
     </form>

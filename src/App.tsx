@@ -4,6 +4,7 @@ import { IncomingList } from './components/IncomingList';
 import { LoggedOut, LoginButton, LoggedIn, LogoutButton, useWebId } from '@solid/react';
 import { MainPanel, PersonSummary } from './components/Person';
 import { FriendList } from './components/Friendlist';
+import { FriendSelector } from './components/FriendSelector';
 
 const App: React.FC = () => {
   return <>
@@ -24,6 +25,11 @@ const App: React.FC = () => {
               <div className="navbar-start">
                You: <PersonSummary webId={(useWebId() || undefined)} />
               </div>
+              <p className="panel-block">
+                <FriendSelector onSelect={(webId: string) => {
+                  window.location.href = `/profile/${encodeURIComponent(webId)}`;
+                }}/>
+              </p>
               <div className="navbar-end">
                 <LogoutButton className="button is-primary"/>
               </div>

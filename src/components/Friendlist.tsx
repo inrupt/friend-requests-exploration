@@ -1,6 +1,5 @@
 import React from 'react';
-import { FriendSelector } from './FriendSelector';
-import { MainPanel, PersonSummary } from './Person';
+import { PersonSummary } from './Person';
 import { sendFriendRequest } from '../services/sendActionNotification';
 import { usePersonDetails } from '../services/usePersonDetails';
 import { useWebId } from '@solid/react';
@@ -34,9 +33,6 @@ export const FriendList: React.FC<{}> = () => {
     </p>
     <p className="panel-block">
       {friendElements}
-    </p>
-    <p className="panel-block">
-      <FriendSelector onSelect={onAddFriend}/>
     </p>
   </div>;
 };
