@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useWebId } from '@solid/react';
 import { sendFriendRequest } from '../services/sendActionNotification';
 import { PersonDetails, usePersonDetails } from '../services/usePersonDetails';
@@ -8,8 +8,14 @@ interface Props {
   webId?: string;
 };
 
+export const MainPanel: React.FC<Props> = () => {
+  const params = useParams<{ webId: string }>();
+  const webId = decodeURIComponent(params.webId);
+  return <Person webId={webId} />;
+}
+
 export const Person: React.FC<Props> = (props) => {
-  let details: PersonDetails | null = usePersonDetails(props.webId || null);
+    let details: PersonDetails | null = usePersonDetails(props.webId || null);
   const personView = (details)
     ? <FullPersonView details={details}/>
       : <code>{props.webId}</code>;

@@ -3,9 +3,13 @@ import { getDocument } from "./DocumentCache";
 import { vcard } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
+import SolidAuth from 'solid-auth-client';
 
 const as = {
   following: 'https://www.w3.org/TR/activitypub/#following'
+};
+const pim = {
+  storage: 'http://www.w3.org/ns/pim/space#'
 };
 
 export enum PersonType {
@@ -25,11 +29,44 @@ export type PersonDetails = {
   personType: PersonType
 }
 
+export async function getPodRoot(webId: string | null): Promise<string | null> {
+  if (webId === null) {
+    return null;
+  }
+  return determineUriRef(webId, pim.storage);
+}
+
 export async function getFriendslistRef(webId: string | null, createIfMissing: boolean): Promise<string | null> {
   if (webId === null) {
     return null;
   }
-  return determineUriRef(webId, as.following);
+  let ret = await determineUriRef(webId, as.following);
+  if (createIfMissing && !ret) {
+    const podRoot = await getPodRoot(webId);
+    if (!podRoot) {
+      return null;
+    }
+    // FIXME?: is there a way to do this with tripledoc?
+    const response = await SolidAuth.fetch(podRoot, {
+      method: 'POST',
+      headers: {
+        Slug: 'friends',
+        'Content-Type': 'text/turtle'
+      },
+      body: '<#this> a <http://www.w3.org/2006/vcard/ns#Group> .'
+        + '<#this> <http://www.w3.org/2006/vcard/ns#fn> "Solid Friends" .'
+    });
+    const location = response.headers.get('Location');
+    if (!location) {
+      return null
+    }
+    ret = new URL('#this', location).toString();
+    const profile: TripleSubject | null = await getUriSub(webId);
+    if (profile) {
+      profile.addRef(as.following, ret);
+    }
+  }
+  return ret;
 }
 
 async function getFriends(webId: string): Promise<string[]> {

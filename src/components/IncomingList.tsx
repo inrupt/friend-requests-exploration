@@ -29,13 +29,17 @@ export const IncomingList: React.FC = () => {
       return;
     }
     const friendsListRef = await getFriendslistRef(session.webId, true);
-    const friendsDoc = await getDocument(friendsListRef);
-    const friendsSub = friendsDoc.getSubject(friendsListRef);
-    friendsSub.addRef(vcard.hasMember, request.webId);
-    await friendsDoc.save();
-    await sendConfirmation(request.webId);
-    await removeRemoteDoc(request.inboxItem);
-    window.alert('friend added');
+    if (friendsListRef) {
+      const friendsDoc = await getDocument(friendsListRef);
+      const friendsSub = friendsDoc.getSubject(friendsListRef);
+      friendsSub.addRef(vcard.hasMember, request.webId);
+      await friendsDoc.save();
+      await sendConfirmation(request.webId);
+      await removeRemoteDoc(request.inboxItem);
+      window.alert('friend added');
+    } else {
+      window.alert('friends list not found and creating failed!');
+    }
   }
 
   async function onReject(request: IncomingFriendRequest) {
