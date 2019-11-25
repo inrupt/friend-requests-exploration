@@ -4,6 +4,7 @@ export async function ensureContainer(url: string) {
   if (url.substr(-1) !== '/') {
     url += '/';
   }
+  console.log('creating container', url);
   const scoutUrl: string = new URL('delete-me', url).toString();
   await SolidAuth.fetch(scoutUrl, {
     method: 'PUT',

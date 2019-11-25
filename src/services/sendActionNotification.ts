@@ -7,7 +7,9 @@ export async function determineUriRef(uri: string, ref: string): Promise<string 
   if (uriSub === null) {
     return null;
   }
-  return uriSub.getRef(ref);
+  const ret = uriSub.getRef(ref);
+  console.log('determined uri ref', uri, ref, ret);
+  return ret;
 }
 export async function determineUriInbox(uri: string): Promise<string | null> {
   return determineUriRef(uri, ldp.inbox);
@@ -39,8 +41,9 @@ export async function sendActionNotification(recipient: string, activityType: st
   return SolidAuth.fetch(inboxUrl, {
     method: 'POST',
     body: `@prefix as: <https://www.w3.org/ns/activitystreams#> .
-    <> a as.${activityType} ;
-       schema:agent <${currentSession.webId}> .`,
+@prefix schema: <http://schema.org/> .
+<> a as:${activityType} ;
+  schema:agent <${currentSession.webId}> .`,
     headers: {
       'Content-Type': 'text/turtle'
     }

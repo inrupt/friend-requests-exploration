@@ -22,7 +22,7 @@ const App: React.FC = () => {
           <div className="container">
             <nav className="navbar has-shadow">
               <div className="navbar-start">
-                <PersonSummary webId={(useWebId() || undefined)} />
+               You: <PersonSummary webId={(useWebId() || undefined)} />
               </div>
               <div className="navbar-end">
                 <LogoutButton className="button is-primary"/>
@@ -32,43 +32,22 @@ const App: React.FC = () => {
                 <span></span>
                 <span></span>
               </div>
-              <input type="checkbox" id="menu-toggle" className="is-hidden"/>
-              <div className="nav-right nav-menu">
-                <div className="nav-item is-tab is-hidden-tablet">
-                  <span className="icon"><i className="fa fa-home"></i></span> You
-                </div>
-                <div className="nav-item is-tab is-hidden-tablet">
-                  <span className="icon"><i className="fa fa-table"></i></span> Pending
-                </div>
-                <div className="nav-item is-tab is-hidden-tablet">
-                  <span className="icon"><i className="fa fa-info"></i></span> Friends
-                </div>
-                <div className="nav-item is-tab is-hidden-tablet">
-                  <span className="icon"><i className="fa fa-info"></i></span> Blocked
-                </div>
-                <div className="nav-item is-tab is-active">
-                  <span className="icon"><i className="fa fa-user"></i></span>
-                </div>
-                <div className="nav-item is-tab">
-                  <span className="icon"><i className="fa fa-sign-out"></i></span>
-                </div>
-              </div>
             </nav>
           </div>
-          <Route path="/:webId">
-            <section className="main-content columns is-fullheight">
-              <aside className="column is-4 is-narrow-mobile is-fullheight section is-hidden-mobile">
-    
-                <div className="menu-list">
+          <section className="main-content columns is-fullheight">
+            <aside className="column is-4 is-narrow-mobile is-fullheight section is-hidden-mobile">
+  
+              <div className="menu-list">
 
-                  <nav className="panel">
-                    <IncomingList />
-                  </nav>
-                  <nav className="panel">
-                    <FriendList />
-                  </nav>
-                </div>
-              </aside>
+                <nav className="panel">
+                  <IncomingList />
+                </nav>
+                <nav className="panel">
+                  <FriendList />
+                </nav>
+              </div>
+            </aside>
+            <Route path="/profile/:webId">
               <div className="container column is-8">
                 <div className="section">
                   <div className="card">
@@ -76,15 +55,15 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </section>
             </Route>
-            <footer className="footer is-hidden">
-              <div className="container">
-                <div className="content has-text-centered">
-                  <p>Hello</p>
-                </div>
+          </section>
+          <footer className="footer is-hidden">
+            <div className="container">
+              <div className="content has-text-centered">
+                <p>Hello</p>
               </div>
-            </footer>
+            </div>
+          </footer>
         </LoggedIn>
       </BrowserRouter>
     </React.StrictMode>

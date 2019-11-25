@@ -65,6 +65,7 @@ export async function getFriendslistRef(webId: string | null, createIfMissing: b
     if (!location) {
       return null
     }
+    console.log('getting created location', location);
     ret = new URL('#this', location).toString();
     const profile: TripleSubject | null = await getUriSub(webId);
     if (profile) {
@@ -134,14 +135,20 @@ export async function getPersonDetails(webId: string): Promise<PersonDetails | n
   if (profileSub === null) {
     return null;
   }
-  return {
+  const ret = {
     webId,
-    avatarUrl: profileSub.getRef(vcard.hasPhoto)|| '/img/default-avatar.png',
-    fullName: profileSub.getRef(vcard.fn) || '(no name)',
+    avatarUrl: profileSub.getRef(vcard.hasPhoto) || null,
+    fullName: profileSub.getString(vcard.fn) || null,
     friends: await getFriends(webId),
     personType: await getPersonType(webId)
   };
+  console.log('person details', webId, profileSub, ret);
+  return ret;
 }
+
+(window as any).getUriSub = getUriSub;
+(window as any).getFriends = getFriends;
+(window as any).getPersonDetails = getPersonDetails;
 
 export function usePersonDetails(webId: string | null): PersonDetails | null {
   const [personDetails, setPersonDetails] = React.useState<PersonDetails | null>(null);

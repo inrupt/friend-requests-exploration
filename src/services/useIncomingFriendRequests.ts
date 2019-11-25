@@ -1,40 +1,14 @@
 import { useWebId } from "@solid/react";
-import { useDocument, getDocument } from "./DocumentCache";
+import { getDocument } from "./DocumentCache";
 import { TripleSubject, TripleDocument } from "tripledoc";
 import { ldp, schema } from "rdf-namespaces";
 import React from "react";
+import { determineInboxToUse } from "./sendActionNotification";
 
 export type IncomingFriendRequest = {
   webId: string,
   inboxItem: string
 };
-
-async function getFriendsListUri(webId: string): Promise<string | null> {
-  const myProfileDoc = await getDocument(webId);
-  if (myProfileDoc) {
-    const myProfileSub: TripleSubject = myProfileDoc.getSubject(webId);
-    return myProfileSub.getRef(ldp.inbox);
-  }
-  return null;
-}
-
-async function getSubjectInboxUrl(uri: string): Promise<string | null> {
-  const doc = await getDocument(uri);
-  if (doc) {
-    const sub: TripleSubject = doc.getSubject(uri);
-    return sub.getRef(ldp.inbox);
-  }
-  return null;
-}
-
-async function getPersonInboxUrl(webId: string): Promise<string | null> {
-  const friendsListUri = await getFriendsListUri(webId);
-  if (friendsListUri) {
-    return getSubjectInboxUrl(friendsListUri);
-  }
-  const globalInboxUrl = await getSubjectInboxUrl(webId);
-  return globalInboxUrl;
-}
 
 async function getContainerDocuments(containerUrl: string): Promise<TripleDocument[]> {
   const containerDoc = await getDocument(containerUrl);
@@ -43,9 +17,14 @@ async function getContainerDocuments(containerUrl: string): Promise<TripleDocume
     const containerItemUrls = containerSub.getAllRefs(ldp.contains);
     const result: TripleDocument[] = [];
     const promises = containerItemUrls.map(async (url: string) => {
-      const doc = useDocument(url);
-      if (doc) {
-        result.push(doc);
+      console.log('fetching inbox doc', url);
+      try {
+        const doc = await getDocument(url);
+        if (doc) {
+          result.push(doc);
+        }
+      } catch (e) {
+        console.error('could not parse inbox item', url, e);
       }
     });
     await Promise.all(promises);
@@ -66,13 +45,16 @@ export function useIncomingFriendRequests(): IncomingFriendRequest[] | null {
 }
 
 async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {
-  const myInboxUrl = await getPersonInboxUrl(webId);
+  const myInboxUrl = await determineInboxToUse(webId);
+  console.log({ myInboxUrl });
   if (myInboxUrl) {
     const notificationDocs = await getContainerDocuments(myInboxUrl);
     const filtered: IncomingFriendRequest[] = [];
     notificationDocs.forEach((doc) => {
       const inboxItem = doc.asRef();
+      console.log({ inboxItem });
       const webId = doc.getSubject(inboxItem).getRef(schema.agent);
+      console.log('schema agent', webId, doc.getStatements());
       if (webId) {
         filtered.push({
           webId,
