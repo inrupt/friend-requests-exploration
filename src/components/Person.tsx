@@ -79,7 +79,7 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   console.log({ webId, theirDetails, myDetails });
   if (theirDetails && myDetails) {
     if (theirDetails.friends === null || myDetails.friends === null) {
-      return <>(could not display friends in commmon)</>;
+      return <>(could not display friends in common)</>;
     }
     // help TypeScript to realize this is now non-null:
     const myFriends: string[] = myDetails.friends;
