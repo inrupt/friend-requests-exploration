@@ -4,7 +4,6 @@ import { vcard } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
 import SolidAuth from 'solid-auth-client';
-import { string } from "prop-types";
 
 const as = {
   following: 'https://www.w3.org/TR/activitypub/#following'

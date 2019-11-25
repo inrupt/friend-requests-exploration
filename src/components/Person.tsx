@@ -3,7 +3,6 @@ import { Link, useParams } from 'react-router-dom';
 import { useWebId } from '@solid/react';
 import { sendFriendRequest } from '../services/sendActionNotification';
 import { PersonDetails, usePersonDetails } from '../services/usePersonDetails';
-import { avatar } from 'rdf-namespaces/dist/sioc';
 
 interface Props {
   webId?: string;
