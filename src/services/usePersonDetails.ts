@@ -21,12 +21,17 @@ export enum PersonType {
   stranger
 }
 
+// This is basically a model in the MVC sense.
+// null means gave up on trying to determine it.
+// There may be cases where the view doesn't need to know all aspects of
+// the model, but for simplicity, `usePersonDetails` will always try to
+// be as complete as possible.
 export type PersonDetails = {
   webId: string,
-  avatarUrl: string,
-  fullName: string,
-  friends: string[],
-  personType: PersonType
+  avatarUrl: string | null,
+  fullName: string | null,
+  friends: string[] | null,
+  personType: PersonType | null
 }
 
 export async function getPodRoot(webId: string | null): Promise<string | null> {
@@ -69,7 +74,12 @@ export async function getFriendslistRef(webId: string | null, createIfMissing: b
   return ret;
 }
 
-async function getFriends(webId: string): Promise<string[]> {
+async function getFriends(webId: string): Promise<string[] | null> {
+  const friendsListRef: string | null = await getFriendslistRef(webId, false);
+  if (!friendsListRef) {
+    return null;
+  }
+  const friendsListSub = await getUriSub(friendsListRef);
   return [];
 }
 
@@ -139,13 +149,14 @@ async function getPersonType(webId: string): Promise<PersonType> {
   return PersonType.stranger;
 }
 
-export async function getUriSub(webId: string): Promise<TripleSubject | null> {
-  const profileDoc = await getDocument(webId);
-  if (profileDoc === null) {
+export async function getUriSub(uri: string): Promise<TripleSubject | null> {
+  const doc = await getDocument(uri);
+  if (doc === null) {
     return null;
   }
-  return profileDoc.getSubject(webId);
+  return doc.getSubject(uri);
 }
+
 export async function getPersonDetails(webId: string): Promise<PersonDetails | null> {
   const profileSub = await getUriSub(webId);
   if (profileSub === null) {

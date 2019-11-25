@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useWebId } from '@solid/react';
 import { sendFriendRequest } from '../services/sendActionNotification';
 import { PersonDetails, usePersonDetails } from '../services/usePersonDetails';
+import { avatar } from 'rdf-namespaces/dist/sioc';
 
 interface Props {
   webId?: string;
@@ -13,7 +14,6 @@ export const MainPanel: React.FC<Props> = () => {
   const webId = decodeURIComponent(params.webId);
   return <Person webId={webId} />;
 }
-
 export const Person: React.FC<Props> = (props) => {
     let details: PersonDetails | null = usePersonDetails(props.webId || null);
   const personView = (details)
@@ -79,7 +79,12 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const myDetails = usePersonDetails(webId || null);
   console.log({ webId, theirDetails, myDetails });
   if (theirDetails && myDetails) {
-    const friendsInCommon: string[] = theirDetails.friends.filter(item => myDetails.friends.indexOf(item) !== -1);
+    if (theirDetails.friends === null || myDetails.friends === null) {
+      return <>(could not display friends in commmon)</>;
+    }
+    // help TypeScript to realize this is now non-null:
+    const myFriends: string[] = myDetails.friends;
+    const friendsInCommon: string[] = theirDetails.friends.filter(item => myFriends.indexOf(item) !== -1);
     const listElements = friendsInCommon.map(webId => <li key={webId}> {webId}</li> );
 
     return ( 
@@ -99,7 +104,7 @@ const PersonSummaryView: React.FC<{ details: PersonDetails }> = ({ details }) =>
   const photo = <>
     <figure className="card-header-title">
       <p className="image is-48x48">
-        <img src={details.avatarUrl} alt="Avatar" className="is-rounded"/>
+        <img src={details.avatarUrl || '/img/default-avatar.png'} alt="Avatar" className="is-rounded"/>
       </p>
     </figure>
   </>;
@@ -130,7 +135,7 @@ const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
   const photo = <>
     <figure className="media-left">
       <p className="image is-64x64">
-        <img src={details.avatarUrl} alt="Avatar" className="is-rounded"/>
+        <img src={details.avatarUrl || '/img/default-avatar.png'} alt="Avatar" className="is-rounded"/>
       </p>
     </figure>
   </>;

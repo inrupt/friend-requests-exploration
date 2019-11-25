@@ -12,6 +12,9 @@ export const FriendList: React.FC<{}> = () => {
   if (!myDetails) {
     return <>Loading...</>;
   }
+  if (!myDetails.friends) {
+    return <>(failed to retrieve friends list)</>;
+  }
   const friendElements = (myDetails.friends.length === 0)
     ? <p>You have not added any friends yet :(</p>
     : myDetails.friends.map(getPersonCard);
