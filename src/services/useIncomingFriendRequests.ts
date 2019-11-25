@@ -1,6 +1,6 @@
 import { useWebId } from "@solid/react";
 import { getDocument } from "./DocumentCache";
-import { TripleSubject, TripleDocument } from "tripledoc";
+import { TripleDocument } from "tripledoc";
 import { ldp, schema } from "rdf-namespaces";
 import React from "react";
 import { determineInboxToUse } from "./sendActionNotification";

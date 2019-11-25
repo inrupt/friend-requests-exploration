@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { LoggedOut, LoginButton, LoggedIn } from '@solid/react';
+import { LoggedInView } from './components/LoggedInView';
 
 const App: React.FC = () => {
   return <>
@@ -16,6 +17,7 @@ const App: React.FC = () => {
           </section>
         </LoggedOut>
         <LoggedIn>
+          <LoggedInView />
         </LoggedIn>
       </BrowserRouter>
     </React.StrictMode>

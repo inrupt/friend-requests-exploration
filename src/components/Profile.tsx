@@ -14,6 +14,9 @@ export const Profile: React.FC = (props) => {
   if (theirDetails === null) {
     return <>Loading...</>;
   }
+  if (theirDetails === undefined) {
+    return <>(failed to load person details).</>;
+  }
   if (theirDetails.friends === null) {
     return <>
       <section className="section">

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useWebId, LogoutButton } from "@solid/react";
 import { Route } from "react-router";
 import { usePersonDetails } from '../services/usePersonDetails';
@@ -7,12 +8,11 @@ import { IncomingList } from './IncomingList';
 import { FriendList } from './Friendlist';
 
 export const LoggedInView: React.FC<{}> = () => {
-  const myWebId = useWebId() || null;
-  const myPersonDetails = usePersonDetails(myWebId, true);
-  if (myPersonDetails === undefined) {
-    return <>Loading...</>;
-  }
+  const myWebId = useWebId();
+  const myPersonDetails = usePersonDetails(myWebId || null, true);
   if (myPersonDetails === null) {
+    return <>Loading...</>;
+  } else if (myPersonDetails === undefined) {
     return <>(could not fetch profile of logged-in user)</>;
   }
 

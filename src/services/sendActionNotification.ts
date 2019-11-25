@@ -1,6 +1,6 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp, vcard } from 'rdf-namespaces';
-import { getUriSub, getFriendsListRef as getFriendsListRef } from './usePersonDetails';
+import { getUriSub, getFriendsListRef } from './usePersonDetails';
 import { getDocument } from './DocumentCache';
 
 export async function determineUriRef(uri: string, ref: string): Promise<string | null> {

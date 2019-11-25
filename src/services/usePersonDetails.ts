@@ -141,15 +141,20 @@ export async function getPersonDetails(webId: string, createFriendsListIfMissing
 (window as any).getFriends = getFriends;
 (window as any).getPersonDetails = getPersonDetails;
 
-export function usePersonDetails(webId: string | null, createFriendsListIfMissing = false): PersonDetails | null {
-  const [personDetails, setPersonDetails] = React.useState<PersonDetails | null>(null);
+
+// Returns a PersonDetails object
+// or null if still loading
+// or undefined if loading failed
+export function usePersonDetails(webId: string | null, createFriendsListIfMissing = false): PersonDetails | null | undefined {
+  const [personDetails, setPersonDetails] = React.useState<PersonDetails | null | undefined>(null);
   if (webId === null) {
     return null;
   }
   if (webId && !personDetails) {
-    getPersonDetails(webId, createFriendsListIfMissing).then(setPersonDetails).catch((e: Error) => {
+    getPersonDetails(webId, createFriendsListIfMissing).catch((e: Error) => {
       console.error(e.message);
-    });
+      return undefined;
+    }).then(setPersonDetails);
   }
   return personDetails;
 }

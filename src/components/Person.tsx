@@ -14,7 +14,7 @@ export const MainPanel: React.FC<Props> = () => {
   return <Person webId={webId} />;
 }
 export const Person: React.FC<Props> = (props) => {
-    let details: PersonDetails | null = usePersonDetails(props.webId || null);
+    let details: PersonDetails | null | undefined = usePersonDetails(props.webId || null);
   const personView = (details)
     ? <FullPersonView details={details}/>
       : <code>{props.webId}</code>;
