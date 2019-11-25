@@ -47,7 +47,7 @@ export const FriendRequest: React.FC<Props> = (props) => {
       <div className="media-left">
         <figure className="image is-128x128">
           <img
-            src={profile.avatarUrl || 'https://melvincarvalho.github.io/solid-profile/images/profile.png'}
+            src={profile.avatarUrl || '/img/default-avatar.png'}
             alt=""
           />
         </figure>
