@@ -4,7 +4,7 @@ import { vcard } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
 import SolidAuth from 'solid-auth-client';
-import { createFriendsList } from "./createFriendsList";
+import { createFriendsGroup } from "./createFriendsGroup";
 
 const as = {
   following: 'https://www.w3.org/TR/activitypub/#following'
@@ -43,15 +43,15 @@ export async function getPodRoot(webId: string | null): Promise<string | null> {
   return determineUriRef(webId, pim.storage);
 }
 
-export async function getFriendsListRef(webId: string | null, createIfMissing: boolean): Promise<string | null> {
+export async function getFriendsGroupRef(webId: string | null, createIfMissing: boolean): Promise<string | null> {
   if (webId === null) {
     console.log('no webId!');
     return null;
   }
-  console.log('getting friendslist ref', webId);
+  console.log('getting friendsgroup ref', webId);
   let ret = await determineUriRef(webId, as.following);
   if (createIfMissing && !ret) {
-    ret = await createFriendsList(webId);
+    ret = await createFriendsGroup(webId);
   }
   console.log('returning!', ret);
   return ret;
@@ -59,17 +59,17 @@ export async function getFriendsListRef(webId: string | null, createIfMissing: b
 
 async function getFriends(webId: string, createIfMissing = false): Promise<string[] | null> {
   try {
-    const friendsListRef: string | null = await getFriendsListRef(webId, createIfMissing);
-    if (!friendsListRef) {
+    const friendsGroupRef: string | null = await getFriendsGroupRef(webId, createIfMissing);
+    if (!friendsGroupRef) {
       console.log('no friends list ref', webId);
       return null;
     }
-    const friendsListSub = await getUriSub(friendsListRef);
-    if (!friendsListSub) {
+    const friendsGroupSub = await getUriSub(friendsGroupRef);
+    if (!friendsGroupSub) {
       console.log('no friends list sub', webId);
       return null;
     }
-    return friendsListSub.getAllRefs(vcard.hasMember);
+    return friendsGroupSub.getAllRefs(vcard.hasMember);
   } catch (e) {
     console.log('something went wrong', webId, e);
     return null;
@@ -111,8 +111,11 @@ async function getPersonType(theirWebId: string): Promise<PersonType | null> {
   }
 }
 
-export async function getUriSub(uri: string): Promise<TripleSubject | null> {
-  const doc = await getDocument(uri);
+export async function getUriSub(uri: string, docUrl?: string): Promise<TripleSubject | null> {
+  if (!docUrl) {
+    docUrl = uri;
+  }
+  const doc = await getDocument(docUrl);
   if (doc === null) {
     return null;
   }
@@ -121,7 +124,7 @@ export async function getUriSub(uri: string): Promise<TripleSubject | null> {
   }, doc.getSubject(uri));
 }
 
-export async function getPersonDetails(webId: string, createFriendsListIfMissing = false): Promise<PersonDetails | null> {
+export async function getPersonDetails(webId: string, createFriendsGroupIfMissing = false): Promise<PersonDetails | null> {
   const profileSub = await getUriSub(webId);
   if (profileSub === null) {
     return null;
@@ -130,7 +133,7 @@ export async function getPersonDetails(webId: string, createFriendsListIfMissing
     webId,
     avatarUrl: profileSub.getRef(vcard.hasPhoto) || null,
     fullName: profileSub.getString(vcard.fn) || null,
-    friends: await getFriends(webId, createFriendsListIfMissing),
+    friends: await getFriends(webId, createFriendsGroupIfMissing),
     personType: await getPersonType(webId)
   };
   // console.log('person details', webId, profileSub, ret);
@@ -145,13 +148,13 @@ export async function getPersonDetails(webId: string, createFriendsListIfMissing
 // Returns a PersonDetails object
 // or null if still loading
 // or undefined if loading failed
-export function usePersonDetails(webId: string | null, createFriendsListIfMissing = false): PersonDetails | null | undefined {
+export function usePersonDetails(webId: string | null, createFriendsGroupIfMissing = false): PersonDetails | null | undefined {
   const [personDetails, setPersonDetails] = React.useState<PersonDetails | null | undefined>(null);
   if (webId === null) {
     return null;
   }
   if (webId && !personDetails) {
-    getPersonDetails(webId, createFriendsListIfMissing).catch((e: Error) => {
+    getPersonDetails(webId, createFriendsGroupIfMissing).catch((e: Error) => {
       console.error(e.message);
       return undefined;
     }).then(setPersonDetails);

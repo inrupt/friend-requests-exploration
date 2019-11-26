@@ -5,7 +5,7 @@ import { FriendRequest } from './FriendRequest';
 import { sendConfirmation } from '../services/sendActionNotification';
 import { getDocument } from '../services/DocumentCache';
 import { IncomingFriendRequest, useIncomingFriendRequests } from '../services/useIncomingFriendRequests';
-import { getFriendsListRef } from '../services/usePersonDetails';
+import { getFriendsGroupRef } from '../services/usePersonDetails';
 
 async function removeRemoteDoc(url: string) {
   return await SolidAuth.fetch(url, {
@@ -28,10 +28,10 @@ export const IncomingList: React.FC = () => {
       window.alert('not logged in!');
       return;
     }
-    const friendsListRef = await getFriendsListRef(session.webId, true);
-    if (friendsListRef) {
-      const friendsDoc = await getDocument(friendsListRef);
-      const friendsSub = friendsDoc.getSubject(friendsListRef);
+    const friendsGroupRef = await getFriendsGroupRef(session.webId, true);
+    if (friendsGroupRef) {
+      const friendsDoc = await getDocument(friendsGroupRef);
+      const friendsSub = friendsDoc.getSubject(friendsGroupRef);
       friendsSub.addRef(vcard.hasMember, request.webId);
       await friendsDoc.save();
       await sendConfirmation(request.webId);

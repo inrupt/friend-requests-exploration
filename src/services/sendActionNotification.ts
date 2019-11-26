@@ -1,10 +1,10 @@
 import SolidAuth from 'solid-auth-client';
 import { ldp, vcard } from 'rdf-namespaces';
-import { getUriSub, getFriendsListRef } from './usePersonDetails';
+import { getUriSub, getFriendsGroupRef } from './usePersonDetails';
 import { getDocument } from './DocumentCache';
 
-export async function determineUriRef(uri: string, ref: string): Promise<string | null> {
-  const uriSub = await getUriSub(uri);
+export async function determineUriRef(uri: string, ref: string, doc?: string): Promise<string | null> {
+  const uriSub = await getUriSub(uri, doc);
   if (uriSub === null) {
     return null;
   }
@@ -12,16 +12,20 @@ export async function determineUriRef(uri: string, ref: string): Promise<string 
   // console.log('determined uri ref', uri, ref, ret);
   return ret;
 }
-export async function determineUriInbox(uri: string): Promise<string | null> {
-  return determineUriRef(uri, ldp.inbox);
+export async function determineUriInbox(uri: string, doc?: string): Promise<string | null> {
+  return determineUriRef(uri, ldp.inbox, doc);
 }
 
 export async function determineInboxToUse(recipient: string): Promise<string | null> {
-  const recipientAddressBookUrl: string | null = await getFriendsListRef(recipient, false);
-  if (recipientAddressBookUrl) {
-    const addressBookInbox = determineUriInbox(recipientAddressBookUrl);
-    if (addressBookInbox) {
-      return addressBookInbox;
+  const recipientFriendsGroupUrl: string | null = await getFriendsGroupRef(recipient, false);
+  if (recipientFriendsGroupUrl) {
+    // Look for inbox of friends group at recipient profile
+    // because we need to know the inbox to request access
+    // to the group, see
+    // https://github.com/inrupt/friend-requests-exploration/issues/72
+    const friendsGroupInbox = determineUriInbox(recipientFriendsGroupUrl, recipient);
+    if (friendsGroupInbox) {
+      return friendsGroupInbox;
     }
   }
   // fallback to recipient's main inbox:
@@ -51,25 +55,25 @@ export async function sendActionNotification(recipient: string, activityType: st
   });
 }
 
-export async function addToFriendsList(webId: string) {
+export async function addToFriendsGroup(webId: string) {
   const currentSession = await SolidAuth.currentSession();
   if (!currentSession) {
     throw new Error('not logged in!');
   }
-  const friendsListRef = await getFriendsListRef(currentSession.webId, true);
-  if (!friendsListRef) {
+  const friendsGroupRef = await getFriendsGroupRef(currentSession.webId, true);
+  if (!friendsGroupRef) {
     throw new Error('could not find my friends list');
   }
-  const friendsListDoc = await getDocument(friendsListRef);
-  if (!friendsListDoc) {
+  const friendsGroupDoc = await getDocument(friendsGroupRef);
+  if (!friendsGroupDoc) {
     throw new Error('could not access my friends list document');
   }
-  const friendListSub = friendsListDoc.getSubject(friendsListRef);
+  const friendListSub = friendsGroupDoc.getSubject(friendsGroupRef);
   if (!friendListSub) {
     throw new Error('could not access my friends list group');
   }
   friendListSub.addRef(vcard.hasMember, webId);
-  await friendsListDoc.save();
+  await friendsGroupDoc.save();
 }
 
 export async function sendFriendRequest(recipient: string) {
@@ -77,7 +81,7 @@ export async function sendFriendRequest(recipient: string) {
 }
 
 export async function addFriend(recipient: string) {
-  await addToFriendsList(recipient);
+  await addToFriendsGroup(recipient);
   return sendActionNotification(recipient, 'Follow');
 }
 
