@@ -4,11 +4,19 @@ import { TripleDocument } from "tripledoc";
 import { ldp, schema } from "rdf-namespaces";
 import React from "react";
 import { determineInboxesToUse } from "./sendActionNotification";
+import SolidAuth from 'solid-auth-client';
 
 export type IncomingFriendRequest = {
   webId: string,
   inboxItem: string
 };
+
+export async function removeRemoteDoc(url: string) {
+  return await SolidAuth.fetch(url, {
+    method: 'DELETE'
+  });
+}
+
 
 async function getContainerDocuments(containerUrl: string): Promise<TripleDocument[]> {
   const containerDoc = await getDocument(containerUrl);
@@ -47,23 +55,35 @@ export function useIncomingFriendRequests(): IncomingFriendRequest[] | null {
 async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {
   const myInboxUrls: string[] = await determineInboxesToUse(webId);
   let ret: IncomingFriendRequest[] = [];
-  const promises: Promise<void>[] = myInboxUrls.map(async (url: string) => {
+  await Promise.all(myInboxUrls.map(async (url: string) => {
+    console.log('checking inbox', url);
     const notificationDocs = await getContainerDocuments(url);
     const filtered: IncomingFriendRequest[] = [];
-    notificationDocs.forEach((doc: TripleDocument) => {
+    await Promise.all(notificationDocs.map(async (doc: TripleDocument) => {
       const inboxItem = doc.asRef();
       // console.log({ inboxItem });
       const webId = doc.getSubject(inboxItem).getRef(schema.agent);
       // console.log('schema agent', webId, doc.getStatements());
       if (webId) {
-        filtered.push({
-          webId,
-          inboxItem
-        });
+        let isDuplicate = false;
+        await Promise.all(filtered.map(async (item: IncomingFriendRequest) => {
+          if (item.webId === webId) {
+            console.log('Duplicate found, removing');
+            isDuplicate = true;
+            await removeRemoteDoc(inboxItem);
+          } else {
+            console.log('no duplicate', item.webId, webId);
+          }
+        }));
+        if (!isDuplicate) {
+          filtered.push({
+            webId,
+            inboxItem
+          });
+        }
       }
-    });
+    }));
     ret = ret.concat(filtered);
-  });
-  await Promise.all(promises);
+  }));
   return ret;
 }

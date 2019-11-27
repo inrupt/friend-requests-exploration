@@ -71,7 +71,7 @@ async function getFriends(webId: string, createIfMissing = false): Promise<strin
     }
     return friendsGroupSub.getAllRefs(vcard.hasMember);
   } catch (e) {
-    console.log('something went wrong', webId, e);
+    // console.log('something went wrong while fetching (403?)', friendsGroupRef);
     return null;
   }
 }

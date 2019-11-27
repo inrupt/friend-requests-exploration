@@ -3,6 +3,8 @@ import React from 'react';
 
 const promises: {[iri: string]: Promise<TripleDocument>} = {};
 
+(window as any).fetchDocument = fetchDocument;
+
 export function getDocument(url: string): Promise<TripleDocument> {
   // Remove fragment identifiers (e.g. `#me`) from the URI:
   // console.log('removing fragment', url);

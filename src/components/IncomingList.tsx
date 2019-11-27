@@ -4,14 +4,9 @@ import SolidAuth, { Session } from 'solid-auth-client';
 import { FriendRequest } from './FriendRequest';
 import { sendConfirmation } from '../services/sendActionNotification';
 import { getDocument } from '../services/DocumentCache';
-import { IncomingFriendRequest, useIncomingFriendRequests } from '../services/useIncomingFriendRequests';
+import { IncomingFriendRequest, useIncomingFriendRequests, removeRemoteDoc } from '../services/useIncomingFriendRequests';
 import { getFriendsGroupRef } from '../services/usePersonDetails';
 
-async function removeRemoteDoc(url: string) {
-  return await SolidAuth.fetch(url, {
-    method: 'DELETE'
-  });
-}
 
 export const IncomingList: React.FC = () => {
   const incomingFriendRequests: IncomingFriendRequest[] | null = useIncomingFriendRequests();
