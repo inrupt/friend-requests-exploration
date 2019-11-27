@@ -60,9 +60,11 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     otherAuthSub.addNodeRef(acl.accessTo, resourceDoc.asNodeRef());
     otherAuthSub.addNodeRef(acl.mode, otherAuthMode);
     otherAuthSub.addNodeRef(acl.agentGroup, otherAuthGroup);
-    APP_ORIGINS.forEach((origin: string) => {
-      otherAuthSub.addNodeRef(acl.origin, origin);
-    });
+    if (otherAuthGroup !== foaf.Agent) { // for public, origin isn't checked
+      APP_ORIGINS.forEach((origin: string) => {
+        otherAuthSub.addNodeRef(acl.origin, origin);
+      });
+    }
 
     aclDoc.save();
   } else {

@@ -84,7 +84,13 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
     // help TypeScript to realize this is now non-null:
     const myFriends: string[] = myDetails.friends;
     const friendsInCommon: string[] = theirDetails.friends.filter(item => myFriends.indexOf(item) !== -1);
-    const listElements = friendsInCommon.map(webId => <li key={webId}> {webId}</li> );
+    const listElements = friendsInCommon.map(webId => {
+      return <li key={webId}>
+        <Link to={`/profile/${encodeURIComponent(webId)}`}>
+          {webId}
+        </Link>
+      </li>;
+    });
 
     return ( 
       <div className="media">

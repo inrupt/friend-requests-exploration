@@ -3,7 +3,7 @@ import { getDocument } from "./DocumentCache";
 import { TripleDocument } from "tripledoc";
 import { ldp, schema } from "rdf-namespaces";
 import React from "react";
-import { determineInboxToUse } from "./sendActionNotification";
+import { determineInboxesToUse } from "./sendActionNotification";
 
 export type IncomingFriendRequest = {
   webId: string,
@@ -45,12 +45,12 @@ export function useIncomingFriendRequests(): IncomingFriendRequest[] | null {
 }
 
 async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {
-  const myInboxUrl = await determineInboxToUse(webId);
-  // console.log({ myInboxUrl });
-  if (myInboxUrl) {
-    const notificationDocs = await getContainerDocuments(myInboxUrl);
+  const myInboxUrls: string[] = await determineInboxesToUse(webId);
+  let ret: IncomingFriendRequest[] = [];
+  const promises: Promise<void>[] = myInboxUrls.map(async (url: string) => {
+    const notificationDocs = await getContainerDocuments(url);
     const filtered: IncomingFriendRequest[] = [];
-    notificationDocs.forEach((doc) => {
+    notificationDocs.forEach((doc: TripleDocument) => {
       const inboxItem = doc.asRef();
       // console.log({ inboxItem });
       const webId = doc.getSubject(inboxItem).getRef(schema.agent);
@@ -62,7 +62,8 @@ async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendR
         });
       }
     });
-    return filtered;
-  }
-  return [];
+    ret = ret.concat(filtered);
+  });
+  await Promise.all(promises);
+  return ret;
 }

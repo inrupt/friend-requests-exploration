@@ -16,20 +16,29 @@ export async function determineUriInbox(uri: string, doc?: string): Promise<stri
   return determineUriRef(uri, ldp.inbox, doc);
 }
 
-export async function determineInboxToUse(recipient: string): Promise<string | null> {
+export async function determineInboxesToUse(recipient: string): Promise<string[]> {
   const recipientFriendsGroupUrl: string | null = await getFriendsGroupRef(recipient, false);
+  let ret: string[] = [];
+  
+  // prefer friend-requests inbox, if it exists:
   if (recipientFriendsGroupUrl) {
     // Look for inbox of friends group at recipient profile
     // because we need to know the inbox to request access
     // to the group, see
     // https://github.com/inrupt/friend-requests-exploration/issues/72
-    const friendsGroupInbox = determineUriInbox(recipientFriendsGroupUrl, recipient);
+    const friendsGroupInbox = await determineUriInbox(recipientFriendsGroupUrl, recipient);
     if (friendsGroupInbox) {
-      return friendsGroupInbox;
+      ret.push(friendsGroupInbox);
     }
   }
-  // fallback to recipient's main inbox:
-  return determineUriInbox(recipient);
+
+  // always include recipient's main inbox:
+  const mainInboxUrl = await determineUriInbox(recipient);
+  if (mainInboxUrl) {
+    ret.push(mainInboxUrl);
+  }
+  
+  return ret;
 }
 
 export async function sendActionNotification(recipient: string, activityType: string) {
@@ -37,13 +46,13 @@ export async function sendActionNotification(recipient: string, activityType: st
   if (!currentSession) {
     throw new Error('not logged in!');
   }
-  const inboxUrl = await determineInboxToUse(recipient);
-  if (!inboxUrl) {
+  const inboxUrls = await determineInboxesToUse(recipient);
+  if (!inboxUrls.length) {
     throw new Error('This person does not accept friend requests.');
   }
 
   // TODO: Check if createDocument can do this with a URL we set manually:
-  return SolidAuth.fetch(inboxUrl, {
+  return SolidAuth.fetch(inboxUrls[0], {
     method: 'POST',
     body: `@prefix as: <https://www.w3.org/ns/activitystreams#> .
 @prefix schema: <http://schema.org/> .
