@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { getDocument } from "./DocumentCache";
 import { vcard } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
@@ -150,14 +150,16 @@ export async function getPersonDetails(webId: string, createFriendsGroupIfMissin
 // or undefined if loading failed
 export function usePersonDetails(webId: string | null, createFriendsGroupIfMissing = false): PersonDetails | null | undefined {
   const [personDetails, setPersonDetails] = React.useState<PersonDetails | null | undefined>(null);
+  useEffect(() => {
+    if (webId && (!personDetails || personDetails.webId !== webId)) {
+      getPersonDetails(webId, createFriendsGroupIfMissing).catch((e: Error) => {
+        console.error(e.message);
+        return undefined;
+      }).then(setPersonDetails);
+    }
+  }, [webId, personDetails, createFriendsGroupIfMissing]);
   if (webId === null) {
     return null;
-  }
-  if (webId && !personDetails) {
-    getPersonDetails(webId, createFriendsGroupIfMissing).catch((e: Error) => {
-      console.error(e.message);
-      return undefined;
-    }).then(setPersonDetails);
   }
   return personDetails;
 }

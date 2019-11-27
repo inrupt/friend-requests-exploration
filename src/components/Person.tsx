@@ -11,10 +11,12 @@ interface Props {
 export const MainPanel: React.FC<Props> = () => {
   const params = useParams<{ webId: string }>();
   const webId = decodeURIComponent(params.webId);
+  console.log({params, webId });
   return <Person webId={webId} />;
 }
 export const Person: React.FC<Props> = (props) => {
-    let details: PersonDetails | null | undefined = usePersonDetails(props.webId || null);
+  let details: PersonDetails | null | undefined = usePersonDetails(props.webId || null);
+  console.log('Person', details, props);
   const personView = (details)
     ? <FullPersonView details={details}/>
       : <code>{props.webId}</code>;

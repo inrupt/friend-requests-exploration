@@ -5,6 +5,7 @@ import { LoggedInView } from './components/LoggedInView';
 
 const App: React.FC = () => {
   return <>
+    <React.StrictMode>
       <BrowserRouter>
         <LoggedOut>
           <section className="section">
@@ -19,6 +20,7 @@ const App: React.FC = () => {
           <LoggedInView />
         </LoggedIn>
       </BrowserRouter>
+    </React.StrictMode>
   </>;
 }
 
