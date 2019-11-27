@@ -3,6 +3,12 @@ import { getDocument } from './DocumentCache';
 import { createDocument } from 'tripledoc';
 import { rdf, acl, foaf } from 'rdf-namespaces';
 
+const APP_ORIGINS = [
+  'https://launcher-exploration.inrupt.app',
+  'https://friend-requests-exploration.inrupt.app',
+  'http://localhost:3000'
+];
+
 export async function ensureContainer(url: string) {
   if (url.substr(-1) !== '/') {
     url += '/';
@@ -45,12 +51,19 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     ownerAuthSub.addNodeRef(acl.mode, acl.Write);
     ownerAuthSub.addNodeRef(acl.mode, acl.Control);
     ownerAuthSub.addNodeRef(acl.agent, webId);
+    APP_ORIGINS.forEach((origin: string) => {
+      ownerAuthSub.addNodeRef(acl.origin, origin);
+    });
 
     const otherAuthSub = aclDoc.addSubject();
     otherAuthSub.addNodeRef(rdf.type, acl.Authorization);
     otherAuthSub.addNodeRef(acl.accessTo, resourceDoc.asNodeRef());
     otherAuthSub.addNodeRef(acl.mode, otherAuthMode);
     otherAuthSub.addNodeRef(acl.agentGroup, otherAuthGroup);
+    APP_ORIGINS.forEach((origin: string) => {
+      ownerAuthSub.addNodeRef(acl.origin, origin);
+    });
+
     aclDoc.save();
   } else {
     console.log('have no aclDoc');
