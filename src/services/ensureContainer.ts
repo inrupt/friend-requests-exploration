@@ -58,7 +58,7 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
 }
 
 export async function createFriendsGroupAclDoc(webId: string, friendsGroupUri: string) {
-  return createAclDoc(webId, friendsGroupUri, acl.Read, friendsGroupUri);
+  return createAclDoc(webId, friendsGroupUri, acl.Read, webId);
 }
 
 export async function createInbox(podRoot: string, webId: string) {
