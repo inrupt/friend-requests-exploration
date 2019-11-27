@@ -61,7 +61,7 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     otherAuthSub.addNodeRef(acl.mode, otherAuthMode);
     otherAuthSub.addNodeRef(acl.agentGroup, otherAuthGroup);
     APP_ORIGINS.forEach((origin: string) => {
-      ownerAuthSub.addNodeRef(acl.origin, origin);
+      otherAuthSub.addNodeRef(acl.origin, origin);
     });
 
     aclDoc.save();
