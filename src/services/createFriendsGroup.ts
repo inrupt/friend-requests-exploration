@@ -1,4 +1,4 @@
-import { TripleDocument, TripleSubject, createDocument } from "tripledoc";
+import { TripleDocument, TripleSubject } from "tripledoc";
 import SolidAuth from 'solid-auth-client';
 import { getPodRoot } from "./usePersonDetails";
 import { getDocument } from "./DocumentCache";
