@@ -54,11 +54,13 @@ export async function getIncomingRequests(): Promise<TripleSubject[]> {
   const profile = await getProfile(webId);
 
   const inboxRef = profile.getRef(ldp.inbox);
+  console.log("inbox Ref: " + inboxRef);
   if (!inboxRef) {
     return [];
   }
 
   const inboxItemRefs = await getInboxRefs(inboxRef);
+  console.log("InboxItem Refs: " + inboxItemRefs);
   const potentialFriendRequests = await Promise.all(inboxItemRefs.map(getFollowAction));
   const checkPromises: Promise<TripleSubject | null>[] = potentialFriendRequests.map(checkBlockAndHost);
   return (await Promise.all(checkPromises)).filter(isNotNull);;

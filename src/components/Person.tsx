@@ -85,6 +85,24 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
   }
 }
 
+const onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    //props.onSelect(webId);
+    //setWebId('');
+  };
+
+const FriendCard: React.FC<{ friendWebId: string }>= (props) => {
+      return (
+      <div className="card">
+        <form onSubmit={onSubmit}>
+          <div className="control">
+            <a>{props.friendWebId}</a>
+            <button type="submit" className="button is-primary">Add</button>
+          </div>
+        </form>
+      </div>
+      );
+};
 
 const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const webId = useWebId();
@@ -93,8 +111,9 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   console.log({ webId, theirFriends, myFriends });
   if (theirFriends && myFriends) {
     const friendsInCommon: string[] = Array.from(theirFriends.values()).filter(item => myFriends.has(item));
-    const listElements = friendsInCommon.map(webId => <a key={webId}> {webId}</a> );
-
+    const listElements = friendsInCommon.map((webId) => {
+       return <FriendCard key={webId} friendWebId={webId} /> 
+  });
     return ( 
       <div className="media">
        <div className="media-left">
