@@ -12,25 +12,11 @@ export const MainPanel: React.FC<Props> = () => {
   const params = useParams<{ webId: string }>();
   const webId = decodeURIComponent(params.webId);
   console.log({params, webId });
-  return <Person webId={webId} />;
-}
-export const Person: React.FC<Props> = (props) => {
-  let details: PersonDetails | null | undefined = usePersonDetails(props.webId || null);
-  console.log('Person', details, props);
+  let details: PersonDetails | null | undefined = usePersonDetails(webId || null);
+  console.log('Person', details, webId);
   const personView = (details)
     ? <FullPersonView details={details}/>
-      : <code>{props.webId}</code>;
-  return <>
-    {personView}
-  </>;
-};
-
-export const PersonSummary: React.FC<Props> = (props) => {
-  const details = usePersonDetails(props.webId || null);
-
-  const personView = (details)
-    ? <PersonSummaryView details={details}/>
-      : <code>{props.webId}</code>;
+      : <code>{webId}</code>;
   return <>
     {personView}
   </>;
@@ -106,34 +92,6 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   }
   return <>(no friends in common)</>;
 }
-
-const PersonSummaryView: React.FC<{ details: PersonDetails }> = ({ details }) => {
-  const photo = <>
-    <figure className="card-header-title">
-      <p className="image is-48x48">
-        <img src={details.avatarUrl || '/img/default-avatar.png'} alt="Avatar" className="is-rounded"/>
-      </p>
-    </figure>
-  </>;
-
-  return <>
-    <div className="media">
-      {photo}
-      <div className="media-content">
-        <div className="content">
-          <div>
-            <Link
-              to={`/profile/${encodeURIComponent(details.webId)}`}
-              title="View this person's friends"
-            >
-              {details.fullName}
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  </>;
-};
 
 const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
   if (details.personType === null) {

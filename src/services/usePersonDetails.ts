@@ -148,6 +148,7 @@ export async function getPersonDetails(webId: string, createFriendsGroupIfMissin
 // Returns a PersonDetails object
 // or null if still loading
 // or undefined if loading failed
+// This is for use in a 
 export function usePersonDetails(webId: string | null, createFriendsGroupIfMissing = false): PersonDetails | null | undefined {
   const [personDetails, setPersonDetails] = React.useState<PersonDetails | null | undefined>(null);
   useEffect(() => {

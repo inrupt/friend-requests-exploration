@@ -2,10 +2,15 @@ import React from 'react';
 import { useWebId, LogoutButton } from "@solid/react";
 import { Route } from "react-router";
 import { usePersonDetails } from '../services/usePersonDetails';
-import { MainPanel, PersonSummary } from './Person';
-import { FriendSelector } from './FriendSelector';
-import { IncomingList } from './IncomingList';
-import { FriendList } from './Friendlist';
+// main logged in view panels are:
+// top left:
+import { CurrentUser } from './CurrentUser';
+// mid top:
+import { Search } from './Search';
+// left nav:
+import { DiscoverableLists } from './PersonLists';
+// main area:
+import { MainPanel } from './MainPanel';
 
 export const LoggedInView: React.FC<{}> = () => {
   const myWebId = useWebId();
@@ -19,11 +24,9 @@ export const LoggedInView: React.FC<{}> = () => {
   return <>
       <div className="container">
       <nav className="navbar has-shadow">
-        <div className="navbar-start">
-        You: <PersonSummary webId={myWebId || undefined} />
-        </div>
+        <CurrentUser />
         <div className="panel-block">
-          <FriendSelector onSelect={(webId: string) => {
+          <Search onSelect={(webId: string) => {
             window.location.href = `/profile/${encodeURIComponent(webId)}`;
           }}/>
         </div>
@@ -34,16 +37,7 @@ export const LoggedInView: React.FC<{}> = () => {
     </div>
     <section className="main-content columns is-fullheight">
       <aside className="column is-4 is-narrow-mobile is-fullheight section is-hidden-mobile">
-
-        <div className="menu-list">
-
-          <nav className="panel">
-            <IncomingList />
-          </nav>
-          <nav className="panel">
-            <FriendList />
-          </nav>
-        </div>
+        <DiscoverableLists />
       </aside>
       <Route path="/profile/:webId">
         <div className="container column is-8">
