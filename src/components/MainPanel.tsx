@@ -82,6 +82,7 @@ const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> =
       <button type="submit" className='button is-primary' onClick={() => addFriend(props.personWebId)}>Befriend</button>
     </>;
   }
+  return <>(no actions)</>;
 }
 
 
@@ -119,40 +120,40 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
 }
 
 const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
-  // if (details.personType === null) {
+  if (details.personType === null) {
     return <>(loading {details.webId})</>;
-  // }
-  // const photo = <>
-  //   <figure className="media-left">
-  //     <p className="image is-64x64">
-  //       <img src={details.avatarUrl || '/img/default-avatar.png'} alt="Avatar" className="is-rounded"/>
-  //     </p>
-  //   </figure>
-  // </>;
+  }
+  const photo = <>
+    <figure className="media-left">
+      <p className="image is-64x64">
+        <img src={details.avatarUrl || '/img/default-avatar.png'} alt="Avatar" className="is-rounded"/>
+      </p>
+    </figure>
+  </>;
 
-  // return <>
-  //   <header className="card-header">
-  //     <div className="card-header-title">
-  //     {photo}
-  //         <div>
-  //           <Link
-  //             to={`/profile/${encodeURIComponent(details.webId)}`}
-  //             title="View this person's friends"
-  //           >
-  //             {details.fullName}
-  //           </Link>
-  //         </div>
-  //      </div>
-  //    </header>  
-  //    <div className="card-content">
-  //      <div className="content">  
-  //         <div>
-  //           <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
-  //         </div>
-  //         <div>
-  //           <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
-  //         </div>         
-  //       </div>
-  //     </div>         
-  // </>;
+  return <>
+    <header className="card-header">
+      <div className="card-header-title">
+      {photo}
+          <div>
+            <Link
+              to={`/profile/${encodeURIComponent(details.webId)}`}
+              title="View this person's friends"
+            >
+              {details.fullName}
+            </Link>
+          </div>
+       </div>
+     </header>  
+     <div className="card-content">
+       <div className="content">  
+          <div>
+            <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
+          </div>
+          <div>
+            <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
+          </div>         
+        </div>
+      </div>         
+  </>;
 };
