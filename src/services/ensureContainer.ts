@@ -28,7 +28,7 @@ export async function ensureContainer(url: string) {
 
 export async function createAclDoc(webId: string, resourceUri: string, otherAuthMode: string, otherAuthClass: string) {
   const resourceDoc = await getDocument(resourceUri);
-  console.log('got friendsGroupDoc', webId, resourceUri);
+  console.log('got doc', resourceUri);
   const aclRef = resourceDoc.getAclRef();
   console.log('got acl ref', webId, resourceUri, aclRef);
   if (!aclRef) {
