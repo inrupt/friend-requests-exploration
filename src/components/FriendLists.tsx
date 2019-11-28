@@ -37,7 +37,9 @@ export const FriendLists: React.FC = () => {
         return <Friendlist key={'friendlist' + i} friendlist={friendlist}/>;
       }
     }
-    return <></>;
+    //Sharon: The code below is causing a key error, commenting it out
+    //the app still works atm.  Need to determine what this is doing.
+   // return (<div>    </div>);
   });
 
   return <>
