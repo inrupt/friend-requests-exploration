@@ -89,7 +89,7 @@ export async function sendFriendRequest(recipient: string) {
   return sendActionNotification(recipient, 'Follow');
 }
 
-export async function addFriend(recipient: string) {
+export async function initiateFriendship(recipient: string) {
   await addToFriendsGroup(recipient);
   return sendActionNotification(recipient, 'Follow');
 }
