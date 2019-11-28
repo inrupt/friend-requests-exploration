@@ -26,7 +26,7 @@ export async function ensureContainer(url: string) {
   });
 }
 
-export async function createAclDoc(webId: string, resourceUri: string, otherAuthMode: string, otherAuthGroup: string) {
+export async function createAclDoc(webId: string, resourceUri: string, otherAuthMode: string, otherAuthClass: string) {
   const resourceDoc = await getDocument(resourceUri);
   console.log('got friendsGroupDoc', webId, resourceUri);
   const aclRef = resourceDoc.getAclRef();
@@ -59,8 +59,8 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     otherAuthSub.addNodeRef(rdf.type, acl.Authorization);
     otherAuthSub.addNodeRef(acl.accessTo, resourceDoc.asNodeRef());
     otherAuthSub.addNodeRef(acl.mode, otherAuthMode);
-    otherAuthSub.addNodeRef(acl.agentGroup, otherAuthGroup);
-    if (otherAuthGroup !== foaf.Agent) { // for public, origin isn't checked
+    otherAuthSub.addNodeRef(acl.agentClass, otherAuthClass);
+    if (otherAuthClass !== foaf.Agent) { // for public, origin isn't checked
       APP_ORIGINS.forEach((origin: string) => {
         otherAuthSub.addNodeRef(acl.origin, origin);
       });
