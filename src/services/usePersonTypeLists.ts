@@ -3,6 +3,7 @@ import SolidAuth from 'solid-auth-client';
 import { useEffect } from "react";
 import React from "react";
 import { useWebId } from "@solid/react";
+import { getIncomingFriendRequests, IncomingFriendRequest } from "./useIncomingFriendRequests";
 
 export type PersonTypeLists = {
   [type in PersonType]: {
@@ -15,8 +16,9 @@ async function getMyWebId(): Promise<string | null> {
   return (currentSession && currentSession.webId) || null;
 }
 
-async function getIncoming(): Promise<string[]> {
-  return [];
+async function getIncoming(webId: string): Promise<string[]> {
+  const reqs: IncomingFriendRequest[] = await getIncomingFriendRequests(webId);
+  return reqs.map((req: IncomingFriendRequest) => req.webId);
 }
 
 export function usePersonTypeLists(): PersonTypeLists {
@@ -41,7 +43,9 @@ export function usePersonTypeLists(): PersonTypeLists {
       });
     }
     async function considerWebId(webId: string) {
+      console.log('looking up', webId);
       const personDetails = await getPersonDetails(webId);
+      console.log('looked up', webId, personDetails);
       if (personDetails && personDetails.personType) {
         if (!lists[personDetails.personType][personDetails.webId]) {
           lists[personDetails.personType][personDetails.webId] = personDetails;
@@ -60,7 +64,7 @@ export function usePersonTypeLists(): PersonTypeLists {
       if (!me) {
         return;
       }
-      setBatch([me].concat(await getIncoming()));
+      setBatch([me].concat(await getIncoming(me)));
     })();
   }, [me]);
   return lists;

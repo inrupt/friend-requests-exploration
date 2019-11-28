@@ -32,7 +32,7 @@ export type PersonDetails = {
   avatarUrl: string | null,
   fullName: string | null,
   follows: string[] | null,
-  personType: PersonType | null
+  personType: PersonType | null,
 }
 
 export async function getPodRoot(webId: string | null): Promise<string | null> {

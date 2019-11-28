@@ -1,8 +1,13 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
+import SolidAuth, { Session } from 'solid-auth-client';
 import { useWebId } from '@solid/react';
-import { addFriend } from '../services/sendActionNotification';
-import { PersonDetails, usePersonDetails } from '../services/usePersonDetails';
+import { initiateFriendship, sendConfirmation } from '../services/sendActionNotification';
+import { PersonDetails, usePersonDetails, getFriendsGroupRef } from '../services/usePersonDetails';
+import { getDocument } from '../services/DocumentCache';
+import { vcard } from 'rdf-namespaces';
+import { request } from 'http';
+import { removeRemoteDoc, IncomingFriendRequest } from '../services/useIncomingFriendRequests';
 
 interface Props {
   webId?: string;
@@ -31,64 +36,75 @@ enum PersonType {
   stranger
 }
 
-// async function onAccept(request: IncomingFriendRequest) {
-//   const session: Session | undefined = await SolidAuth.currentSession();
-//   if (session === undefined) {
-//     window.alert('not logged in!');
-//     return;
-//   }
-//   const friendsGroupRef = await getFriendsGroupRef(session.webId, true);
-//   if (friendsGroupRef) {
-//     const friendsDoc = await getDocument(friendsGroupRef);
-//     const friendsSub = friendsDoc.getSubject(friendsGroupRef);
-//     friendsSub.addRef(vcard.hasMember, request.webId);
-//     await friendsDoc.save();
-//     await sendConfirmation(request.webId);
-//     await removeRemoteDoc(request.inboxItem);
-//     window.alert('friend added');
-//   } else {
-//     window.alert('friends list not found and creating failed!');
-//   }
-// }
+const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
+  async function onAccept(event: React.FormEvent) {
+    event.preventDefault();
+    const session: Session | undefined = await SolidAuth.currentSession();
+    if (session === undefined) {
+      window.alert('not logged in!');
+      return;
+    }
+    const friendsGroupRef = await getFriendsGroupRef(session.webId, true);
+    if (friendsGroupRef) {
+      const friendsDoc = await getDocument(friendsGroupRef);
+      const friendsSub = friendsDoc.getSubject(friendsGroupRef);
+      friendsSub.addRef(vcard.hasMember, props.details.webId);
+      await friendsDoc.save();
+      await sendConfirmation(props.details.webId);
+      // FIXME: should really have link to inboxItem available here
+      // await removeRemoteDoc(request.inboxItem);
+      window.alert('friend added');
+    } else {
+      window.alert('friends list not found and creating failed!');
+    }  
+  }
 
-// async function onReject(request: IncomingFriendRequest) {
-//   await removeRemoteDoc(request.inboxItem);
-//   window.alert('friend request rejected');
-// }
+  async function onReject(event: React.FormEvent) {
+    event.preventDefault();
+    // FIXME: should really have link to inboxItem available here
+    // await removeRemoteDoc(details.inboxItem);
+    window.alert('friend request rejected');
+  }
+  async function onSend(event: React.FormEvent) {
+    event.preventDefault();
+    await initiateFriendship(props.details.webId);
+    window.alert('friend request sent');
+  }
 
-const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> = (props) => {
-  switch (props.personType) {
-    case PersonType.me: return <>(this is you)</>;
-    case PersonType.requester: return <>
-      <button type="submit" className='button is-primary' onClick={() => {
-        window.location.href = '';
-      }}>See Friend Request</button>
-    </>;
-    case PersonType.requested: return <>
-      <button type="submit" className='button is-warning' onClick={() => addFriend(props.personWebId)}>Resend</button>
-    </>;
-    case PersonType.friend: return <>
-      <button type="submit" className='button is-danger' onClick={() => {
-        // unFriend(props.personWebId).then(() => {
-        //   console.log('unfriended', props.personWebId);
-        //   window.location.href = '';  // FIXME: more subtle way to tell React to re-render
-        // }, (e: Error) => {
-        //   console.log('could not unfriend', props.personWebId, e.message);
-        // });
-    }}>Unfriend</button>
-    </>;
-    case PersonType.blocked: return <>(unblock)</>;
-    case PersonType.stranger: return <>
-      <button type="submit" className='button is-primary' onClick={() => addFriend(props.personWebId)}>Befriend</button>
-    </>;
+  if (props.details.personType) {
+    const type: string = props.details.personType;
+    console.log('switching on type', type);
+    switch (type) {
+      case 'me': return <>(this is you)</>;
+      case 'requester': return <>
+        <button type="submit" className='button is-warning' onClick={onReject}>Reject</button>
+        <button type="submit" className='button is-primary' onClick={onAccept}>Accept</button>
+      </>;
+      case 'requested': return <>
+        <button type="submit" className='button is-warning' onClick={onSend}>Resend</button>
+      </>;
+      case 'friend': return <>
+        <button type="submit" className='button is-danger' onClick={() => {
+          window.alert('to do: implement');
+        }}>Unfriend</button>
+      </>;
+      case 'blocked': return <>
+        <button type="submit" className='button is-danger' onClick={() => {
+          window.alert('to do: implement');
+        }}>Unblock</button>
+      </>;
+      case 'stranger': return <>
+        <button type="submit" className='button is-primary' onClick={onSend}>Befriend</button>
+      </>;
+    }
   }
   return <>(no actions)</>;
 }
 
 
-const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
+const FriendsInCommon: React.FC<{ details: PersonDetails }> = (props) => {
   const webId = useWebId();
-  const theirDetails = usePersonDetails(props.personWebId);
+  const theirDetails = props.details;
   const myDetails = usePersonDetails(webId || null);
   // console.log({ webId, theirDetails, myDetails });
   if (theirDetails && myDetails) {
@@ -148,10 +164,10 @@ const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
      <div className="card-content">
        <div className="content">  
           <div>
-            <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
+            <PersonActions details={details}></PersonActions>
           </div>
           <div>
-            <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
+            <FriendsInCommon details={details}></FriendsInCommon>
           </div>         
         </div>
       </div>         

@@ -52,7 +52,7 @@ export function useIncomingFriendRequests(): IncomingFriendRequest[] | null {
   return incomingFriendRequests;
 }
 
-async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {
+export async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {
   const myInboxUrls: string[] = await determineInboxesToUse(webId);
   let ret: IncomingFriendRequest[] = [];
   await Promise.all(myInboxUrls.map(async (url: string) => {
