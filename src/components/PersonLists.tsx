@@ -133,7 +133,7 @@ export const FriendList: React.FC<{}> = () => {
   }
   const friendElements = (myDetails.friends.length === 0)
     ? <p>You have not added any friends yet :(</p>
-    : myDetails.friends.map(getPersonCard);
+    : <div>{myDetails.friends.map(getPersonCard)}</div>;
 
   return <div>
     <p className="panel-heading">
@@ -147,10 +147,8 @@ export const FriendList: React.FC<{}> = () => {
 
 function getPersonCard(webId: string): React.ReactElement {
   return (
-    <div key={webId} className="card">
-      <div className="section">
+    <div key={webId} className="card">  
         <PersonSummary webId={webId}/>
-      </div>
     </div>
   );
 }
