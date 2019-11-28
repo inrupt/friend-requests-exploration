@@ -31,6 +31,31 @@ enum PersonType {
   stranger
 }
 
+// async function onAccept(request: IncomingFriendRequest) {
+//   const session: Session | undefined = await SolidAuth.currentSession();
+//   if (session === undefined) {
+//     window.alert('not logged in!');
+//     return;
+//   }
+//   const friendsGroupRef = await getFriendsGroupRef(session.webId, true);
+//   if (friendsGroupRef) {
+//     const friendsDoc = await getDocument(friendsGroupRef);
+//     const friendsSub = friendsDoc.getSubject(friendsGroupRef);
+//     friendsSub.addRef(vcard.hasMember, request.webId);
+//     await friendsDoc.save();
+//     await sendConfirmation(request.webId);
+//     await removeRemoteDoc(request.inboxItem);
+//     window.alert('friend added');
+//   } else {
+//     window.alert('friends list not found and creating failed!');
+//   }
+// }
+
+// async function onReject(request: IncomingFriendRequest) {
+//   await removeRemoteDoc(request.inboxItem);
+//   window.alert('friend request rejected');
+// }
+
 const PersonActions: React.FC<{ personType: PersonType, personWebId: string }> = (props) => {
   switch (props.personType) {
     case PersonType.me: return <>(this is you)</>;
@@ -66,12 +91,12 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
   const myDetails = usePersonDetails(webId || null);
   // console.log({ webId, theirDetails, myDetails });
   if (theirDetails && myDetails) {
-    if (theirDetails.friends === null || myDetails.friends === null) {
+    if (theirDetails.follows === null || myDetails.follows === null) {
       return <>(could not display friends in common)</>;
     }
     // help TypeScript to realize this is now non-null:
-    const myFriends: string[] = myDetails.friends;
-    const friendsInCommon: string[] = theirDetails.friends.filter(item => myFriends.indexOf(item) !== -1);
+    const myFriends: string[] = myDetails.follows;
+    const friendsInCommon: string[] = theirDetails.follows.filter(item => myFriends.indexOf(item) !== -1);
     const listElements = friendsInCommon.map(webId => {
       return <li key={webId}>
         <Link to={`/profile/${encodeURIComponent(webId)}`}>
@@ -94,42 +119,40 @@ const FriendsInCommon: React.FC<{ personWebId: string }> = (props) => {
 }
 
 const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
-  if (details.personType === null) {
+  // if (details.personType === null) {
     return <>(loading {details.webId})</>;
-  }
-  const photo = <>
-    <figure className="media-left">
-      <p className="image is-64x64">
-        <img src={details.avatarUrl || '/img/default-avatar.png'} alt="Avatar" className="is-rounded"/>
-      </p>
-    </figure>
-  </>;
+  // }
+  // const photo = <>
+  //   <figure className="media-left">
+  //     <p className="image is-64x64">
+  //       <img src={details.avatarUrl || '/img/default-avatar.png'} alt="Avatar" className="is-rounded"/>
+  //     </p>
+  //   </figure>
+  // </>;
 
-  return <>
-    <header className="card-header">
-      <div className="card-header-title">
-      {photo}
-          <div>
-            <Link
-              to={`/profile/${encodeURIComponent(details.webId)}`}
-              title="View this person's friends"
-            >
-              {details.fullName}
-            </Link>
-          </div>
-       </div>
-     </header>  
-     <div className="card-content">
-       <div className="content">  
-          <div>
-            <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
-          </div>
-          <div>
-            <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
-          </div>         
-        </div>
-      </div>         
-
-
-  </>;
+  // return <>
+  //   <header className="card-header">
+  //     <div className="card-header-title">
+  //     {photo}
+  //         <div>
+  //           <Link
+  //             to={`/profile/${encodeURIComponent(details.webId)}`}
+  //             title="View this person's friends"
+  //           >
+  //             {details.fullName}
+  //           </Link>
+  //         </div>
+  //      </div>
+  //    </header>  
+  //    <div className="card-content">
+  //      <div className="content">  
+  //         <div>
+  //           <PersonActions personType={details.personType} personWebId={details.webId}></PersonActions>
+  //         </div>
+  //         <div>
+  //           <FriendsInCommon personWebId={details.webId}></FriendsInCommon>
+  //         </div>         
+  //       </div>
+  //     </div>         
+  // </>;
 };

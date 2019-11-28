@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { getDocument } from "./DocumentCache";
-import { vcard } from "rdf-namespaces";
+import { vcard, foaf } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
 import SolidAuth from 'solid-auth-client';
@@ -14,12 +14,12 @@ const pim = {
 };
 
 export enum PersonType {
-  me,
-  requester,
-  requested,
-  friend,
-  blocked,
-  stranger
+  me = 'me',
+  requester = 'requester',
+  requested = 'requested',
+  friend = 'friend',
+  blocked = 'blocked',
+  stranger = 'stranger'
 }
 
 // This is basically a model in the MVC sense.
@@ -31,7 +31,7 @@ export type PersonDetails = {
   webId: string,
   avatarUrl: string | null,
   fullName: string | null,
-  friends: string[] | null,
+  follows: string[] | null,
   personType: PersonType | null
 }
 
@@ -57,7 +57,7 @@ export async function getFriendsGroupRef(webId: string | null, createIfMissing: 
   return ret;
 }
 
-async function getFriends(webId: string, createIfMissing = false): Promise<string[] | null> {
+async function getFollowsCollection(webId: string, createIfMissing = false): Promise<string[] | null> {
   try {
     const friendsGroupRef: string | null = await getFriendsGroupRef(webId, createIfMissing);
     if (!friendsGroupRef) {
@@ -69,7 +69,12 @@ async function getFriends(webId: string, createIfMissing = false): Promise<strin
       console.log('no friends list sub', webId);
       return null;
     }
-    return friendsGroupSub.getAllRefs(vcard.hasMember);
+    const friends = friendsGroupSub.getAllRefs(vcard.hasMember);
+    const profile = await getUriSub(webId);
+    if (profile) {
+      return friends.concat(profile.getAllRefs(foaf.knows));
+    }
+    return friends;
   } catch (e) {
     // console.log('something went wrong while fetching (403?)', friendsGroupRef);
     return null;
@@ -77,11 +82,11 @@ async function getFriends(webId: string, createIfMissing = false): Promise<strin
 }
 
 async function lists (webId1: string, webId2: string): Promise<boolean | null> {
-  const friends = await getFriends(webId1);
-  if (!friends) {
+  const followsCollection = await getFollowsCollection(webId1);
+  if (!followsCollection) {
     return null;
   }
-  return (friends.indexOf(webId2) !== -1);
+  return (followsCollection.indexOf(webId2) !== -1);
 }
 
 async function getPersonType(theirWebId: string): Promise<PersonType | null> {
@@ -133,7 +138,7 @@ export async function getPersonDetails(webId: string, createFriendsGroupIfMissin
     webId,
     avatarUrl: profileSub.getRef(vcard.hasPhoto) || null,
     fullName: profileSub.getString(vcard.fn) || null,
-    friends: await getFriends(webId, createFriendsGroupIfMissing),
+    follows: await getFollowsCollection(webId, createFriendsGroupIfMissing),
     personType: await getPersonType(webId)
   };
   // console.log('person details', webId, profileSub, ret);
@@ -141,7 +146,7 @@ export async function getPersonDetails(webId: string, createFriendsGroupIfMissin
 }
 
 (window as any).getUriSub = getUriSub;
-(window as any).getFriends = getFriends;
+(window as any).getFriends = getFollowsCollection;
 (window as any).getPersonDetails = getPersonDetails;
 
 
