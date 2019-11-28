@@ -28,16 +28,14 @@ export function usePersonTypeLists(): PersonTypeLists {
     [PersonType.blocked]: {},
     [PersonType.stranger]: {},
   });
-  const [queue, setQueue] = React.useState<string[]>([]);
+  const [batch, setBatch] = React.useState<string[]>([]);
   const me: string | null = useWebId() || null;
 
   let batchNo = 0;
   useEffect(() => {
-    if (queue.length) {
+    if (batch.length) {
       const thisBatchNo = batchNo++;
-      const batch = [...queue];
-      console.log(`Batch ${thisBatchNo}, considering ${queue.length} webId's`, batch);
-      setQueue([]);
+      console.log(`Batch ${thisBatchNo}, considering ${batch.length} webId's`, batch);
       Promise.all(batch.map(considerWebId)).then(() => {
         console.log(`Finished batch ${thisBatchNo}`);
       });
@@ -48,12 +46,12 @@ export function usePersonTypeLists(): PersonTypeLists {
         if (!lists[personDetails.personType][personDetails.webId]) {
           lists[personDetails.personType][personDetails.webId] = personDetails;
           if (personDetails.follows) {
-            setQueue(queue.concat(personDetails.follows));
+            setBatch(personDetails.follows);
           }
         }
       }
     }
-  }, [queue]);
+  }, [batch]);
   useEffect(() => {
     console.log('logged in user changed', me);
     (async function getAll() {
@@ -62,7 +60,7 @@ export function usePersonTypeLists(): PersonTypeLists {
       if (!me) {
         return;
       }
-      setQueue([me].concat(await getIncoming()));
+      setBatch([me].concat(await getIncoming()));
     })();
   }, [me]);
   return lists;
