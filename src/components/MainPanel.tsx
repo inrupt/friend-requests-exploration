@@ -6,8 +6,6 @@ import { initiateFriendship, sendConfirmation } from '../services/sendActionNoti
 import { PersonDetails, usePersonDetails, getFriendsGroupRef } from '../services/usePersonDetails';
 import { getDocument } from '../services/DocumentCache';
 import { vcard } from 'rdf-namespaces';
-import { request } from 'http';
-import { removeRemoteDoc, IncomingFriendRequest } from '../services/useIncomingFriendRequests';
 
 interface Props {
   webId?: string;
@@ -26,15 +24,6 @@ export const MainPanel: React.FC<Props> = () => {
     {personView}
   </>;
 };
-
-enum PersonType {
-  me,
-  requester,
-  requested,
-  friend,
-  blocked,
-  stranger
-}
 
 const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
   async function onAccept(event: React.FormEvent) {

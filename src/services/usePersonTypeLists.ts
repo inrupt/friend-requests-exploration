@@ -1,5 +1,4 @@
 import { PersonType, getPersonDetails, PersonDetails } from "./usePersonDetails";
-import SolidAuth from 'solid-auth-client';
 import { useEffect } from "react";
 import React from "react";
 import { useWebId } from "@solid/react";
@@ -11,18 +10,13 @@ export type PersonTypeLists = {
   }
 };
 
-async function getMyWebId(): Promise<string | null> {
-  const currentSession = await SolidAuth.currentSession();
-  return (currentSession && currentSession.webId) || null;
-}
-
 async function getIncoming(webId: string): Promise<string[]> {
   const reqs: IncomingFriendRequest[] = await getIncomingFriendRequests(webId);
   return reqs.map((req: IncomingFriendRequest) => req.webId);
 }
 
 export function usePersonTypeLists(): PersonTypeLists {
-  const [lists, setPersonTypeLists] = React.useState<PersonTypeLists>({
+  const [lists, setLists] = React.useState<PersonTypeLists>({
     [PersonType.me]: {},
     [PersonType.requester]: {},
     [PersonType.requested]: {},
@@ -33,13 +27,11 @@ export function usePersonTypeLists(): PersonTypeLists {
   const [batch, setBatch] = React.useState<string[]>([]);
   const me: string | null = useWebId() || null;
 
-  let batchNo = 0;
   useEffect(() => {
     if (batch.length) {
-      const thisBatchNo = batchNo++;
-      console.log(`Batch ${thisBatchNo}, considering ${batch.length} webId's`, batch);
+      console.log(`Next batch, considering ${batch.length} webId's`, batch);
       Promise.all(batch.map(considerWebId)).then(() => {
-        console.log(`Finished batch ${thisBatchNo}`);
+        console.log(`Finished batch`, batch);
       });
     }
     async function considerWebId(webId: string) {
@@ -49,13 +41,14 @@ export function usePersonTypeLists(): PersonTypeLists {
       if (personDetails && personDetails.personType) {
         if (!lists[personDetails.personType][personDetails.webId]) {
           lists[personDetails.personType][personDetails.webId] = personDetails;
+          setLists(lists);
           if (personDetails.follows) {
             setBatch(personDetails.follows);
           }
         }
       }
     }
-  }, [batch]);
+  }, [batch, lists]);
   useEffect(() => {
     console.log('logged in user changed', me);
     (async function getAll() {

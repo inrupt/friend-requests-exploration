@@ -1,14 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import SolidAuth, { Session } from 'solid-auth-client';
-import { useWebId } from '@solid/react';
-import { vcard } from 'rdf-namespaces';
-import { getDocument } from '../services/DocumentCache';
-import { sendConfirmation } from '../services/sendActionNotification';
-import { getFriendsGroupRef, PersonDetails, PersonType } from '../services/usePersonDetails';
-import { IncomingFriendRequest, useIncomingFriendRequests, removeRemoteDoc } from '../services/useIncomingFriendRequests';
+import { PersonDetails, PersonType } from '../services/usePersonDetails';
 import { usePersonTypeLists, PersonTypeLists } from '../services/usePersonTypeLists';
-import { Person } from 'rdf-namespaces/dist/foaf';
 
 interface PersonProps {
   details: PersonDetails
