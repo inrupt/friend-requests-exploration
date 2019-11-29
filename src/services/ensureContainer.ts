@@ -1,7 +1,11 @@
 import SolidAuth from 'solid-auth-client';
 import { getDocument } from './DocumentCache';
 import { createDocument } from 'tripledoc';
-import { rdf, acl, foaf } from 'rdf-namespaces';
+import { rdf, acl as aclUpstream, foaf } from 'rdf-namespaces';
+
+const acl = Object.assign({
+  default: 'http://www.w3.org/ns/auth/acl#default'
+}, aclUpstream);
 
 const APP_ORIGINS = [
   'https://launcher-exploration.inrupt.app',
@@ -47,6 +51,7 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     const ownerAuthSub = aclDoc.addSubject();
     ownerAuthSub.addNodeRef(rdf.type, acl.Authorization);
     ownerAuthSub.addNodeRef(acl.accessTo, resourceDoc.asNodeRef());
+    ownerAuthSub.addNodeRef(acl.default, resourceDoc.asNodeRef());
     ownerAuthSub.addNodeRef(acl.mode, acl.Read);
     ownerAuthSub.addNodeRef(acl.mode, acl.Write);
     ownerAuthSub.addNodeRef(acl.mode, acl.Control);
@@ -58,6 +63,7 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     const otherAuthSub = aclDoc.addSubject();
     otherAuthSub.addNodeRef(rdf.type, acl.Authorization);
     otherAuthSub.addNodeRef(acl.accessTo, resourceDoc.asNodeRef());
+    otherAuthSub.addNodeRef(acl.default, resourceDoc.asNodeRef());
     otherAuthSub.addNodeRef(acl.mode, otherAuthMode);
     otherAuthSub.addNodeRef(otherAuthPredicate, otherAuthObject);
     if (otherAuthObject !== foaf.Agent) { // for public, origin isn't checked
