@@ -30,7 +30,7 @@ export async function ensureContainer(url: string) {
   });
 }
 
-export async function createAclDoc(webId: string, resourceUri: string, otherAuthMode: string, otherAuthPredicate: string, otherAuthObject: string) {
+export async function createAclDoc(webId: string, resourceUri: string, otherAuthMode: string, otherAuthPredicate: string, otherAuthObject: string, recursive = false) {
   const resourceDoc = await getDocument(resourceUri);
   console.log('got doc', resourceUri);
   const aclRef = resourceDoc.getAclRef();
@@ -63,7 +63,9 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     const otherAuthSub = aclDoc.addSubject();
     otherAuthSub.addNodeRef(rdf.type, acl.Authorization);
     otherAuthSub.addNodeRef(acl.accessTo, resourceDoc.asNodeRef());
-    otherAuthSub.addNodeRef(acl.default, resourceDoc.asNodeRef());
+    if (recursive) {
+      otherAuthSub.addNodeRef(acl.default, resourceDoc.asNodeRef());
+    }
     otherAuthSub.addNodeRef(acl.mode, otherAuthMode);
     otherAuthSub.addNodeRef(otherAuthPredicate, otherAuthObject);
     if (otherAuthObject !== foaf.Agent) { // for public, origin isn't checked
