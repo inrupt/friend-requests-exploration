@@ -26,9 +26,9 @@ export async function ensureContainer(url: string) {
   });
 }
 
-export async function createAclDoc(webId: string, resourceUri: string, otherAuthMode: string, otherAuthGroup: string) {
+export async function createAclDoc(webId: string, resourceUri: string, otherAuthMode: string, otherAuthPredicate: string, otherAuthObject: string) {
   const resourceDoc = await getDocument(resourceUri);
-  console.log('got friendsGroupDoc', webId, resourceUri);
+  console.log('got doc', resourceUri);
   const aclRef = resourceDoc.getAclRef();
   console.log('got acl ref', webId, resourceUri, aclRef);
   if (!aclRef) {
@@ -59,8 +59,8 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
     otherAuthSub.addNodeRef(rdf.type, acl.Authorization);
     otherAuthSub.addNodeRef(acl.accessTo, resourceDoc.asNodeRef());
     otherAuthSub.addNodeRef(acl.mode, otherAuthMode);
-    otherAuthSub.addNodeRef(acl.agentGroup, otherAuthGroup);
-    if (otherAuthGroup !== foaf.Agent) { // for public, origin isn't checked
+    otherAuthSub.addNodeRef(otherAuthPredicate, otherAuthObject);
+    if (otherAuthObject !== foaf.Agent) { // for public, origin isn't checked
       APP_ORIGINS.forEach((origin: string) => {
         otherAuthSub.addNodeRef(acl.origin, origin);
       });
@@ -73,12 +73,12 @@ export async function createAclDoc(webId: string, resourceUri: string, otherAuth
 }
 
 export async function createFriendsGroupAclDoc(webId: string, friendsGroupUri: string) {
-  return createAclDoc(webId, friendsGroupUri, acl.Read, webId);
+  return createAclDoc(webId, friendsGroupUri, acl.Read, acl.agentGroup, friendsGroupUri);
 }
 
 export async function createInbox(podRoot: string, webId: string) {
   const inboxUrl = new URL('/friend-requests-inbox/', podRoot).toString();
   await ensureContainer(inboxUrl);
-  await createAclDoc(webId, inboxUrl, acl.Append, foaf.Agent);
+  await createAclDoc(webId, inboxUrl, acl.Append, acl.agentClass, foaf.Agent);
   return inboxUrl;
 }
