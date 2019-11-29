@@ -11,6 +11,8 @@ import { Search } from './Search';
 import { DiscoverableLists } from './PersonLists';
 // main area:
 import { MainPanel } from './MainPanel';
+// footer:
+import { Footer } from './Footer';
 
 export const LoggedInView: React.FC<{}> = () => {
   const myWebId = useWebId();
@@ -49,13 +51,7 @@ export const LoggedInView: React.FC<{}> = () => {
         </div>
       </Route>
     </section>
-    <footer className="footer is-hidden">
-      <div className="container">
-        <div className="content has-text-centered">
-          <p>Hello</p>
-        </div>
-      </div>
-    </footer>
+    <Footer />
    </div>
   </>;
 }
