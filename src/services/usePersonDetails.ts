@@ -77,6 +77,10 @@ async function getFollowsCollection(webId: string, createIfMissing = false): Pro
     return friends;
   } catch (e) {
     // console.log('something went wrong while fetching (403?)', friendsGroupRef);
+    const profile = await getUriSub(webId);
+    if (profile) {
+      return profile.getAllRefs(foaf.knows);
+    }
     return null;
   }
 }
@@ -86,6 +90,7 @@ async function lists (webId1: string, webId2: string): Promise<boolean | null> {
   if (!followsCollection) {
     return null;
   }
+  console.log('checking followsCollection', webId1, followsCollection, webId2);
   return (followsCollection.indexOf(webId2) !== -1);
 }
 
@@ -102,15 +107,21 @@ async function getPersonType(theirWebId: string): Promise<PersonType | null> {
     return PersonType.me;
   }
   if (await lists(theirWebId, myWebId)) {
+    console.log(theirWebId, ' lists me');
     if (await lists(myWebId, theirWebId)) {
+      console.log('and I also list', theirWebId, 'friend');
       return PersonType.friend;
     } else {
+      console.log('but I don\'t list', theirWebId, 'requester');
       return PersonType.requester;
     }
   } else {
+    console.log(theirWebId, 'doesn\'t list me');
     if (await lists(myWebId, theirWebId)) {
+      console.log('but I do list', theirWebId, 'requested');
       return PersonType.requested;
     } else {
+      console.log('and neither do I list', theirWebId, 'stranger');
       return PersonType.stranger;
     }
   }
