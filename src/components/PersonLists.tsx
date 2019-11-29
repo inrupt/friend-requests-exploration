@@ -12,7 +12,7 @@ import { Person } from 'rdf-namespaces/dist/foaf';
 
 interface PersonProps {
   details: PersonDetails
-};
+}
 
 
 
@@ -43,7 +43,7 @@ export const PersonSummary: React.FC<PersonProps> = (props) => {
       </div>
     </div>
   </>;
-};
+}
 
 function getPersonCard(personDetails: PersonDetails): React.ReactElement {
   return (
@@ -59,6 +59,7 @@ export const TypeList: React.FC<{ list: { [webId: string]: PersonDetails }, head
   // if (Object.keys(list).length === 0) {
   //   return <></>;
   // }
+
   return <div>
     <p className="panel-heading">
       {header} ({Object.keys(list).length})

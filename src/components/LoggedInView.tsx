@@ -34,7 +34,7 @@ export const LoggedInView: React.FC<{}> = () => {
           <LogoutButton className="button is-primary"/>
         </div>
       </nav>
-    </div>
+  
     <section className="main-content columns is-fullheight">
       <aside className="column is-4 is-narrow-mobile is-fullheight section is-hidden-mobile">
         <DiscoverableLists />
@@ -56,5 +56,6 @@ export const LoggedInView: React.FC<{}> = () => {
         </div>
       </div>
     </footer>
+   </div>
   </>;
 }
