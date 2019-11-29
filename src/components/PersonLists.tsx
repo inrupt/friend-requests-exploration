@@ -56,12 +56,12 @@ function getPersonCard(personDetails: PersonDetails): React.ReactElement {
 }
 
 export const TypeList: React.FC<{ list: { [webId: string]: PersonDetails }, header: string }> = ({ list, header }) => {
-  if (Object.keys(list).length === 0) {
-    return <></>;
-  }
+  // if (Object.keys(list).length === 0) {
+  //   return <></>;
+  // }
   return <div>
     <p className="panel-heading">
-      {header}
+      {header} ({Object.keys(list).length})
     </p>
     <div className="panel-block">
       {Object.keys(list).map((webId: string) => getPersonCard(list[webId]))}

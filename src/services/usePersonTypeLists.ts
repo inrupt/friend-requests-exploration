@@ -67,5 +67,6 @@ export function usePersonTypeLists(): PersonTypeLists {
       setBatch([me].concat(await getIncoming(me)));
     })();
   }, [me]);
+  console.log(lists);
   return lists;
 }
