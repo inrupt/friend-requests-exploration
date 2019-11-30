@@ -53,14 +53,16 @@ export const TypeList: React.FC<{ list: { [webId: string]: PersonDetails }, head
   //   return <></>;
   // }
 
-  return <div>
-    <p className="panel-heading">
-      {header} ({Object.keys(list).length})
-    </p>
-    <div className="panel-block">
-      {Object.keys(list).map((webId: string) => getPersonCard(list[webId]))}
+  return (
+    <div>
+      <p className="panel-heading">
+        {header} ({Object.keys(list).length})
+      </p>
+      <div className="panel-block">
+        {Object.keys(list).map((webId: string) => getPersonCard(list[webId]))}
+      </div>
     </div>
-  </div>;
+    );
 }
 
 export const DiscoverableLists: React.FC<{}> = () => {
@@ -80,7 +82,7 @@ export const DiscoverableLists: React.FC<{}> = () => {
       <TypeList header="Friends" list={lists[PersonType.friend]} />
     </nav>
     <nav className="panel">
-      <TypeList header="Blocked" list={lists[PersonType.blocked]} />
+      <TypeList header="Rejected" list={lists[PersonType.blocked]} />
     </nav>
     <nav className="panel">
       <TypeList header="Suggestions" list={lists[PersonType.stranger]} />

@@ -21,12 +21,14 @@ export async function determineInboxesToUse(recipient: string): Promise<string[]
   let ret: string[] = [];
   
   // prefer friend-requests inbox, if it exists:
+  console.log("In determine Inboxes to Use " + recipientFriendsGroupUrl);
   if (recipientFriendsGroupUrl) {
     // Look for inbox of friends group at recipient profile
     // because we need to know the inbox to request access
     // to the group, see
     // https://github.com/inrupt/friend-requests-exploration/issues/72
     const friendsGroupInbox = await determineUriInbox(recipientFriendsGroupUrl, recipient);
+    console.log("friends Group Inbox " + friendsGroupInbox );
     if (friendsGroupInbox) {
       ret.push(friendsGroupInbox);
     }
@@ -51,7 +53,7 @@ export async function sendActionNotification(recipient: string, activityType: st
     throw new Error('This person does not accept friend requests.');
   }
 
-  // TODO: Check if createDocument can do this with a URL we set manually:
+    // TODO: Check if createDocument can do this with a URL we set manually:
   return SolidAuth.fetch(inboxUrls[0], {
     method: 'POST',
     body: `@prefix as: <https://www.w3.org/ns/activitystreams#> .
@@ -64,6 +66,11 @@ export async function sendActionNotification(recipient: string, activityType: st
   });
 }
 
+//what this is doing is passing in the recipients webId, 
+//it then gets the currentSession and uses that webId 
+//to get where to add the data
+//it then adds it but to the recipient webId..
+//Have to check what else this function is used for..
 export async function addToFriendsGroup(webId: string) {
   const currentSession = await SolidAuth.currentSession();
   if (!currentSession) {
@@ -85,12 +92,34 @@ export async function addToFriendsGroup(webId: string) {
   await friendsGroupDoc.save();
 }
 
+export async function addToFriendsRequestGroup(webId: string) {
+  const currentSession = await SolidAuth.currentSession();
+  if (!currentSession) {
+    throw new Error('not logged in!');
+  }
+  const friendsGroupRef = await getFriendsGroupRef(currentSession.webId, true);
+  if (!friendsGroupRef) {
+    throw new Error('could not find my friends list');
+  }
+  const friendsGroupDoc = await getDocument(friendsGroupRef);
+  if (!friendsGroupDoc) {
+    throw new Error('could not access my friends list document');
+  }
+  const friendListSub = friendsGroupDoc.getSubject(friendsGroupRef);
+  if (!friendListSub) {
+    throw new Error('could not access my friends list group');
+  }
+  friendListSub.addRef(vcard.hasMember, webId);
+  await friendsGroupDoc.save();
+}
 export async function sendFriendRequest(recipient: string) {
+    console.log("sendFriendRequest " + recipient);
   return sendActionNotification(recipient, 'Follow');
 }
 
 export async function initiateFriendship(recipient: string) {
-  await addToFriendsGroup(recipient);
+  console.log("initiate Friendship " + recipient);
+  await addToFriendsRequestGroup(recipient);
   return sendActionNotification(recipient, 'Follow');
 }
 

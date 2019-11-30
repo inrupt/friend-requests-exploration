@@ -13,14 +13,17 @@ export const Footer: React.FC<{}> = () => {
     if (typeof details === 'string') {
       return <p>{details}</p>;
     }
-    return <PersonSummary details={details} />;
+    return (
+      <div className="column is-4">
+        <PersonSummary details={details} />
+      </div> );
   });
 
   return <footer className="footer">
     <div className="container">
       <div className="content has-text-centered">
-        <p><b>Inrupt Apps Team</b></p>
-        <div className="panel-block center">{cards}</div>
+        <p className="has-text-centered"><strong>Inrupt Apps Team</strong></p>
+        <div className="panel-block">{cards}</div>
       </div>
     </div>
   </footer>;

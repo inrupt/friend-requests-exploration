@@ -55,6 +55,7 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
     window.alert('friend request rejected');
   }
   async function onSend(event: React.FormEvent) {
+    console.log("in onSend ");
     event.preventDefault();
     await initiateFriendship(props.details.webId);
     window.alert('friend request sent');
@@ -114,14 +115,14 @@ const FriendsInCommon: React.FC<{ details: PersonDetails }> = (props) => {
     return ( 
       <div className="media">
        <div className="media-left">
-       <p><strong>Friends in common: </strong> </p>
+       <p><strong>You both follow: </strong> </p>
 
        <div className="media-content">{listElements}</div>
        </div>
       </div>
       );
   }
-  return <>(no friends in common)</>;
+  return <>(You follow different people)</>;
 }
 
 const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
