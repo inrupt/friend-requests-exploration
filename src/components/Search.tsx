@@ -19,14 +19,12 @@ export const Search: React.FC<Props> = (props) => {
 
   return <>
     <form onSubmit={onSubmit}>
-      <div className="field">
+      <div className="field has-addons">
         <div className="control">
-          <input className="input is-small" onChange={onChange} value={webId} type="url" name="webid" id="webid"/>
+          <input className="input" onChange={onChange} value={webId} type="url" name="webid" id="webid"/>
         </div>
-      </div>
-      <div className="field">
         <div className="control">
-          <button type="submit" className="button is-primary">Search</button>
+           <button type="submit" className="button is-primary">Search</button>
         </div>
       </div>
     </form>

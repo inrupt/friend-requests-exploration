@@ -27,13 +27,15 @@ export const LoggedInView: React.FC<{}> = () => {
       <div className="container">
       <nav className="navbar has-shadow">
         <CurrentUser />
-        <div className="panel-block">
-          <Search onSelect={(webId: string) => {
-            window.location.href = `/profile/${encodeURIComponent(webId)}`;
-          }}/>
-        </div>
         <div className="navbar-end">
-          <LogoutButton className="button is-primary"/>
+          <div className="navbar-item">
+            <Search onSelect={(webId: string) => {
+            window.location.href = `/profile/${encodeURIComponent(webId)}`;
+            }}/>
+          </div>
+          <div className="navbar-item">
+            <LogoutButton className="button is-primary"/>
+          </div>
         </div>
       </nav>
   
