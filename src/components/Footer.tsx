@@ -14,17 +14,22 @@ export const Footer: React.FC<{}> = () => {
       return <p>{details}</p>;
     }
     return (
-      <div className="column is-4">
+      <div className="column is-2">
         <PersonSummary details={details} />
-      </div> );
+      </div>
+    );
   });
 
   return <footer className="footer">
-    <div className="container">
-      <div className="content has-text-centered">
+    <div className="container is-centered">
+      <div className="content">
         <p className="has-text-centered"><strong>Inrupt Apps Team</strong></p>
-        <div className="panel-block">{cards}</div>
-      </div>
+        
+        <div className="panel-block">
+          {cards}
+          </div>
+        </div>
+      
     </div>
   </footer>;
 }

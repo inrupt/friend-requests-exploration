@@ -92,26 +92,6 @@ export async function addToFriendsGroup(webId: string) {
   await friendsGroupDoc.save();
 }
 
-export async function addToFriendsRequestGroup(webId: string) {
-  const currentSession = await SolidAuth.currentSession();
-  if (!currentSession) {
-    throw new Error('not logged in!');
-  }
-  const friendsGroupRef = await getFriendsGroupRef(currentSession.webId, true);
-  if (!friendsGroupRef) {
-    throw new Error('could not find my friends list');
-  }
-  const friendsGroupDoc = await getDocument(friendsGroupRef);
-  if (!friendsGroupDoc) {
-    throw new Error('could not access my friends list document');
-  }
-  const friendListSub = friendsGroupDoc.getSubject(friendsGroupRef);
-  if (!friendListSub) {
-    throw new Error('could not access my friends list group');
-  }
-  friendListSub.addRef(vcard.hasMember, webId);
-  await friendsGroupDoc.save();
-}
 export async function sendFriendRequest(recipient: string) {
     console.log("sendFriendRequest " + recipient);
   return sendActionNotification(recipient, 'Follow');
@@ -119,7 +99,7 @@ export async function sendFriendRequest(recipient: string) {
 
 export async function initiateFriendship(recipient: string) {
   console.log("initiate Friendship " + recipient);
-  await addToFriendsRequestGroup(recipient);
+  await addToFriendsGroup(recipient);
   return sendActionNotification(recipient, 'Follow');
 }
 

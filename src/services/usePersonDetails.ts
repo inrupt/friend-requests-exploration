@@ -58,20 +58,6 @@ export async function getFriendsGroupRef(webId: string | null, createIfMissing: 
   return ret;
 }
 
-export async function getFriendsRequestGroupRef(webId: string | null, createIfMissing: boolean): Promise<string | null> {
-  if (webId === null) {
-    console.log('no webId!');
-    return null;
-  }
-  console.log('getting friendsgroup ref', webId);
-  let ret = await determineUriRef(webId, as.following);
-  console.log("webid and ret " + webId + " " + ret);
-  if (createIfMissing && !ret) {
-    ret = await createFriendsGroup(webId);
-  }
-  console.log('returning!', ret);
-  return ret;
-}
 
 async function getFollowsCollection(webId: string, createIfMissing = false): Promise<string[] | null> {
   try {

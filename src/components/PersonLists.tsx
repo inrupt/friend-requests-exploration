@@ -58,7 +58,7 @@ export const TypeList: React.FC<{ list: { [webId: string]: PersonDetails }, head
       <p className="panel-heading">
         {header} ({Object.keys(list).length})
       </p>
-      <div className="panel-block">
+      <div>
         {Object.keys(list).map((webId: string) => getPersonCard(list[webId]))}
       </div>
     </div>
