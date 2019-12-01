@@ -14,7 +14,7 @@ export const Footer: React.FC<{}> = () => {
       return <p>{details}</p>;
     }
     return (
-      <div className="column is-2">
+      <div className="column is-4">
         <PersonSummary details={details} />
       </div>
     );
