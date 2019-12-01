@@ -22,19 +22,19 @@ export const PersonSummary: React.FC<PersonProps> = (props) => {
   </>;
 
   return <>
-    <div className="media">
-      {photo}
-      <div className="media-content">
+    <Link
+      to={`/profile/${encodeURIComponent(details.webId)}`}
+      title="View this person's friends"
+    >
+      <div className="media">
+        {photo}
+        <div className="media-content">
           <div className="media-left">
-            <Link
-              to={`/profile/${encodeURIComponent(details.webId)}`}
-              title="View this person's friends"
-            >
-              {details.fullName}
-            </Link>
+            {details.fullName}
           </div>
+        </div>
       </div>
-    </div>
+    </Link>
   </>;
 }
 
