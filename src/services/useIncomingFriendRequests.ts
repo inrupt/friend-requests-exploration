@@ -5,6 +5,7 @@ import { ldp, schema } from "rdf-namespaces";
 import React from "react";
 import { determineInboxesToUse } from "./sendActionNotification";
 import SolidAuth from 'solid-auth-client';
+import { getMyWebId } from "./getMyWebId";
 
 export type IncomingFriendRequest = {
   webId: string,
@@ -50,6 +51,19 @@ export function useIncomingFriendRequests(): IncomingFriendRequest[] | null {
     });
   }
   return incomingFriendRequests;
+}
+
+export async function removeAllInboxItems (webId: string) {
+  const myWebId = await getMyWebId();
+  if (!myWebId) {
+    return;
+  }
+  const items = await getIncomingFriendRequests(myWebId);
+  await Promise.all(items.map(item => {
+    if (item.webId === webId) {
+      return removeRemoteDoc(item.inboxItem);
+    }
+  }));
 }
 
 export async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {

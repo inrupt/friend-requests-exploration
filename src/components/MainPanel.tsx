@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import SolidAuth, { Session } from 'solid-auth-client';
 import { useWebId } from '@solid/react';
 import { initiateFriendship, sendConfirmation } from '../services/sendActionNotification';
 import { PersonDetails, usePersonDetails, getFriendsGroupRef } from '../services/usePersonDetails';
 import { getDocument } from '../services/DocumentCache';
 import { vcard } from 'rdf-namespaces';
+import { removeAllInboxItems } from '../services/useIncomingFriendRequests';
+import { getMyWebId } from '../services/getMyWebId';
 
 interface Props {
   webId?: string;
@@ -28,20 +29,20 @@ export const MainPanel: React.FC<Props> = () => {
 const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
   async function onAccept(event: React.FormEvent) {
     event.preventDefault();
-    const session: Session | undefined = await SolidAuth.currentSession();
-    if (session === undefined) {
+    const myWebId = await getMyWebId();
+    if (!myWebId) {
       window.alert('not logged in!');
       return;
     }
-    const friendsGroupRef = await getFriendsGroupRef(session.webId, true);
+
+    const friendsGroupRef = await getFriendsGroupRef(myWebId, true);
     if (friendsGroupRef) {
       const friendsDoc = await getDocument(friendsGroupRef);
       const friendsSub = friendsDoc.getSubject(friendsGroupRef);
       friendsSub.addRef(vcard.hasMember, props.details.webId);
       await friendsDoc.save();
       await sendConfirmation(props.details.webId);
-      // FIXME: should really have link to inboxItem available here
-      // await removeRemoteDoc(request.inboxItem);
+      await removeAllInboxItems(props.details.webId);
       window.alert('friend added');
     } else {
       window.alert('friends list not found and creating failed!');
@@ -50,8 +51,7 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
 
   async function onReject(event: React.FormEvent) {
     event.preventDefault();
-    // FIXME: should really have link to inboxItem available here
-    // await removeRemoteDoc(details.inboxItem);
+    await removeAllInboxItems(props.details.webId);
     window.alert('friend request rejected');
   }
   async function onSend(event: React.FormEvent) {
@@ -59,6 +59,7 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
     event.preventDefault();
     await initiateFriendship(props.details.webId);
     window.alert('friend request sent');
+    window.location.href = '/';
   }
 
   if (props.details.personType) {

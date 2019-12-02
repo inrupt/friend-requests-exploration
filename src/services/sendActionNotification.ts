@@ -2,6 +2,7 @@ import SolidAuth from 'solid-auth-client';
 import { ldp, vcard } from 'rdf-namespaces';
 import { getUriSub, getFriendsGroupRef } from './usePersonDetails';
 import { getDocument } from './DocumentCache';
+import { getMyWebId } from './getMyWebId';
 
 export async function determineUriRef(uri: string, ref: string, doc?: string): Promise<string | null> {
   const uriSub = await getUriSub(uri, doc);
@@ -44,8 +45,8 @@ export async function determineInboxesToUse(recipient: string): Promise<string[]
 }
 
 export async function sendActionNotification(recipient: string, activityType: string) {
-  const currentSession = await SolidAuth.currentSession();
-  if (!currentSession) {
+  const myWebId = getMyWebId()
+  if (!myWebId) {
     throw new Error('not logged in!');
   }
   const inboxUrls = await determineInboxesToUse(recipient);
@@ -59,7 +60,7 @@ export async function sendActionNotification(recipient: string, activityType: st
     body: `@prefix as: <https://www.w3.org/ns/activitystreams#> .
 @prefix schema: <http://schema.org/> .
 <> a as:${activityType} ;
-  schema:agent <${currentSession.webId}> .`,
+  schema:agent <${myWebId}> .`,
     headers: {
       'Content-Type': 'text/turtle'
     }
@@ -67,16 +68,16 @@ export async function sendActionNotification(recipient: string, activityType: st
 }
 
 //what this is doing is passing in the recipients webId, 
-//it then gets the currentSession and uses that webId 
+//it then gets the current webId 
 //to get where to add the data
 //it then adds it but to the recipient webId..
 //Have to check what else this function is used for..
 export async function addToFriendsGroup(webId: string) {
-  const currentSession = await SolidAuth.currentSession();
-  if (!currentSession) {
+  const myWebId = await getMyWebId();
+  if (!myWebId) {
     throw new Error('not logged in!');
   }
-  const friendsGroupRef = await getFriendsGroupRef(currentSession.webId, true);
+  const friendsGroupRef = await getFriendsGroupRef(myWebId, true);
   if (!friendsGroupRef) {
     throw new Error('could not find my friends list');
   }
