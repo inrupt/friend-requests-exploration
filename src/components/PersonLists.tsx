@@ -21,7 +21,7 @@ export const PersonSummary: React.FC<PersonProps> = (props) => {
     </div>
   </>;
 
-  return <>
+  return <a href={`/profile/${encodeURIComponent(details.webId)}`}>
     <Link
       to={`/profile/${encodeURIComponent(details.webId)}`}
       title="View this person's friends"
@@ -35,7 +35,7 @@ export const PersonSummary: React.FC<PersonProps> = (props) => {
         </div>
       </div>
     </Link>
-  </>;
+  </a>;
 }
 
 function getPersonCard(personDetails: PersonDetails): React.ReactElement {
@@ -74,7 +74,7 @@ export const DiscoverableLists: React.FC<{}> = () => {
       <TypeList header="Inbox" list={lists[PersonType.requester]} />
     </nav>
     <nav className="panel">
-      <TypeList header="Outbox" list={lists[PersonType.requested]} />
+      <TypeList header="Sent" list={lists[PersonType.requested]} />
     </nav>
     <nav className="panel">
       <TypeList header="Friends" list={lists[PersonType.friend]} />
