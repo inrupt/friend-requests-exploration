@@ -45,7 +45,7 @@ export async function determineInboxesToUse(recipient: string): Promise<string[]
 }
 
 export async function sendActionNotification(recipient: string, activityType: string) {
-  const myWebId = getMyWebId()
+  const myWebId = await getMyWebId();
   if (!myWebId) {
     throw new Error('not logged in!');
   }

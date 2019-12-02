@@ -65,38 +65,42 @@ export async function removeAllInboxItems (webId: string) {
     }
   }));
 }
+export async function checkInbox (url: string) {
+  console.log('checking inbox', url);
+  const notificationDocs = await getContainerDocuments(url);
+  const filtered: IncomingFriendRequest[] = [];
+  await Promise.all(notificationDocs.map(async (doc: TripleDocument) => {
+    const inboxItem = doc.asRef();
+    // console.log({ inboxItem });
+    const webId = doc.getSubject(inboxItem).getRef(schema.agent);
+    // console.log('schema agent', webId, doc.getStatements());
+    if (webId) {
+      let isDuplicate = false;
+      await Promise.all(filtered.map(async (item: IncomingFriendRequest) => {
+        if (item.webId === webId) {
+          console.log('Duplicate found, removing');
+          isDuplicate = true;
+          await removeRemoteDoc(inboxItem);
+        } else {
+          console.log('no duplicate', item.webId, webId);
+        }
+      }));
+      if (!isDuplicate) {
+        filtered.push({
+          webId,
+          inboxItem
+        });
+      }
+    }
+  }));
+  return filtered;
+}
 
 export async function getIncomingFriendRequests(webId: string): Promise<IncomingFriendRequest[]> {
   const myInboxUrls: string[] = await determineInboxesToUse(webId);
   let ret: IncomingFriendRequest[] = [];
-  await Promise.all(myInboxUrls.map(async (url: string) => {
-    console.log('checking inbox', url);
-    const notificationDocs = await getContainerDocuments(url);
-    const filtered: IncomingFriendRequest[] = [];
-    await Promise.all(notificationDocs.map(async (doc: TripleDocument) => {
-      const inboxItem = doc.asRef();
-      // console.log({ inboxItem });
-      const webId = doc.getSubject(inboxItem).getRef(schema.agent);
-      // console.log('schema agent', webId, doc.getStatements());
-      if (webId) {
-        let isDuplicate = false;
-        await Promise.all(filtered.map(async (item: IncomingFriendRequest) => {
-          if (item.webId === webId) {
-            console.log('Duplicate found, removing');
-            isDuplicate = true;
-            await removeRemoteDoc(inboxItem);
-          } else {
-            console.log('no duplicate', item.webId, webId);
-          }
-        }));
-        if (!isDuplicate) {
-          filtered.push({
-            webId,
-            inboxItem
-          });
-        }
-      }
-    }));
+  await Promise.all(myInboxUrls.map(async (inboxUrl: string) => {
+    const filtered = await checkInbox(inboxUrl);    
     ret = ret.concat(filtered);
   }));
   return ret;
