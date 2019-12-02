@@ -55,6 +55,7 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
     window.alert('friend request rejected');
   }
   async function onSend(event: React.FormEvent) {
+    console.log("in onSend ");
     event.preventDefault();
     await initiateFriendship(props.details.webId);
     window.alert('friend request sent');
@@ -95,33 +96,37 @@ const FriendsInCommon: React.FC<{ details: PersonDetails }> = (props) => {
   const webId = useWebId();
   const theirDetails = props.details;
   const myDetails = usePersonDetails(webId || null);
-  // console.log({ webId, theirDetails, myDetails });
-  if (theirDetails && myDetails) {
-    if (theirDetails.follows === null || myDetails.follows === null) {
-      return <>(could not display friends in common)</>;
+  console.log("Friends in Common " +  webId + " " + JSON.stringify(theirDetails) + " " + JSON.stringify(myDetails) );
+  if (webId === theirDetails.webId) { 
+    return <></>;
+  } else { 
+    if (theirDetails && myDetails) {
+      if (theirDetails.follows === null || myDetails.follows === null) {
+        return <>(could not display friends in common)</>;
+      }
+      // help TypeScript to realize this is now non-null:
+      const myFriends: string[] = myDetails.follows;
+      const friendsInCommon: string[] = theirDetails.follows.filter(item => myFriends.indexOf(item) !== -1);
+      const listElements = friendsInCommon.map(webId => {
+        return <li key={webId}>
+          <Link to={`/profile/${encodeURIComponent(webId)}`}>
+            {webId}
+          </Link>
+        </li>;
+      });
+
+      return ( 
+        <div className="media">
+         <div className="media-left">
+         <p><strong>You both follow: </strong> </p>
+
+         <div className="media-content">{listElements}</div>
+         </div>
+        </div>
+        );
     }
-    // help TypeScript to realize this is now non-null:
-    const myFriends: string[] = myDetails.follows;
-    const friendsInCommon: string[] = theirDetails.follows.filter(item => myFriends.indexOf(item) !== -1);
-    const listElements = friendsInCommon.map(webId => {
-      return <li key={webId}>
-        <Link to={`/profile/${encodeURIComponent(webId)}`}>
-          {webId}
-        </Link>
-      </li>;
-    });
-
-    return ( 
-      <div className="media">
-       <div className="media-left">
-       <p><strong>Friends in common: </strong> </p>
-
-       <div className="media-content">{listElements}</div>
-       </div>
-      </div>
-      );
+    return <>(You follow different people)</>;
   }
-  return <>(no friends in common)</>;
 }
 
 const FullPersonView: React.FC<{ details: PersonDetails}> = ({ details }) => {
