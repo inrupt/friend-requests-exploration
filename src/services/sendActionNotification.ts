@@ -54,7 +54,7 @@ export async function sendActionNotification(recipient: string, activityType: st
     throw new Error('This person does not accept friend requests.');
   }
 
-    // TODO: Check if createDocument can do this with a URL we set manually:
+  // TODO: Check if createDocument can do this with a URL we set manually:
   return SolidAuth.fetch(inboxUrls[0], {
     method: 'POST',
     body: `@prefix as: <https://www.w3.org/ns/activitystreams#> .
