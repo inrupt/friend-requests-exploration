@@ -44,6 +44,8 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
       await sendConfirmation(props.details.webId);
       await removeAllInboxItems(props.details.webId);
       window.alert('friend added');
+      // FIXME: do this the React way:
+      window.location.href = '/';
     } else {
       window.alert('friends list not found and creating failed!');
     }  
@@ -53,12 +55,15 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
     event.preventDefault();
     await removeAllInboxItems(props.details.webId);
     window.alert('friend request rejected');
+    // FIXME: do this the React way:
+    window.location.href = '/';
   }
   async function onSend(event: React.FormEvent) {
     console.log("in onSend ");
     event.preventDefault();
     await initiateFriendship(props.details.webId);
     window.alert('friend request sent');
+    // FIXME: do this the React way:
     window.location.href = '/';
   }
 
