@@ -5,8 +5,9 @@ import { initiateFriendship, sendConfirmation } from '../services/sendActionNoti
 import { PersonDetails, usePersonDetails, getFriendsGroupRef } from '../services/usePersonDetails';
 import { getDocument } from '../services/DocumentCache';
 import { vcard } from 'rdf-namespaces';
-import { removeAllInboxItems } from '../services/useIncomingFriendRequests';
+import { removeAllInboxItems} from '../services/useIncomingFriendRequests';
 import { getMyWebId } from '../services/getMyWebId';
+import { unFriend } from '../services/unFriend';
 
 interface Props {
   webId?: string;
@@ -26,6 +27,12 @@ export const MainPanel: React.FC<Props> = () => {
   </>;
 };
 
+function displayResult(text: string) {
+  window.alert(text);
+  // FIXME: do this the React way:
+  window.location.href = '';
+}
+
 const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
   async function onAccept(event: React.FormEvent) {
     event.preventDefault();
@@ -43,9 +50,7 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
       await friendsDoc.save();
       await sendConfirmation(props.details.webId);
       await removeAllInboxItems(props.details.webId);
-      window.alert('friend added');
-      // FIXME: do this the React way:
-      window.location.href = '/';
+      displayResult('friend added');
     } else {
       window.alert('friends list not found and creating failed!');
     }  
@@ -54,17 +59,13 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
   async function onReject(event: React.FormEvent) {
     event.preventDefault();
     await removeAllInboxItems(props.details.webId);
-    window.alert('friend request rejected');
-    // FIXME: do this the React way:
-    window.location.href = '/';
+    displayResult('friend request rejected');
   }
   async function onSend(event: React.FormEvent) {
     console.log("in onSend ");
     event.preventDefault();
     await initiateFriendship(props.details.webId);
-    window.alert('friend request sent');
-    // FIXME: do this the React way:
-    window.location.href = '/';
+    displayResult('friend request sent');
   }
 
   if (props.details.personType) {
@@ -81,12 +82,17 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
       </>;
       case 'friend': return <>
         <button type="submit" className='button is-danger' onClick={() => {
-          window.alert('to do: implement');
+          unFriend(props.details.webId).then(() => {
+            displayResult('Removed friend ' + props.details.webId);
+          }).catch((e: Error) => {
+            console.error(e);
+            displayResult('Failed to remove friend ' + props.details.webId);
+          });
         }}>Unfriend</button>
       </>;
       case 'blocked': return <>
         <button type="submit" className='button is-danger' onClick={() => {
-          window.alert('to do: implement');
+          displayResult('to do: implement');
         }}>Unblock</button>
       </>;
       case 'stranger': return <>
