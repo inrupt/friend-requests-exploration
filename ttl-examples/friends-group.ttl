@@ -1,0 +1,8 @@
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#>.
+@prefix ldp: <http://www.w3.org/ns/ldp#>.
+
+<#this> a n:Group;
+  n:fn "Solid Friends";
+  ldp:inbox </friend-requests-inbox/>;
+  n:hasMember <https://friend1.inrupt.net/profile/card#me>;
+  n:hasMember <https://friend2.inrupt.net/profile/card#me>.

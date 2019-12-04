@@ -2,7 +2,7 @@
 
 <#owner>
   a acl:Authorization;
-  accessTo: <./friends-list.ttl>;
+  accessTo: <./friends-group.ttl>;
   acl:agent <https://alice.com/profile/card#me>;
   acl:mode
     acl:Read,
@@ -12,14 +12,10 @@
 
 <#member>
   a acl:Authorization;
-  accessTo: <./friends-list.ttl>;
-  acl:agentGroup <./friends-list.ttl#friends>;
+  accessTo: <./friends-group.ttl>;
+  acl:agentGroup <./friends-group.ttl#friends>;
   acl:mode acl:Read;
   acl:origin
     <https://my-admin-app.com>,
     <https://your-admin-app.com>,
     <https://some-other-admin-app.com>.
-
-
-
-  

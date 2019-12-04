@@ -1,3 +1,3 @@
-@prefix schema: <http://schema.org/> .
+@prefix as: <https://www.w3.org/ns/activitystreams#> .
 <> a as:Follow ;
-   schema:agent <https://alice.com/profile/card#me> .
+  schema:agent <https://for-demo-testing.inrupt.net/profile/card#me> .
