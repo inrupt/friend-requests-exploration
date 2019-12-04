@@ -3,8 +3,8 @@ import { getDocument } from "./DocumentCache";
 import { vcard, foaf } from "rdf-namespaces";
 import { TripleSubject } from "tripledoc";
 import { determineUriRef } from "./sendActionNotification";
-import SolidAuth from 'solid-auth-client';
 import { createFriendsGroup } from "./createFriendsGroup";
+import { getMyWebId } from "./getMyWebId";
 
 const as = {
   following: 'https://www.w3.org/TR/activitypub/#following'
@@ -97,11 +97,7 @@ async function lists (webId1: string, webId2: string): Promise<boolean | null> {
 }
 
 async function getPersonType(theirWebId: string): Promise<PersonType | null> {
-  const currentSession = await SolidAuth.currentSession();
-  if (!currentSession) {
-    return null;
-  }
-  const myWebId = currentSession.webId;
+  const myWebId = await getMyWebId();
   if (!myWebId) {
     return null;
   }

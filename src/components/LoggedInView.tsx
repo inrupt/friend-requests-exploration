@@ -2,6 +2,8 @@ import React from 'react';
 import { useWebId, LogoutButton } from '@solid/react';
 import { Route } from 'react-router';
 import { usePersonDetails } from '../services/usePersonDetails';
+import { notifyMe, MessageFormatter } from '../services/desktopNotif';
+
 // main logged in view panels are:
 // top left:
 import { CurrentUser } from './CurrentUser';
@@ -13,6 +15,28 @@ import { DiscoverableLists } from './PersonLists';
 import { MainPanel } from './MainPanel';
 // footer:
 import { Footer } from './Footer';
+import { determineInboxesToUse } from '../services/sendActionNotification';
+import { checkInbox } from '../services/useIncomingFriendRequests';
+
+async function subscribeToInboxes(myWebId: string) {
+  const myInboxUrls: string[] = await determineInboxesToUse(myWebId);
+  myInboxUrls.map(async (inboxUrl: string) => {
+    notifyMe(inboxUrl, (async (url: string, isSub: boolean) => {
+      if (isSub) {
+        return `Subscribed to your Solid inbox, ${inboxUrl}`;
+      }
+      const filtered = await checkInbox(inboxUrl);
+      if (filtered.length === 1) {
+        return `New Friend Frequest, ${filtered[0].webId}`;
+      }
+      if (filtered.length > 1) {
+        return `New Friend Frequests including ${filtered[0].webId}`;
+      }
+      console.log('Unrecognized item in your Solid inbox', myWebId);
+      return 'Unrecognized item in your Solid inbox';
+    }) as MessageFormatter);
+  });
+}
 
 export const LoggedInView: React.FC<{}> = () => {
   const myWebId = useWebId();
@@ -22,6 +46,7 @@ export const LoggedInView: React.FC<{}> = () => {
   } else if (myPersonDetails === undefined) {
     return <>(could not fetch profile of logged-in user)</>;
   }
+  void subscribeToInboxes(myPersonDetails.webId);
 
   return (
     <>

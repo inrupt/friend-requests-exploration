@@ -1,0 +1,32 @@
+@prefix : <#>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+@prefix ldp: <http://www.w3.org/ns/ldp#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix schema: <http://schema.org/>.
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#>.
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+@prefix sp: <http://www.w3.org/ns/pim/space#>.
+@prefix as: <https://www.w3.org/TR/activitypub/#>.
+
+<> a foaf:PersonalProfileDocument;
+ foaf:maker :me;
+ foaf:primaryTopic :me.
+
+:me
+    a schema:Person, foaf:Person;
+    foaf:fn "B. Mai Frent";
+    schema:name "B. Mai Frent";
+    foaf:hasPhoto <Screenshot%202019-11-27%2016.17.39_1574869325000_.png>;
+    pim:preferencesFile </settings/prefs.ttl>;
+    solid:privateTypeIndex </settings/privateTypeIndex.ttl>;
+    solid:publicTypeIndex </settings/publicTypeIndex.ttl>;
+    pim:storage </>;
+    solid:account </>;
+    acl:trustedApp
+            [
+                n1:origin <http://localhost:3000>
+            ];
+    ldp:inbox </inbox/>;
+    as:following </friends-group.ttl#this>.
+
+</friends-group.ttl#this> ldp:inbox </friend-requests-inbox/>.

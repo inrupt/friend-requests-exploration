@@ -1,6 +1,5 @@
-@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
-
-<https://bob.com/social/friends-list.ttl>
-  vcard:hasMember <https://alice.com/profile/card#me> .
+@prefix as: <https://www.w3.org/ns/activitystreams#> .
+<> a as:Accept ;
+  schema:agent <https://for-demo-testing.inrupt.net/profile/card#me> .
 
 

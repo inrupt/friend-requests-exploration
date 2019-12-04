@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import SolidAuth, { Session } from 'solid-auth-client';
 import { useWebId } from '@solid/react';
 import { initiateFriendship, sendConfirmation } from '../services/sendActionNotification';
 import { PersonDetails, usePersonDetails, getFriendsGroupRef } from '../services/usePersonDetails';
 import { getDocument } from '../services/DocumentCache';
 import { vcard } from 'rdf-namespaces';
+import { removeAllInboxItems} from '../services/useIncomingFriendRequests';
+import { getMyWebId } from '../services/getMyWebId';
+import { unFriend } from '../services/unFriend';
 
 interface Props {
   webId?: string;
@@ -25,24 +27,30 @@ export const MainPanel: React.FC<Props> = () => {
   </>;
 };
 
+function displayResult(text: string) {
+  window.alert(text);
+  // FIXME: do this the React way:
+  window.location.href = '';
+}
+
 const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
   async function onAccept(event: React.FormEvent) {
     event.preventDefault();
-    const session: Session | undefined = await SolidAuth.currentSession();
-    if (session === undefined) {
+    const myWebId = await getMyWebId();
+    if (!myWebId) {
       window.alert('not logged in!');
       return;
     }
-    const friendsGroupRef = await getFriendsGroupRef(session.webId, true);
+
+    const friendsGroupRef = await getFriendsGroupRef(myWebId, true);
     if (friendsGroupRef) {
       const friendsDoc = await getDocument(friendsGroupRef);
       const friendsSub = friendsDoc.getSubject(friendsGroupRef);
       friendsSub.addRef(vcard.hasMember, props.details.webId);
       await friendsDoc.save();
       await sendConfirmation(props.details.webId);
-      // FIXME: should really have link to inboxItem available here
-      // await removeRemoteDoc(request.inboxItem);
-      window.alert('friend added');
+      await removeAllInboxItems(props.details.webId);
+      displayResult('friend added');
     } else {
       window.alert('friends list not found and creating failed!');
     }  
@@ -50,15 +58,14 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
 
   async function onReject(event: React.FormEvent) {
     event.preventDefault();
-    // FIXME: should really have link to inboxItem available here
-    // await removeRemoteDoc(details.inboxItem);
-    window.alert('friend request rejected');
+    await removeAllInboxItems(props.details.webId);
+    displayResult('friend request rejected');
   }
   async function onSend(event: React.FormEvent) {
     console.log("in onSend ");
     event.preventDefault();
     await initiateFriendship(props.details.webId);
-    window.alert('friend request sent');
+    displayResult('friend request sent');
   }
 
   if (props.details.personType) {
@@ -75,12 +82,17 @@ const PersonActions: React.FC<{ details: PersonDetails }> = (props) => {
       </>;
       case 'friend': return <>
         <button type="submit" className='button is-danger' onClick={() => {
-          window.alert('to do: implement');
+          unFriend(props.details.webId).then(() => {
+            displayResult('Removed friend ' + props.details.webId);
+          }).catch((e: Error) => {
+            console.error(e);
+            displayResult('Failed to remove friend ' + props.details.webId);
+          });
         }}>Unfriend</button>
       </>;
       case 'blocked': return <>
         <button type="submit" className='button is-danger' onClick={() => {
-          window.alert('to do: implement');
+          displayResult('to do: implement');
         }}>Unblock</button>
       </>;
       case 'stranger': return <>
