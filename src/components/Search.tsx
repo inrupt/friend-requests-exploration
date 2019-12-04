@@ -1,4 +1,7 @@
 import React from 'react';
+import { PersonDetails, PersonType } from '../services/usePersonDetails';
+import { usePersonTypeLists, PersonTypeLists } from '../services/usePersonTypeLists';
+
 
 interface Props {
   onSelect: (webId: string) => void;
