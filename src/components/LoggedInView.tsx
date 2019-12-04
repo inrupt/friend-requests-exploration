@@ -1,6 +1,6 @@
 import React from 'react';
-import { useWebId, LogoutButton } from "@solid/react";
-import { Route } from "react-router";
+import { useWebId, LogoutButton } from '@solid/react';
+import { Route } from 'react-router';
 import { usePersonDetails } from '../services/usePersonDetails';
 // main logged in view panels are:
 // top left:
@@ -23,37 +23,43 @@ export const LoggedInView: React.FC<{}> = () => {
     return <>(could not fetch profile of logged-in user)</>;
   }
 
-  return <>
-      <div className="container">
-      <nav className="navbar has-shadow">
-        <CurrentUser />
-        <div className="navbar-end">
-          <div className="navbar-item">
-            <Search onSelect={(webId: string) => {
-            window.location.href = `/profile/${encodeURIComponent(webId)}`;
-            }}/>
-          </div>
-          <div className="navbar-item">
-            <LogoutButton className="button is-primary"/>
-          </div>
-        </div>
-      </nav>
-  
-    <section className="main-content columns is-fullheight">
-      <aside className="column is-4 is-narrow-mobile is-fullheight section is-hidden-mobile">
-        <DiscoverableLists />
-      </aside>
-      <Route path="/profile/:webId">
-        <div className="container column is-8">
-          <div className="section">
-            <div className="card">
-              <MainPanel />
+  return (
+    <>
+      <div className='container'>
+        <nav className='navbar has-shadow'>
+          <CurrentUser />
+          <div className='navbar-end'>
+            <div className='navbar-item'>
+              <Search
+                onSelect={(webId: string) => {
+                  window.location.href = `/profile/${encodeURIComponent(
+                    webId
+                  )}`;
+                }}
+              />
+            </div>
+            <div className='navbar-item'>
+              <LogoutButton className='button is-primary' />
             </div>
           </div>
-        </div>
-      </Route>
-    </section>
-    <Footer />
-   </div>
-  </>;
-}
+        </nav>
+
+        <section className='main-content columns is-fullheight'>
+          <aside className='column is-4 is-narrow-mobile is-fullheight section is-hidden-mobile'>
+            <DiscoverableLists />
+          </aside>
+          <Route path='/profile/:webId'>
+            <div className='container column is-8'>
+              <div className='section'>
+                <div className='card'>
+                  <MainPanel />
+                </div>
+              </div>
+            </div>
+          </Route>
+        </section>
+        <Footer />
+      </div>
+    </>
+  );
+};
