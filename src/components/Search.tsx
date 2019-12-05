@@ -10,22 +10,23 @@ interface Props {
 }
 
 export const Search: React.FC<Props> = props => {
-  var [webId, setWebId] = React.useState('');
-  var search: string = '';
+  var [query, setQueryId] = React.useState('');
+  var webId = '';
+  var list = usePersonTypeLists();
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setWebId(event.target.value);
+    setQueryId(event.target.value);
   };
 
   const searchForName = (search: string) => {
-    webId = search;
-    return webId;
+    console.log(list);
+    return search;
   };
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    webId = searchForName(search);
+    webId = searchForName(query);
     props.onSelect(webId);
-    setWebId('');
+    setQueryId('');
   };
 
   return (
@@ -36,7 +37,7 @@ export const Search: React.FC<Props> = props => {
             <input
               className='input'
               onChange={onChange}
-              value={search}
+              value={query}
               type='url'
               name='search'
               id='search'
