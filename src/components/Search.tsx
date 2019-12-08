@@ -13,9 +13,11 @@ export const Search: React.FC<Props> = props => {
   var [query, setQueryId] = React.useState('');
   var webId = '';
   var list = usePersonTypeLists();
+  console.log(list);
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQueryId(event.target.value);
+    console.log(query);
   };
 
   const searchForName = (search: string) => {
