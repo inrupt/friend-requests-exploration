@@ -12,23 +12,31 @@ interface Props {
 }
 
 const createOptions = (people: PersonTypeLists) => {
-  var options: { value: string; label: string | null }[] = [];
+  //var options: { value: string; label: string | null }[] = [];
+  var options: string = '';
 
   Object.values(people).forEach(function(key, value) {
     var personArray = Object.values(key);
     personArray.forEach(function(value) {
-      options.push({ value: value.webId, label: value.fullName });
+      // options.push({ value: value.webId, label: value.fullName });
+      options +=
+        "<option value='" +
+        value.webId +
+        "' label='" +
+        value.fullName +
+        "'></option>";
     });
   });
-  console.log('Options: ' + JSON.stringify(options));
+  console.log('Options: ' + options);
   return options;
 };
 export const Search: React.FC<Props> = props => {
-  console.log('Search props ' + JSON.stringify(props));
   var [query, setQueryId] = React.useState('');
   var [selectedOption, setSelectedOption] = React.useState('');
+  var [options, setOptions] = React.useState('');
   var webId = '';
   var options = createOptions(usePersonTypeLists());
+  setOptions(options);
 
   const handleChange = (selectedOption: string) => {
     setSelectedOption(selectedOption);
@@ -48,19 +56,20 @@ export const Search: React.FC<Props> = props => {
     props.onSelect(webId);
     setQueryId('');
   };
-  /* <input
-            className='input'
-            onChange={onChange}
-            value={query}
-            name='search'
-            id='search'
-          /> */
+
   return (
     <>
       <form onSubmit={onSubmit}>
         <div className='field has-addons'>
-          <Select options={options} />
-
+          <input
+            className='input'
+            list='friendOptions'
+            onChange={onChange}
+            value={query}
+            name='search'
+            id='search'
+          />
+          <datalist id='friendOptions'>`${options}`</datalist>
           <div className='control'>
             <button type='submit' className='button is-primary'>
               Search
