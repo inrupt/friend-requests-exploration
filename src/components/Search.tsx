@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Select from 'react-select';
 import { PersonDetails, PersonType } from '../services/usePersonDetails';
 import {
@@ -36,7 +36,9 @@ export const Search: React.FC<Props> = props => {
   var [options, setOptions] = React.useState('');
   var webId = '';
   var options = createOptions(usePersonTypeLists());
-  setOptions(options);
+  useEffect(() => {
+    setOptions(options);
+  });
 
   const handleChange = (selectedOption: string) => {
     setSelectedOption(selectedOption);
