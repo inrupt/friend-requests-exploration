@@ -12,18 +12,19 @@ interface Props {
 }
 
 const createOptions = (people: PersonTypeLists) => {
-  var options: { webId: string; name: string | null }[] = [];
+  var options: { value: string; label: string | null }[] = [];
 
   Object.values(people).forEach(function(key, value) {
     var personArray = Object.values(key);
     personArray.forEach(function(value) {
-      options.push({ webId: value.webId, name: value.fullName });
+      options.push({ value: value.webId, label: value.fullName });
     });
   });
   console.log('Options: ' + JSON.stringify(options));
   return options;
 };
 export const Search: React.FC<Props> = props => {
+  console.log('Search props ' + JSON.stringify(props));
   var [query, setQueryId] = React.useState('');
   var [selectedOption, setSelectedOption] = React.useState('');
   var webId = '';
@@ -47,21 +48,19 @@ export const Search: React.FC<Props> = props => {
     props.onSelect(webId);
     setQueryId('');
   };
-
-  return (
-    <>
-      <form onSubmit={onSubmit}>
-        <div className='field has-addons'>
-          <input
+  /* <input
             className='input'
             onChange={onChange}
             value={query}
             name='search'
             id='search'
-          />
-          <datalist id='test'>
-            <option value='chocolate'></option>
-          </datalist>
+          /> */
+  return (
+    <>
+      <form onSubmit={onSubmit}>
+        <div className='field has-addons'>
+          <Select options={options} />
+
           <div className='control'>
             <button type='submit' className='button is-primary'>
               Search
