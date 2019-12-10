@@ -13,32 +13,25 @@ interface Props {
 
 const createOptions = (people: PersonTypeLists) => {
   //var options: { value: string; label: string | null }[] = [];
-  var options: string = '';
-
+  let allOptions: JSX.Element[] = [];
   Object.values(people).forEach(function(key, value) {
     var personArray = Object.values(key);
-    personArray.forEach(function(value) {
+
+    const options = personArray.map(function(value) {
       // options.push({ value: value.webId, label: value.fullName });
-      options +=
-        "<option value='" +
-        value.webId +
-        "' label='" +
-        value.fullName +
-        "'></option>";
+      return <option value={value.webId} label={value.fullName || ''}></option>;
     });
+    allOptions = allOptions.concat(options);
   });
-  console.log('Options: ' + options);
-  return options;
+
+  return allOptions;
 };
 export const Search: React.FC<Props> = props => {
   var [query, setQueryId] = React.useState('');
   var [selectedOption, setSelectedOption] = React.useState('');
-  var [options, setOptions] = React.useState('');
   var webId = '';
+
   var options = createOptions(usePersonTypeLists());
-  useEffect(() => {
-    setOptions(options);
-  });
 
   const handleChange = (selectedOption: string) => {
     setSelectedOption(selectedOption);
@@ -71,7 +64,7 @@ export const Search: React.FC<Props> = props => {
             name='search'
             id='search'
           />
-          <datalist id='friendOptions'>`${options}`</datalist>
+          <datalist id='friendOptions'>{options}</datalist>
           <div className='control'>
             <button type='submit' className='button is-primary'>
               Search
