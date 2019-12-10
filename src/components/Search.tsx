@@ -37,7 +37,7 @@ export const Search: React.FC<Props> = props => {
     setSelectedOption(selectedOption);
   };
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //setQueryId(event.target.value);
+    setQueryId(event.target.value);
     //change list according to what has been entered so far
   };
 
