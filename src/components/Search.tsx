@@ -17,7 +17,6 @@ const createOptions = (people: PersonTypeLists) => {
     var personArray = Object.values(key);
 
     const options = personArray.map(function(value) {
-      // options.push({ value: value.webId, label: value.fullName });
       return <option value={value.webId} label={value.fullName || ''}></option>;
     });
     allOptions = allOptions.concat(options);
