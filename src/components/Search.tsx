@@ -11,7 +11,6 @@ interface Props {
 }
 
 const createOptions = (people: PersonTypeLists) => {
-  //var options: { value: string; label: string | null }[] = [];
   let allOptions: JSX.Element[] = [];
   Object.values(people).forEach(function(key, value) {
     var personArray = Object.values(key);
