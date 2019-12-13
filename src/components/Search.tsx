@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import Select from 'react-select';
 import { PersonDetails, PersonType } from '../services/usePersonDetails';
 import {
   usePersonTypeLists,
