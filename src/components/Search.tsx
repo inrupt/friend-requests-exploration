@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { PersonDetails, PersonType } from '../services/usePersonDetails';
+import { PersonType } from '../services/usePersonDetails';
 import { getPersonTypeLists, PersonTypeLists } from 'solid-friend-picker';
-import { string } from 'prop-types';
 
 interface Props {
   onSelect: (webId: string) => void;
@@ -22,6 +21,7 @@ const createOptions = (people: PersonTypeLists) => {
 };
 export const Search: React.FC<Props> = props => {
   let [query, setQueryId] = React.useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let [list, setList] = React.useState({
     [PersonType.me]: {},
     [PersonType.requester]: {},
@@ -30,13 +30,13 @@ export const Search: React.FC<Props> = props => {
     [PersonType.blocked]: {},
     [PersonType.stranger]: {}
   });
-  let [selectedOption, setSelectedOption] = React.useState('');
+  let [selectedOption, setSelectedOption] = React.useState('');  // eslint-disable-line @typescript-eslint/no-unused-vars
   let webId = '';
   let [options, setOptions] = React.useState<JSX.Element[]>([]);
 
-  const handleChange = (selectedOption: string) => {
-    setSelectedOption(selectedOption);
-  };
+  // const handleChange = (selectedOption: string) => {
+  //   setSelectedOption(selectedOption);
+  // };
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQueryId(event.target.value);
     //change list according to what has been entered so far

@@ -1,5 +1,5 @@
 import { getMyWebId } from './getMyWebId';
-import { getFriendsGroupRef, getUriSub } from './usePersonDetails';
+import { getFriendsGroupRef } from './usePersonDetails';
 import { getDocument } from './DocumentCache';
 import { vcard } from 'rdf-namespaces';
 
