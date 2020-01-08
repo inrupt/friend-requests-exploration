@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react';
-import { PersonDetails, PersonType } from '../services/usePersonDetails';
-import {
-  usePersonTypeLists,
-  PersonTypeLists
-} from '../services/usePersonTypeLists';
-import { string } from 'prop-types';
+import { PersonType } from '../services/usePersonDetails';
+import { getPersonTypeLists, PersonTypeLists } from 'solid-friend-picker';
 
 interface Props {
   onSelect: (webId: string) => void;
@@ -13,7 +9,7 @@ interface Props {
 const createOptions = (people: PersonTypeLists) => {
   let allOptions: JSX.Element[] = [];
   Object.values(people).forEach(function(key, value) {
-    var personArray = Object.values(key);
+    let personArray = Object.values(key);
 
     const options = personArray.map(function(value) {
       return <option value={value.webId} label={value.fullName || ''}></option>;
@@ -24,20 +20,40 @@ const createOptions = (people: PersonTypeLists) => {
   return allOptions;
 };
 export const Search: React.FC<Props> = props => {
-  var [query, setQueryId] = React.useState('');
-  var [selectedOption, setSelectedOption] = React.useState('');
-  var webId = '';
+  let [query, setQueryId] = React.useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let [list, setList] = React.useState({
+    [PersonType.me]: {},
+    [PersonType.requester]: {},
+    [PersonType.requested]: {},
+    [PersonType.friend]: {},
+    [PersonType.blocked]: {},
+    [PersonType.stranger]: {}
+  });
+  let [selectedOption, setSelectedOption] = React.useState('');  // eslint-disable-line @typescript-eslint/no-unused-vars
+  let webId = '';
+  let [options, setOptions] = React.useState<JSX.Element[]>([]);
 
-  var options = createOptions(usePersonTypeLists());
-
-  const handleChange = (selectedOption: string) => {
-    setSelectedOption(selectedOption);
-  };
+  // const handleChange = (selectedOption: string) => {
+  //   setSelectedOption(selectedOption);
+  // };
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQueryId(event.target.value);
     //change list according to what has been entered so far
   };
 
+  useEffect(() => {
+    (async () => {
+      let generator = getPersonTypeLists();
+      console.log('Generator ' + JSON.stringify(generator));
+      //think I need to call generator.next()...
+      for await (let list of generator) {
+        console.log('Lists in react app' + JSON.stringify(list));
+        setList(list);
+        setOptions(createOptions(list));
+      }
+    })();
+  }, []);
   const searchForName = (search: string) => {
     return search;
   };

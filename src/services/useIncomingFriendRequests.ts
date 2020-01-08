@@ -63,6 +63,7 @@ export async function removeAllInboxItems (webId: string) {
     if (item.webId === webId) {
       return removeRemoteDoc(item.inboxItem);
     }
+    return undefined;
   }));
 }
 export async function checkInbox (url: string) {
