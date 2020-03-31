@@ -23,7 +23,7 @@ export const Footer: React.FC<{}> = () => {
   return <footer className="footer">
     <div className="container is-centered">
       <div className="content">
-        <p className="has-text-centered"><strong>Inrupt Apps Team</strong></p>
+        <p className="has-text-centered"><strong>Explorers</strong></p>
         
         <div className="panel-block">
           {cards}
