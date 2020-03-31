@@ -3,13 +3,13 @@ import { usePersonDetails, PersonDetails } from '../services/usePersonDetails';
 import { PersonSummary } from './PersonLists';
 
 export const Footer: React.FC<{}> = () => {
-  const INRUPT_APPS_TEAM = [
+  const EXPLORERS = [
     usePersonDetails('https://sharonstrats.inrupt.net/profile/card#me') || 'https://sharonstrats.inrupt.net/profile/card#me',
     usePersonDetails('https://vincentt.inrupt.net/profile/card#me') || 'https://vincentt.inrupt.net/profile/card#me',
     usePersonDetails('https://michielbdejong.inrupt.net/profile/card#me') || 'https://michielbdejong.inrupt.net/profile/card#me'
   ];
   
-  const cards = INRUPT_APPS_TEAM.map((details: PersonDetails | string) => {
+  const cards = EXPLORERS.map((details: PersonDetails | string) => {
     if (typeof details === 'string') {
       return <p>{details}</p>;
     }
