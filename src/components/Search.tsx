@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { PersonType } from '../services/usePersonDetails';
-import { getPersonTypeLists, PersonTypeLists } from 'solid-friend-picker';
+import { getPersonTypeLists, PersonTypeLists } from 'solid-user-search';
 
 interface Props {
   onSelect: (webId: string) => void;
