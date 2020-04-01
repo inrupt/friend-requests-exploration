@@ -69,6 +69,7 @@ export async function removeAllInboxItems (webId: string) {
 export async function checkInbox (url: string) {
   console.log('checking inbox', url);
   const notificationDocs = await getContainerDocuments(url);
+  console.log('container notification documents', notificationDocs)
   const filtered: IncomingFriendRequest[] = [];
   await Promise.all(notificationDocs.map(async (doc: TripleDocument) => {
     const inboxItem = doc.asRef();

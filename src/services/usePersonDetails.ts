@@ -52,6 +52,7 @@ export async function getFriendsGroupRef(webId: string | null, createIfMissing: 
   let ret = await determineUriRef(webId, as.following);
   console.log("webid and ret " + webId + " " + ret);
   if (createIfMissing && !ret) {
+    console.log('creating friends group');
     ret = await createFriendsGroup(webId);
   }
   console.log('returning!', ret);

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { PersonType } from '../services/usePersonDetails';
-import { getPersonTypeLists, PersonTypeLists } from 'solid-friend-picker';
+import { fetchPersonTypeLists, PersonTypeLists } from 'solid-user-search';
 
 interface Props {
   onSelect: (webId: string) => void;
@@ -44,7 +44,7 @@ export const Search: React.FC<Props> = props => {
 
   useEffect(() => {
     (async () => {
-      let generator = getPersonTypeLists();
+      let generator = fetchPersonTypeLists();
       console.log('Generator ' + JSON.stringify(generator));
       //think I need to call generator.next()...
       for await (let list of generator) {

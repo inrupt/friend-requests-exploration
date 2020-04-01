@@ -85,7 +85,7 @@ export async function createFriendsGroupAclDoc(webId: string, friendsGroupUri: s
 }
 
 export async function createInbox(podRoot: string, webId: string) {
-  const inboxUrl = new URL('/friend-requests-inbox/', podRoot).toString();
+  const inboxUrl = new URL('friend-requests-inbox/', podRoot).toString();
   await ensureContainer(inboxUrl);
   await createAclDoc(webId, inboxUrl, acl.Append, acl.agentClass, foaf.Agent);
   return inboxUrl;
