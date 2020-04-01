@@ -10,7 +10,7 @@ export async function determineUriRef(uri: string, ref: string, doc?: string): P
     return null;
   }
   const ret = uriSub.getRef(ref);
-  // console.log('determined uri ref', uri, ref, ret);
+  console.log('determined uri ref', uri, ref, ret);
   return ret;
 }
 export async function determineUriInbox(uri: string, doc?: string): Promise<string | null> {
@@ -78,6 +78,7 @@ export async function addToFriendsGroup(webId: string) {
     throw new Error('not logged in!');
   }
   const friendsGroupRef = await getFriendsGroupRef(myWebId, true);
+  console.log('got friendsGroupRef', friendsGroupRef);
   if (!friendsGroupRef) {
     throw new Error('could not find my friends list');
   }

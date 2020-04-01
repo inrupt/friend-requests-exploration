@@ -3,6 +3,6 @@
 
 <#this> a n:Group;
   n:fn "Solid Friends";
-  ldp:inbox </friend-requests-inbox/>;
+  ldp:inbox <./friend-requests-inbox/>;
   n:hasMember <https://friend1.inrupt.net/profile/card#me>;
   n:hasMember <https://friend2.inrupt.net/profile/card#me>.

@@ -47,7 +47,9 @@ async function linkFromProfile(webId: string, friendsGroupUri: string, inboxUrl:
 // avoid running this multiple times in parallel:
 const promises: { [webId: string]: Promise<string>} = {};
 export async function createFriendsGroup(webId: string) {
+  console.log('maybe creating friends group', webId, Object.keys(promises));
   if (!promises[webId]) {
+    console.log('not creating friends group already, so let\'s do it', webId);
     promises[webId] = doCreateFriendsGroup(webId);
   }
   return promises[webId];
@@ -60,6 +62,7 @@ async function doCreateFriendsGroup(webId: string) {
   if (!podRoot) {
     throw new Error('no podRoot!');
   }
+  console.log('creating inbox in pod root', podRoot, webId);
   const inboxUrl: string = await createInbox(podRoot, webId);
   console.log('inbox created');
   const body = `<#this> a <http://www.w3.org/2006/vcard/ns#Group> .\n` +
