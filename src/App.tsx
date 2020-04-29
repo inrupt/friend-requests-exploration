@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { LoggedOut, LoginButton, LoggedIn } from '@solid/react';
 import { LoggedInView } from './components/LoggedInView';
+import { PrismTest } from './components/PrismTest';
 
 const App: React.FC = () => {
   return <>
@@ -13,6 +14,7 @@ const App: React.FC = () => {
             <p className="subtitle">This app requires you to log in.
             Unless launched from the <a href="https://launcher-exploration.inrupt.app/">Launcher app</a>,
             it requires pod-wide <strong>Control</strong> access.</p>
+            <PrismTest text ="Testing prism ..."></PrismTest>
             <LoginButton popup="/popup.html" className="button is-large is-primary">Log in to start using this app</LoginButton>
           </section>
         </LoggedOut>
