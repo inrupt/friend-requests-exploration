@@ -22,10 +22,7 @@ export async function ensureContainer(url: string) {
   const scoutUrl: string = new URL('delete-me', url).toString();
   await SolidAuth.fetch(scoutUrl, {
     method: 'PUT',
-    body: 'delete me',
-    headers: {
-      'If-None-Match': '*'
-    }
+    body: 'delete me'
   });
   await SolidAuth.fetch(scoutUrl, {
     method: 'DELETE',
