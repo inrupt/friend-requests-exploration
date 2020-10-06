@@ -11,7 +11,7 @@
     "@types/react-router-dom": "^5.1.0",
     "@types/solid-auth-client": "^2.4.0",
     "@types/solid__react": "^1.6.1",
-    "bulma": "^0.7.5",
+    "bulma": "^0.9.0",
     "jsonld": "^1.8.1",
     "node-sass": "^4.13.1",
     "rdf-namespaces": "^1.8.0",
