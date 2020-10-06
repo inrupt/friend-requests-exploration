@@ -24,7 +24,7 @@
     "styled-components": "^4.4.0",
     "tripledoc": "^3.0.1",
     "tripledoc-solid-helpers": "^0.1.2",
-    "typescript": "^3.8.3"
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "start": "react-scripts start",
