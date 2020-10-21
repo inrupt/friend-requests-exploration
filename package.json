@@ -18,7 +18,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^3.4.4",
     "solid-auth-client": "^2.3.1",
     "solid-user-search": "^1.0.3",
     "styled-components": "^4.4.0",
