@@ -13,7 +13,7 @@
     "@types/solid__react": "^1.6.1",
     "bulma": "^0.7.5",
     "jsonld": "^1.8.1",
-    "node-sass": "^4.13.1",
+    "node-sass": "^4.14.1",
     "rdf-namespaces": "^1.8.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
